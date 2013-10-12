@@ -7,11 +7,13 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.widget.DrawerLayout;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ListView;
 
 import java.util.ArrayList;
@@ -25,43 +27,71 @@ public class MainActivity extends Activity {
     private ActionBarDrawerToggle drawerToggle;
     private CharSequence mDrawerTitle;
     private CharSequence mTitle;
+    private ListView messagesList;
+    private EditText messageInput;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mTitle = mDrawerTitle = getTitle();
+        messagesList = (ListView) findViewById(R.id.messagesList);
+        messageInput = (EditText) findViewById(R.id.messageInput);
 
         drawerRightValues = new ArrayList<String>();
         for (int i = 0; i < 50; i++) {
             drawerRightValues.add("SomeName" + i);
         }
+
+        messagesList.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, drawerRightValues));
+
+        mTitle = mDrawerTitle = getTitle();
+
+
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawerToggle = new ActionBarDrawerToggle(this, drawerLayout,
                 R.drawable.ic_drawer, R.string.drawer_open, R.string.drawer_close) {
+            @Override
+            public boolean onOptionsItemSelected(MenuItem item) {
+                if (item != null && item.getItemId() == android.R.id.home && drawerToggle.isDrawerIndicatorEnabled()) {
+                    if (drawerLayout.isDrawerVisible(Gravity.LEFT)) {
+                        drawerLayout.closeDrawer(Gravity.LEFT);
+                    } else if (drawerLayout.isDrawerVisible(Gravity.RIGHT)) {
+                        drawerLayout.closeDrawer(Gravity.RIGHT);
+                        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+                        drawerLayout.openDrawer(Gravity.LEFT);
+                    } else {
+                        drawerLayout.openDrawer(Gravity.LEFT);
+                    }
+                }
+                return true;
+            }
 
             /** Called when a drawer has settled in a completely closed state. */
+
             public void onDrawerClosed(View view) {
+//                drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
                 drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
                 getActionBar().setTitle(R.string.app_name);
                 invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
             }
 
-            /** Called when a drawer has settled in a completely open state. */
+            /**
+             * Called when a drawer has settled in a completely open state.
+             */
             public void onDrawerOpened(View drawerView) {
-                if (drawerLayout.isDrawerOpen(drawerRightList)) {
-                    drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, drawerLeftList);
+                if (drawerLayout.isDrawerOpen(Gravity.RIGHT)) {
+                    drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, Gravity.LEFT);
                     getActionBar().setTitle("Status");
                 }
-                if (drawerLayout.isDrawerOpen(drawerLeftList)) {
-                    drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, drawerRightList);
+                if (drawerLayout.isDrawerOpen(Gravity.LEFT)) {
+                    drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, Gravity.RIGHT);
                     getActionBar().setTitle("Navigation");
                 }
                 invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
             }
         };
-        // Set the drawer toggle as the DrawerListener
+// Set the drawer toggle as the DrawerListener
         drawerLayout.setDrawerListener(drawerToggle);
 
         // enable ActionBar app icon to behave as action to toggle nav drawer
@@ -69,20 +99,29 @@ public class MainActivity extends Activity {
         getActionBar().setHomeButtonEnabled(true);
 
         drawerRightList = (ListView) findViewById(R.id.right_drawer);
-        drawerLeftList = (ListView) findViewById(R.id.left_drawer);
 
         // Set the adapter for the list view
         drawerRightList.setAdapter(new ArrayAdapter<String>(this,
                 R.layout.drawer_list_item, drawerRightValues));
         // Set the list's click listener
         drawerRightList.setOnItemClickListener(new DrawerItemClickListener());
+
+        drawerLeftList = (ListView) findViewById(R.id.left_drawer);
+        drawerLeftList.setAdapter(new ArrayAdapter<String>(this,
+                R.layout.drawer_list_item, drawerRightValues));
+        // Set the list's click listener
+        drawerLeftList.setOnItemClickListener(new DrawerItemClickListener());
+
+        if (savedInstanceState == null) {
+            selectItem(0);
+        }
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
-        return true;
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
@@ -102,6 +141,7 @@ public class MainActivity extends Activity {
     public boolean onOptionsItemSelected(MenuItem item) {
         // Pass the event to ActionBarDrawerToggle, if it returns
         // true, then it has handled the app icon touch event
+
         if (drawerToggle.onOptionsItemSelected(item)) {
             return true;
         }
