@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="planets_array">
+        <item>Ich</item>
+        <item>Du</item>
+        <item>Er</item>
+        <item>Sie</item>
+        <item>Sie</item>
+        <item>Sie</item>
+        <item>Sie</item>
+        <item>Sie</item>
+        <item>Sie</item>
+        <item>Sie</item>
+        <item>Sie</item>
+        <item>Sie</item>
+        <item>Sie</item>
+        <item>Sie</item>
+        <item>Sie</item>
+        <item>Sie</item>
+        <item>Sie</item>
+        <item>Sie</item>
+        <item>Sie</item>
+        <item>Sie</item>
+        <item>Sie</item>
+        <item>Sie</item>
+        <item>Sie</item>
+        <item>Sie</item>
+        <item>Sie</item>
+        <item>Sie</item>
+        <item>Sie</item>
+        <item>Sie</item>
+        <item>Sie</item>
+        <item>Sie</item>
+
+
+    </string-array>
+</resources>
