@@ -24,6 +24,7 @@ public class MainActivity extends Activity {
     private ListView drawerRightList;
     private ListView drawerLeftList;
     private List<String> drawerRightValues;
+    private List<String> drawerLeftValues;
     private ActionBarDrawerToggle drawerToggle;
     private CharSequence mDrawerTitle;
     private CharSequence mTitle;
@@ -42,11 +43,14 @@ public class MainActivity extends Activity {
         for (int i = 0; i < 50; i++) {
             drawerRightValues.add("SomeName" + i);
         }
+        drawerLeftValues = new ArrayList<String>();
+        for (int i = 0; i < 10; i++) {
+            drawerLeftValues.add("NavigationItem" + i);
+        }
 
         messagesList.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, drawerRightValues));
 
         mTitle = mDrawerTitle = getTitle();
-
 
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawerToggle = new ActionBarDrawerToggle(this, drawerLayout,
@@ -58,7 +62,6 @@ public class MainActivity extends Activity {
                         drawerLayout.closeDrawer(Gravity.LEFT);
                     } else if (drawerLayout.isDrawerVisible(Gravity.RIGHT)) {
                         drawerLayout.closeDrawer(Gravity.RIGHT);
-                        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
                         drawerLayout.openDrawer(Gravity.LEFT);
                     } else {
                         drawerLayout.openDrawer(Gravity.LEFT);
@@ -70,8 +73,6 @@ public class MainActivity extends Activity {
             /** Called when a drawer has settled in a completely closed state. */
 
             public void onDrawerClosed(View view) {
-//                drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
-                drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
                 getActionBar().setTitle(R.string.app_name);
                 invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
             }
@@ -81,11 +82,9 @@ public class MainActivity extends Activity {
              */
             public void onDrawerOpened(View drawerView) {
                 if (drawerLayout.isDrawerOpen(Gravity.RIGHT)) {
-                    drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, Gravity.LEFT);
                     getActionBar().setTitle("Status");
                 }
                 if (drawerLayout.isDrawerOpen(Gravity.LEFT)) {
-                    drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, Gravity.RIGHT);
                     getActionBar().setTitle("Navigation");
                 }
                 invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
@@ -108,7 +107,7 @@ public class MainActivity extends Activity {
 
         drawerLeftList = (ListView) findViewById(R.id.left_drawer);
         drawerLeftList.setAdapter(new ArrayAdapter<String>(this,
-                R.layout.drawer_list_item, drawerRightValues));
+                R.layout.drawer_list_item, drawerLeftValues));
         // Set the list's click listener
         drawerLeftList.setOnItemClickListener(new DrawerItemClickListener());
 
