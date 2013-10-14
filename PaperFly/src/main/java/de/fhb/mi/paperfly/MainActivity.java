@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.res.Configuration;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.widget.DrawerLayout;
@@ -62,10 +61,8 @@ public class MainActivity extends Activity {
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (s.length() > 0) {
                     buSend.setAlpha(1.0f);
-                    buSend.clearColorFilter();
                     buSend.setClickable(true);
                 } else {
-                    buSend.setColorFilter(Color.BLACK);
                     buSend.setAlpha(0.5f);
                     buSend.setClickable(false);
                 }
@@ -77,7 +74,6 @@ public class MainActivity extends Activity {
         });
 
         // make button not clickable
-        buSend.setColorFilter(Color.BLACK);
         buSend.setAlpha(0.5f);
         buSend.setOnClickListener(new View.OnClickListener() {
             @Override
