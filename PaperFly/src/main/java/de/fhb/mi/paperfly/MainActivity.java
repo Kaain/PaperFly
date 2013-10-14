@@ -4,17 +4,17 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.widget.DrawerLayout;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.EditText;
-import android.widget.ListView;
+import android.widget.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,15 +30,15 @@ public class MainActivity extends Activity {
     private CharSequence mTitle;
     private ListView messagesList;
     private EditText messageInput;
+    private ImageButton buSend;
+    private ArrayAdapter<String> messagesAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        messagesList = (ListView) findViewById(R.id.messagesList);
-        messageInput = (EditText) findViewById(R.id.messageInput);
-
+        // DUMMY DATA
         drawerRightValues = new ArrayList<String>();
         for (int i = 0; i < 50; i++) {
             drawerRightValues.add("SomeName" + i);
@@ -48,56 +48,103 @@ public class MainActivity extends Activity {
             drawerLeftValues.add("NavigationItem" + i);
         }
 
-        messagesList.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, drawerRightValues));
+        messagesAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
+
+        messagesList = (ListView) findViewById(R.id.messagesList);
+        messageInput = (EditText) findViewById(R.id.messageInput);
+        buSend = (ImageButton) findViewById(R.id.buSend);
+        drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawerRightList = (ListView) findViewById(R.id.right_drawer);
+        drawerLeftList = (ListView) findViewById(R.id.left_drawer);
+        messageInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (s.length() > 0) {
+                    buSend.setAlpha(1.0f);
+                    buSend.clearColorFilter();
+                    buSend.setClickable(true);
+                } else {
+                    buSend.setColorFilter(Color.BLACK);
+                    buSend.setAlpha(0.5f);
+                    buSend.setClickable(false);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+
+        // make button not clickable
+        buSend.setColorFilter(Color.BLACK);
+        buSend.setAlpha(0.5f);
+        buSend.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                messagesAdapter.add(messageInput.getText().toString());
+                messagesAdapter.notifyDataSetChanged();
+                messageInput.setText("");
+            }
+        });
+        buSend.setClickable(false);
+
+        messagesList.setAdapter(messagesAdapter);
+        messagesList.setStackFromBottom(true);
+        messagesList.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
 
         mTitle = mDrawerTitle = getTitle();
 
-        drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawerToggle = new ActionBarDrawerToggle(this, drawerLayout,
-                R.drawable.ic_drawer, R.string.drawer_open, R.string.drawer_close) {
-            @Override
-            public boolean onOptionsItemSelected(MenuItem item) {
-                if (item != null && item.getItemId() == android.R.id.home && drawerToggle.isDrawerIndicatorEnabled()) {
-                    if (drawerLayout.isDrawerVisible(Gravity.LEFT)) {
-                        drawerLayout.closeDrawer(Gravity.LEFT);
-                    } else if (drawerLayout.isDrawerVisible(Gravity.RIGHT)) {
-                        drawerLayout.closeDrawer(Gravity.RIGHT);
-                        drawerLayout.openDrawer(Gravity.LEFT);
-                    } else {
-                        drawerLayout.openDrawer(Gravity.LEFT);
+        drawerToggle = new
+
+                ActionBarDrawerToggle(this, drawerLayout,
+                        R.drawable.ic_drawer, R.string.drawer_open, R.string.drawer_close) {
+                    @Override
+                    public boolean onOptionsItemSelected(MenuItem item) {
+                        if (item != null && item.getItemId() == android.R.id.home && drawerToggle.isDrawerIndicatorEnabled()) {
+                            if (drawerLayout.isDrawerVisible(Gravity.LEFT)) {
+                                drawerLayout.closeDrawer(Gravity.LEFT);
+                            } else if (drawerLayout.isDrawerVisible(Gravity.RIGHT)) {
+                                drawerLayout.closeDrawer(Gravity.RIGHT);
+                                drawerLayout.openDrawer(Gravity.LEFT);
+                            } else {
+                                drawerLayout.openDrawer(Gravity.LEFT);
+                            }
+                        }
+                        return true;
                     }
-                }
-                return true;
-            }
 
-            /** Called when a drawer has settled in a completely closed state. */
+                    /** Called when a drawer has settled in a completely closed state. */
 
-            public void onDrawerClosed(View view) {
-                getActionBar().setTitle(R.string.app_name);
-                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
-            }
+                    public void onDrawerClosed(View view) {
+                        getActionBar().setTitle(R.string.app_name);
+                        invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+                    }
 
-            /**
-             * Called when a drawer has settled in a completely open state.
-             */
-            public void onDrawerOpened(View drawerView) {
-                if (drawerLayout.isDrawerOpen(Gravity.RIGHT)) {
-                    getActionBar().setTitle("Status");
-                }
-                if (drawerLayout.isDrawerOpen(Gravity.LEFT)) {
-                    getActionBar().setTitle("Navigation");
-                }
-                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
-            }
-        };
-// Set the drawer toggle as the DrawerListener
+                    /**
+                     * Called when a drawer has settled in a completely open state.
+                     */
+                    public void onDrawerOpened(View drawerView) {
+                        if (drawerLayout.isDrawerOpen(Gravity.RIGHT)) {
+                            getActionBar().setTitle("Status");
+                        }
+                        if (drawerLayout.isDrawerOpen(Gravity.LEFT)) {
+                            getActionBar().setTitle("Navigation");
+                        }
+                        invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+                    }
+                };
+        // Set the drawer toggle as the DrawerListener
         drawerLayout.setDrawerListener(drawerToggle);
 
         // enable ActionBar app icon to behave as action to toggle nav drawer
         getActionBar().setDisplayHomeAsUpEnabled(true);
         getActionBar().setHomeButtonEnabled(true);
-
-        drawerRightList = (ListView) findViewById(R.id.right_drawer);
 
         // Set the adapter for the list view
         drawerRightList.setAdapter(new ArrayAdapter<String>(this,
@@ -105,7 +152,6 @@ public class MainActivity extends Activity {
         // Set the list's click listener
         drawerRightList.setOnItemClickListener(new DrawerItemClickListener());
 
-        drawerLeftList = (ListView) findViewById(R.id.left_drawer);
         drawerLeftList.setAdapter(new ArrayAdapter<String>(this,
                 R.layout.drawer_list_item, drawerLeftValues));
         // Set the list's click listener

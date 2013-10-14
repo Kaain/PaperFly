@@ -33,19 +33,20 @@
                 android:layout_gravity="bottom"
                 android:layout_alignParentBottom="true"
                 android:layout_alignParentLeft="true"
-                android:layout_toLeftOf="@+id/button"
-                android:layout_alignTop="@+id/button" />
+                android:layout_toLeftOf="@+id/buSend"
+                android:layout_alignTop="@+id/buSend" />
 
             <ImageButton
                 style="?android:attr/buttonStyleSmall"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/button"
+                android:id="@+id/buSend"
                 android:src="@drawable/ic_send"
                 android:layout_gravity="bottom|right"
                 android:contentDescription="@string/sends_message"
                 android:layout_alignParentBottom="true"
-                android:layout_alignParentRight="true" />
+                android:layout_alignParentRight="true"
+                android:background="@null"/>
 
         </RelativeLayout>
     <!-- The navigation drawer -->
