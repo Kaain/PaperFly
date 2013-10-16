@@ -197,21 +197,30 @@ public class MainActivity extends Activity {
                 drawerToggle.onOptionsItemSelected(item);
                 return true;
             case R.id.action_scanQR:
-                PackageManager pm = this.getPackageManager();
-                if (pm.hasSystemFeature(PackageManager.FEATURE_CAMERA_FRONT)) {
-                    Intent intent = new Intent("com.google.zxing.client.android.SCAN");
-                    intent.putExtra("SCAN_MODE", "QR_CODE_MODE");
-                    startActivityForResult(intent, 0);
-                    return true;
-                }else{
-                    Toast.makeText(this, "Keine Kamera da :(", Toast.LENGTH_SHORT).show();
-                    return false;
-                }
+                return doQRScan();
             case R.id.action_search:
                 Toast.makeText(this, "Ich will was suchen aber es geht noch nicht!", Toast.LENGTH_SHORT).show();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+    /**
+     * Creates a new Intent for QR scan.
+     *
+     * @return true if the scan was successful, false if not
+     */
+    private boolean doQRScan() {
+        PackageManager pm = this.getPackageManager();
+        if (pm.hasSystemFeature(PackageManager.FEATURE_CAMERA_FRONT)) {
+            Intent intent = new Intent("com.google.zxing.client.android.SCAN");
+            intent.putExtra("SCAN_MODE", "QR_CODE_MODE");
+            startActivityForResult(intent, 0);
+            return true;
+        }else{
+            Toast.makeText(this, "Keine Kamera da :(", Toast.LENGTH_SHORT).show();
+            return false;
         }
     }
 
