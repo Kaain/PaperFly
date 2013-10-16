@@ -3,17 +3,14 @@ package de.fhb.mi.paperfly;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.content.Intent;
 import android.content.res.Configuration;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.widget.DrawerLayout;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.Gravity;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
+import android.view.*;
 import android.widget.*;
 
 import java.util.ArrayList;
@@ -22,7 +19,6 @@ import java.util.List;
 public class MainActivity extends Activity {
     private static final String TITLE_LEFT_DRAWER = "Navigation";
     private static final String TITLE_RIGHT_DRAWER = "Status";
-
     private DrawerLayout drawerLayout;
     private ListView drawerRightList;
     private ListView drawerLeftList;
@@ -62,10 +58,8 @@ public class MainActivity extends Activity {
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (s.length() > 0) {
                     buSend.setAlpha(1.0f);
-                    buSend.clearColorFilter();
                     buSend.setClickable(true);
                 } else {
-                    buSend.setColorFilter(Color.BLACK);
                     buSend.setAlpha(0.5f);
                     buSend.setClickable(false);
                 }
@@ -77,7 +71,6 @@ public class MainActivity extends Activity {
         });
 
         // make button not clickable
-        buSend.setColorFilter(Color.BLACK);
         buSend.setAlpha(0.5f);
         buSend.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -122,7 +115,8 @@ public class MainActivity extends Activity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main_actions, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -152,8 +146,10 @@ public class MainActivity extends Activity {
                     } else {
                         drawerLayout.openDrawer(Gravity.LEFT);
                     }
+                    return true;
+                } else {
+                    return false;
                 }
-                return true;
             }
 
             /** Called when a drawer has settled in a completely closed state. */
@@ -192,12 +188,37 @@ public class MainActivity extends Activity {
     public boolean onOptionsItemSelected(MenuItem item) {
         // Pass the event to ActionBarDrawerToggle, if it returns
         // true, then it has handled the app icon touch event
-        if (drawerToggle.onOptionsItemSelected(item)) {
-            return true;
+//        if (drawerToggle.onOptionsItemSelected(item)) {
+//            return true;
+//        }
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                drawerToggle.onOptionsItemSelected(item);
+                return true;
+            case R.id.action_scanQR:
+                Intent intent = new Intent("com.google.zxing.client.android.SCAN");
+                intent.putExtra("SCAN_MODE", "QR_CODE_MODE");
+                startActivityForResult(intent, 0);
+                return true;
+            case R.id.action_search:
+                Toast.makeText(this, "Ich will was suchen aber es geht noch nicht!", Toast.LENGTH_SHORT).show();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
-        // Handle your other action bar items...
+    }
 
-        return super.onOptionsItemSelected(item);
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        if (requestCode == 0) {
+            if (resultCode == RESULT_OK) {
+                String contents = intent.getStringExtra("SCAN_RESULT");
+                String format = intent.getStringExtra("SCAN_RESULT_FORMAT");
+                Toast.makeText(this, contents, Toast.LENGTH_SHORT).show();
+            } else if (resultCode == RESULT_CANCELED) {
+                Toast.makeText(this, "Cancel", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
     /**
