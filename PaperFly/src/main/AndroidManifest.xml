@@ -3,7 +3,9 @@
     package="de.fhb.mi.paperfly"
     android:versionCode="1"
     android:versionName="1.0" >
-    <uses-permission android:name="android.permission.CAMERA"/>
+
+    <uses-permission android:name="android.permission.CAMERA" />
+
     <uses-sdk
         android:minSdkVersion="14"
         android:targetSdkVersion="18" />
@@ -24,6 +26,10 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name="de.fhb.mi.paperfly.PathDescription"
+            android:label="@string/title_activity_path_description" >
         </activity>
     </application>
 
