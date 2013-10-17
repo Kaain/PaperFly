@@ -10,6 +10,7 @@
         android:minSdkVersion="14"
         android:targetSdkVersion="18" />
 
+    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
@@ -30,6 +31,10 @@
         <activity
             android:name="de.fhb.mi.paperfly.PathDescription"
             android:label="@string/title_activity_path_description" >
+        </activity>
+        <activity
+            android:name="de.fhb.mi.paperfly.WebSocketTestMainActivity"
+            android:label="@string/title_activity_web_socket_test_main" >
         </activity>
     </application>
 
