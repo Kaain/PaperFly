@@ -13,7 +13,6 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.*;
 import android.widget.*;
-import org.apache.http.impl.SocketHttpClientConnection;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +32,6 @@ public class MainActivity extends Activity {
     private ImageButton buSend;
     private ArrayAdapter<String> messagesAdapter;
     private View testMapsButton;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -193,7 +191,6 @@ public class MainActivity extends Activity {
         super.onPostCreate(savedInstanceState);
         // Sync the toggle state after onRestoreInstanceState has occurred.
         drawerToggle.syncState();
-        SocketHttpClientConnection c = new SocketHttpClientConnection();
     }
 
     @Override
