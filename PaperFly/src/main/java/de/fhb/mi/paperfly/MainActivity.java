@@ -216,7 +216,7 @@ public class MainActivity extends Activity {
             case R.id.action_search:
                 //Toast.makeText(this, "Ich will was suchen aber es geht noch nicht!", Toast.LENGTH_SHORT).show();
                 //startActivity(new Intent(MainActivity.this, PathDescription.class));
-                startActivity(new Intent(MainActivity.this, NeueActivity.class));
+                startActivity(new Intent(MainActivity.this, PathDescription.class));
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
