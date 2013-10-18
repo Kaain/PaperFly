@@ -13,6 +13,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.*;
 import android.widget.*;
+import org.apache.http.impl.SocketHttpClientConnection;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -131,7 +132,7 @@ public class MainActivity extends Activity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.main_actions, menu);
+        inflater.inflate(R.menu.main, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -192,6 +193,7 @@ public class MainActivity extends Activity {
         super.onPostCreate(savedInstanceState);
         // Sync the toggle state after onRestoreInstanceState has occurred.
         drawerToggle.syncState();
+        SocketHttpClientConnection c = new SocketHttpClientConnection();
     }
 
     @Override
@@ -217,6 +219,10 @@ public class MainActivity extends Activity {
                 //Toast.makeText(this, "Ich will was suchen aber es geht noch nicht!", Toast.LENGTH_SHORT).show();
                 //startActivity(new Intent(MainActivity.this, PathDescription.class));
                 startActivity(new Intent(MainActivity.this, PathDescription.class));
+                return true;
+            case R.id.action_websockettest:
+                Intent intent = new Intent(this, WebSocketTestMainActivity.class);
+                startActivity(intent);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
