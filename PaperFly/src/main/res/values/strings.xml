@@ -9,5 +9,6 @@
     <string name="sends_message">Sends the message</string>
     <string name="action_scanQR">Scan QR</string>
     <string name="title_activity_path_description">PathDescriptionActivity</string>
+    <string name="title_activity_neue">NeueActivity</string>
 
 </resources>
