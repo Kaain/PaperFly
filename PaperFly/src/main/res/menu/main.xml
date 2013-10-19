@@ -10,10 +10,10 @@
         android:showAsAction="never"
         android:title="@string/action_websockettest" />
     <item
-        android:id="@+id/action_search"
-        android:icon="@android:drawable/ic_menu_search"
+        android:id="@+id/action_maps"
+        android:icon="@android:drawable/ic_menu_mapmode"
         android:showAsAction="ifRoom"
-        android:title="@android:string/search_go" />
+        android:title="@string/menu_maps" />
     <item
         android:id="@+id/action_scanQR"
         android:icon="@android:drawable/ic_menu_camera"

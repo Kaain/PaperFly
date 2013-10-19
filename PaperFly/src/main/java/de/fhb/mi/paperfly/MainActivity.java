@@ -31,7 +31,6 @@ public class MainActivity extends Activity {
     private EditText messageInput;
     private ImageButton buSend;
     private ArrayAdapter<String> messagesAdapter;
-    private View testMapsButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,18 +83,6 @@ public class MainActivity extends Activity {
         });
         buSend.setClickable(false);
 
-
-        // make button not clickable
-        testMapsButton.setAlpha(0.5f);
-        testMapsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //check out new activity
-                startActivity(new Intent(MainActivity.this, PathDescription.class));
-            }
-        });
-        testMapsButton.setClickable(false);
-
         messagesList.setAdapter(messagesAdapter);
         messagesList.setStackFromBottom(true);
         messagesList.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
@@ -144,7 +131,6 @@ public class MainActivity extends Activity {
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawerRightList = (ListView) findViewById(R.id.right_drawer);
         drawerLeftList = (ListView) findViewById(R.id.left_drawer);
-        testMapsButton = findViewById(R.id.testMapsButton);
     }
 
     private ActionBarDrawerToggle createActionBarDrawerToggle() {
@@ -212,9 +198,7 @@ public class MainActivity extends Activity {
                 return true;
             case R.id.action_scanQR:
                 return doQRScan();
-            case R.id.action_search:
-                //Toast.makeText(this, "Ich will was suchen aber es geht noch nicht!", Toast.LENGTH_SHORT).show();
-                //startActivity(new Intent(MainActivity.this, PathDescription.class));
+            case R.id.action_maps:
                 startActivity(new Intent(MainActivity.this, PathDescription.class));
                 return true;
             case R.id.action_websockettest:
