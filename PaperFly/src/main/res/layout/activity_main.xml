@@ -10,55 +10,55 @@
     android:layout_height="match_parent">
     <!-- The main content view -->
 
-        <RelativeLayout
-            android:id="@+id/content_frame"
-            android:orientation="vertical"
+    <RelativeLayout
+        android:id="@+id/content_frame"
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
+
+        <ListView
             android:layout_width="fill_parent"
-            android:layout_height="fill_parent">
+            android:layout_height="fill_parent"
+            android:id="@+id/messagesList"
+            android:layout_gravity="top"
+            android:layout_alignParentTop="true"
+            android:layout_above="@+id/messageInput"
+            android:background="@android:drawable/title_bar_tall" />
 
-            <ListView
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:id="@+id/messagesList"
-                android:layout_gravity="top"
-                android:layout_alignParentTop="true"
-                android:layout_above="@+id/messageInput"
-                android:background="@android:drawable/title_bar_tall"/>
+        <EditText
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textMultiLine"
+            android:ems="10"
+            android:id="@+id/messageInput"
+            android:layout_gravity="bottom"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
+            android:layout_toLeftOf="@+id/buSend"
+            android:layout_alignTop="@+id/buSend" />
 
-            <EditText
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:inputType="textMultiLine"
-                android:ems="10"
-                android:id="@+id/messageInput"
-                android:layout_gravity="bottom"
-                android:layout_alignParentBottom="true"
-                android:layout_alignParentLeft="true"
-                android:layout_toLeftOf="@+id/buSend"
-                android:layout_alignTop="@+id/buSend" />
+        <ImageButton
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/buSend"
+            android:src="@android:drawable/sym_action_chat"
+            android:layout_gravity="bottom|right"
+            android:contentDescription="@string/sends_message"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:background="@null" />
 
-            <ImageButton
-                style="?android:attr/buttonStyleSmall"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/buSend"
-                android:src="@android:drawable/sym_action_chat"
-                android:layout_gravity="bottom|right"
-                android:contentDescription="@string/sends_message"
-                android:layout_alignParentBottom="true"
-                android:layout_alignParentRight="true"
-                android:background="@null"/>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="CameraTest"
+            android:id="@+id/testMapsButton"
+            android:layout_alignParentTop="true"
+            android:layout_toLeftOf="@+id/buSend"
+            android:layout_marginTop="63dp" />
 
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="CameraTest"
-                android:id="@+id/testMapsButton"
-                android:layout_alignParentTop="true"
-                android:layout_toLeftOf="@+id/buSend"
-                android:layout_marginTop="63dp" />
-
-        </RelativeLayout>
+    </RelativeLayout>
     <!-- The navigation drawer -->
     <ListView
         android:id="@+id/left_drawer"

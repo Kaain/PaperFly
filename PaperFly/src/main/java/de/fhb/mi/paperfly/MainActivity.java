@@ -144,7 +144,7 @@ public class MainActivity extends Activity {
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawerRightList = (ListView) findViewById(R.id.right_drawer);
         drawerLeftList = (ListView) findViewById(R.id.left_drawer);
-         testMapsButton = findViewById(R.id.testMapsButton);
+        testMapsButton = findViewById(R.id.testMapsButton);
     }
 
     private ActionBarDrawerToggle createActionBarDrawerToggle() {
@@ -238,7 +238,7 @@ public class MainActivity extends Activity {
             intent.putExtra("SCAN_MODE", "QR_CODE_MODE");
             startActivityForResult(intent, 0);
             return true;
-        }else{
+        } else {
             Toast.makeText(this, "Keine Kamera da :(", Toast.LENGTH_SHORT).show();
             return false;
         }

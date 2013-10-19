@@ -1,18 +1,22 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@+id/action_settings"
+    <item
+        android:id="@+id/action_settings"
         android:title="@string/action_settings"
         android:orderInCategory="100"
         android:showAsAction="never" />
-    <item android:id="@+id/action_websockettest"
+    <item
+        android:id="@+id/action_websockettest"
         android:title="@string/action_websockettest"
         android:orderInCategory="100"
         android:showAsAction="never" />
-    <item android:id="@+id/action_search"
+    <item
+        android:id="@+id/action_search"
         android:icon="@android:drawable/ic_menu_search"
         android:title="@android:string/search_go"
-        android:showAsAction="ifRoom"/>
-    <item android:id="@+id/action_scanQR"
+        android:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_scanQR"
         android:icon="@android:drawable/ic_menu_camera"
         android:title="@string/action_scanQR"
-        android:showAsAction="ifRoom"/>
+        android:showAsAction="ifRoom" />
 </menu>
