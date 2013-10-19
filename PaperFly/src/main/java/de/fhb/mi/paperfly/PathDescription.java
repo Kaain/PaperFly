@@ -1,8 +1,7 @@
 package de.fhb.mi.paperfly;
 
-import android.os.Bundle;
 import android.app.Activity;
-import android.view.Menu;
+import android.os.Bundle;
 
 public class PathDescription extends Activity {
 
@@ -12,5 +11,5 @@ public class PathDescription extends Activity {
         setContentView(R.layout.path_description);
     }
 
-    
+
 }
