@@ -3,7 +3,12 @@
         android:id="@+id/action_settings"
         android:orderInCategory="100"
         android:showAsAction="never"
-        android:title="@string/action_settings" />
+        android:title="@string/action_settings"/>
+    <item
+        android:id="@+id/action_logout"
+        android:orderInCategory="100"
+        android:showAsAction="never"
+        android:title="@string/action_logout"/>
     <item
         android:id="@+id/action_websockettest"
         android:orderInCategory="100"
@@ -19,4 +24,10 @@
         android:icon="@android:drawable/ic_menu_camera"
         android:showAsAction="ifRoom"
         android:title="@string/action_scanQR" />
+    <item
+        android:id="@+id/action_show_persons"
+        android:icon="@drawable/ic_action_group"
+        android:showAsAction="always"
+        android:title="@string/action_show_persons"/>
+
 </menu>
