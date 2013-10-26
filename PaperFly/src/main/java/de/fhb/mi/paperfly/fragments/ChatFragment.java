@@ -24,11 +24,16 @@ public class ChatFragment extends Fragment {
     private ImageButton buSend;
     private ArrayAdapter<String> messagesAdapter;
 
-    public static final String ARG_NAVIGATION_NUMBER = "navigation_number";
+    public static int ROOM_GLOBAL = 0;
+    public static int ROOM_INDIVIDUAL = 1;
+
+    public static final String ARG_CHAT_ROOM = "chat_room";
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+        String room = getArguments().getString(ARG_CHAT_ROOM);
         this.rootView = inflater.inflate(R.layout.fragment_chat, container, false);
         initViewsById();
 

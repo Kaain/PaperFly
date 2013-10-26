@@ -9,14 +9,22 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.widget.DrawerLayout;
+import android.util.Log;
 import android.view.*;
-import android.widget.*;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+import android.widget.Toast;
 import de.fhb.mi.paperfly.fragments.ChatFragment;
+import de.fhb.mi.paperfly.navigation.NavListAdapter;
+import de.fhb.mi.paperfly.navigation.NavListAdapter.ViewHolder;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends Activity {
+    private static final String TAG = "MainActivity";
+
     private static final String TITLE_LEFT_DRAWER = "Navigation";
     private static final String TITLE_RIGHT_DRAWER = "Status";
     private DrawerLayout drawerLayout;
@@ -26,14 +34,11 @@ public class MainActivity extends Activity {
     private List<String> drawerLeftValues;
     private ActionBarDrawerToggle drawerToggle;
     private CharSequence mTitle;
-    private ListView messagesList;
-    private EditText messageInput;
-    private ImageButton buSend;
-    private ArrayAdapter<String> messagesAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(TAG, "onCreate");
         setContentView(R.layout.activity_main);
         initViewsById();
 
@@ -63,18 +68,35 @@ public class MainActivity extends Activity {
         // Set the list's click listener
         drawerRightList.setOnItemClickListener(new DrawerItemClickListener());
 
-        drawerLeftList.setAdapter(new ArrayAdapter<String>(this,
-                R.layout.drawer_list_item, drawerLeftValues));
+
         // Set the list's click listener
         drawerLeftList.setOnItemClickListener(new DrawerItemClickListener());
 
+        generateNavigation();
+
         if (savedInstanceState == null) {
-            selectItem(0);
+            navigateTo(getResources().getString(R.string.nav_item_global));
         }
+    }
+
+    private void generateNavigation() {
+        Log.d(TAG, "generateNavigation");
+        NavListAdapter mAdapter = new NavListAdapter(this);
+        mAdapter.addHeader(R.string.nav_header_general);
+        mAdapter.addItem(R.string.nav_item_enter_rrom, android.R.drawable.ic_menu_camera);
+
+        mAdapter.addHeader(R.string.nav_header_chats);
+        mAdapter.addItem(R.string.nav_item_global, -1);
+
+        mAdapter.addHeader(R.string.nav_header_help);
+        mAdapter.addItem(R.string.nav_item_about, android.R.drawable.ic_menu_help);
+
+        drawerLeftList.setAdapter(mAdapter);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        Log.d(TAG, "onCreateOptionsMenu");
         // Inflate the menu; this adds items to the action bar if it is present.
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main, menu);
@@ -85,6 +107,7 @@ public class MainActivity extends Activity {
      * Initializes all views in the layout.
      */
     private void initViewsById() {
+        Log.d(TAG, "initViewsById");
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawerRightList = (ListView) findViewById(R.id.right_drawer);
         drawerLeftList = (ListView) findViewById(R.id.left_drawer);
@@ -93,9 +116,10 @@ public class MainActivity extends Activity {
     /**
      * Creates a {@link android.support.v4.app.ActionBarDrawerToggle}.
      *
-     * @return
+     * @return the ActionBarDrawerToggle
      */
     private ActionBarDrawerToggle createActionBarDrawerToggle() {
+        Log.d(TAG, "createActionBarDrawerToggle");
         return new ActionBarDrawerToggle(this, drawerLayout,
                 R.drawable.ic_drawer, R.string.drawer_open, R.string.drawer_close) {
             @Override
@@ -142,6 +166,7 @@ public class MainActivity extends Activity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        Log.d(TAG, "onOptionsItemSelected");
         switch (item.getItemId()) {
             case android.R.id.home:
                 drawerToggle.onOptionsItemSelected(item);
@@ -169,6 +194,7 @@ public class MainActivity extends Activity {
      * @param drawerGravity the drawer to be opened
      */
     private void openDrawerAndCloseOther(int drawerGravity) {
+        Log.d(TAG, "openDrawerAndCloseOther");
         switch (drawerGravity) {
             case Gravity.LEFT:
                 if (drawerLayout.isDrawerVisible(Gravity.LEFT)) {
@@ -199,6 +225,7 @@ public class MainActivity extends Activity {
      * @return true if the scan was successful, false if not
      */
     private boolean doQRScan() {
+        Log.d(TAG, "doQRScan");
         PackageManager pm = this.getPackageManager();
         if (pm.hasSystemFeature(PackageManager.FEATURE_CAMERA_FRONT)) {
             Intent intent = new Intent("com.google.zxing.client.android.SCAN");
@@ -213,6 +240,7 @@ public class MainActivity extends Activity {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        Log.d(TAG, "onActivityResult");
         if (requestCode == 0) {
             if (resultCode == RESULT_OK) {
                 String contents = intent.getStringExtra("SCAN_RESULT");
@@ -227,11 +255,12 @@ public class MainActivity extends Activity {
     /**
      * Swaps fragments in the main content view
      */
-    private void selectItem(int position) {
+    private void navigateTo(String navKey) {
+        Log.d(TAG, "navigateTo");
         // Create a new fragment and specify the planet to show based on position
         Fragment fragment = new ChatFragment();
         Bundle args = new Bundle();
-        args.putInt(ChatFragment.ARG_NAVIGATION_NUMBER, position);
+        args.putString(ChatFragment.ARG_CHAT_ROOM, navKey);
         fragment.setArguments(args);
 
         // Insert the fragment by replacing any existing fragment
@@ -241,9 +270,8 @@ public class MainActivity extends Activity {
                 .commit();
 
         // Highlight the selected item, update the title, and close the drawer
-        drawerRightList.setItemChecked(position, true);
-        setTitle(drawerRightValues.get(position));
-        drawerLayout.closeDrawer(drawerRightList);
+        setTitle(navKey);
+        drawerLayout.closeDrawer(Gravity.LEFT);
     }
 
     @Override
@@ -253,9 +281,12 @@ public class MainActivity extends Activity {
     }
 
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
+
         @Override
         public void onItemClick(AdapterView parent, View view, int position, long id) {
-            selectItem(position);
+            Log.d(TAG, "onItemClick Navigation");
+            ViewHolder vh = (ViewHolder)view.getTag();
+            navigateTo(vh.textHolder.getText().toString());
         }
     }
 
