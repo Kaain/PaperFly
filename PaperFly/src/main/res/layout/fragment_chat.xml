@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/content_frame"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical">
+
+    <ListView
+        android:id="@+id/messagesList"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_above="@+id/messageInput"
+        android:layout_alignParentTop="true"
+        android:layout_gravity="top"
+        android:background="@android:drawable/title_bar_tall" />
+
+    <EditText
+        android:id="@+id/messageInput"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignTop="@+id/buSend"
+        android:layout_gravity="bottom"
+        android:layout_toLeftOf="@+id/buSend"
+        android:ems="10"
+        android:inputType="textMultiLine" />
+
+    <ImageButton
+        android:id="@+id/buSend"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_gravity="bottom|right"
+        android:background="@null"
+        android:contentDescription="@string/sends_message"
+        android:src="@android:drawable/sym_action_chat" />
+</RelativeLayout>

@@ -8,49 +8,14 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+
     <!-- The main content view -->
-
-    <RelativeLayout
+    <FrameLayout
         android:id="@+id/content_frame"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:orientation="vertical">
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
-        <ListView
-            android:id="@+id/messagesList"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:layout_above="@+id/messageInput"
-            android:layout_alignParentTop="true"
-            android:layout_gravity="top"
-            android:background="@android:drawable/title_bar_tall" />
-
-        <EditText
-            android:id="@+id/messageInput"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignTop="@+id/buSend"
-            android:layout_gravity="bottom"
-            android:layout_toLeftOf="@+id/buSend"
-            android:ems="10"
-            android:inputType="textMultiLine" />
-
-        <ImageButton
-            android:id="@+id/buSend"
-            style="?android:attr/buttonStyleSmall"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentRight="true"
-            android:layout_gravity="bottom|right"
-            android:background="@null"
-            android:contentDescription="@string/sends_message"
-            android:src="@android:drawable/sym_action_chat" />
-
-    </RelativeLayout>
-    <!-- The navigation drawer -->
+    <!-- The left navigation drawer -->
     <ListView
         android:id="@+id/left_drawer"
         android:layout_width="240dp"
@@ -60,7 +25,7 @@
         android:choiceMode="singleChoice"
         android:divider="@android:color/transparent"
         android:dividerHeight="0dp" />
-    <!-- The online user drawer -->
+    <!-- The right navigation drawer -->
     <ListView
         android:id="@+id/right_drawer"
         android:layout_width="240dp"

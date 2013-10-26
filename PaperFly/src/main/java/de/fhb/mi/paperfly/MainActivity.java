@@ -9,19 +9,9 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.widget.DrawerLayout;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.view.Gravity;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.ListView;
-import android.widget.Toast;
+import android.view.*;
+import android.widget.*;
+import de.fhb.mi.paperfly.fragments.ChatFragment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,45 +46,6 @@ public class MainActivity extends Activity {
         for (int i = 0; i < 10; i++) {
             drawerLeftValues.add(TITLE_LEFT_DRAWER + i);
         }
-
-        messagesAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
-
-        messageInput.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (s.length() > 0) {
-                    buSend.setAlpha(1.0f);
-                    buSend.setClickable(true);
-                } else {
-                    buSend.setAlpha(0.5f);
-                    buSend.setClickable(false);
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-            }
-        });
-
-        // make button not clickable
-        buSend.setAlpha(0.5f);
-        buSend.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                messagesAdapter.add(messageInput.getText().toString());
-                messagesAdapter.notifyDataSetChanged();
-                messageInput.setText("");
-            }
-        });
-        buSend.setClickable(false);
-
-        messagesList.setAdapter(messagesAdapter);
-        messagesList.setStackFromBottom(true);
-        messagesList.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
 
         mTitle = getTitle();
 
@@ -131,31 +82,26 @@ public class MainActivity extends Activity {
     }
 
     /**
-     *
+     * Initializes all views in the layout.
      */
     private void initViewsById() {
-        messagesList = (ListView) findViewById(R.id.messagesList);
-        messageInput = (EditText) findViewById(R.id.messageInput);
-        buSend = (ImageButton) findViewById(R.id.buSend);
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawerRightList = (ListView) findViewById(R.id.right_drawer);
         drawerLeftList = (ListView) findViewById(R.id.left_drawer);
     }
 
+    /**
+     * Creates a {@link android.support.v4.app.ActionBarDrawerToggle}.
+     *
+     * @return
+     */
     private ActionBarDrawerToggle createActionBarDrawerToggle() {
         return new ActionBarDrawerToggle(this, drawerLayout,
                 R.drawable.ic_drawer, R.string.drawer_open, R.string.drawer_close) {
             @Override
             public boolean onOptionsItemSelected(MenuItem item) {
                 if (item != null && item.getItemId() == android.R.id.home && drawerToggle.isDrawerIndicatorEnabled()) {
-                    if (drawerLayout.isDrawerVisible(Gravity.LEFT)) {
-                        drawerLayout.closeDrawer(Gravity.LEFT);
-                    } else if (drawerLayout.isDrawerVisible(Gravity.RIGHT)) {
-                        drawerLayout.closeDrawer(Gravity.RIGHT);
-                        drawerLayout.openDrawer(Gravity.LEFT);
-                    } else {
-                        drawerLayout.openDrawer(Gravity.LEFT);
-                    }
+                    openDrawerAndCloseOther(Gravity.LEFT);
                     return true;
                 } else {
                     return false;
@@ -196,11 +142,6 @@ public class MainActivity extends Activity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Pass the event to ActionBarDrawerToggle, if it returns
-        // true, then it has handled the app icon touch event
-//        if (drawerToggle.onOptionsItemSelected(item)) {
-//            return true;
-//        }
         switch (item.getItemId()) {
             case android.R.id.home:
                 drawerToggle.onOptionsItemSelected(item);
@@ -215,15 +156,40 @@ public class MainActivity extends Activity {
                 startActivity(intent);
                 return true;
             case R.id.action_show_persons:
-                if (drawerLayout.isDrawerVisible(Gravity.RIGHT)) {
-                    drawerLayout.closeDrawer(Gravity.RIGHT);
-                } else {
-                    drawerLayout.openDrawer(Gravity.RIGHT);
-                }
-
+                openDrawerAndCloseOther(Gravity.RIGHT);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+    /**
+     * Opens the specified drawer and closes the other one, if it is visible
+     *
+     * @param drawerGravity the drawer to be opened
+     */
+    private void openDrawerAndCloseOther(int drawerGravity) {
+        switch (drawerGravity) {
+            case Gravity.LEFT:
+                if (drawerLayout.isDrawerVisible(Gravity.LEFT)) {
+                    drawerLayout.closeDrawer(Gravity.LEFT);
+                } else if (drawerLayout.isDrawerVisible(Gravity.RIGHT)) {
+                    drawerLayout.closeDrawer(Gravity.RIGHT);
+                    drawerLayout.openDrawer(Gravity.LEFT);
+                } else {
+                    drawerLayout.openDrawer(Gravity.LEFT);
+                }
+                break;
+            case Gravity.RIGHT:
+                if (drawerLayout.isDrawerVisible(Gravity.RIGHT)) {
+                    drawerLayout.closeDrawer(Gravity.RIGHT);
+                } else if (drawerLayout.isDrawerVisible(Gravity.LEFT)) {
+                    drawerLayout.closeDrawer(Gravity.LEFT);
+                    drawerLayout.openDrawer(Gravity.RIGHT);
+                } else {
+                    drawerLayout.openDrawer(Gravity.RIGHT);
+                }
+                break;
         }
     }
 
@@ -263,9 +229,9 @@ public class MainActivity extends Activity {
      */
     private void selectItem(int position) {
         // Create a new fragment and specify the planet to show based on position
-        Fragment fragment = new PersonFragment();
+        Fragment fragment = new ChatFragment();
         Bundle args = new Bundle();
-        args.putInt(PersonFragment.ARG_PERSON_NUMBER, position);
+        args.putInt(ChatFragment.ARG_NAVIGATION_NUMBER, position);
         fragment.setArguments(args);
 
         // Insert the fragment by replacing any existing fragment
