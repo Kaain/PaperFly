@@ -11,17 +11,23 @@ import lombok.Setter;
 @Getter
 @Setter
 public class NavItemModel {
-    private int title;
-    private int icon;
+    private NavKey key;
+    private String title;
+    private int iconID;
     private boolean isHeader;
 
-    public NavItemModel(int title, int icon, boolean isHeader) {
+    public NavItemModel(NavKey key, String title, int iconID, boolean isHeader) {
+        this.key = key;
         this.title = title;
-        this.icon = icon;
+        this.iconID = iconID;
         this.isHeader = isHeader;
     }
 
-    public NavItemModel(int title, int icon) {
-        this(title, icon, false);
+    public NavItemModel(String title, int iconID, boolean isHeader) {
+        this(NavKey.HEADER, title, iconID, isHeader);
+    }
+
+    public NavItemModel(NavKey key, String title, int icon) {
+        this(key, title, icon, false);
     }
 }

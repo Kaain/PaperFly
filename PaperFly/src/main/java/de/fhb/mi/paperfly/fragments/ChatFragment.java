@@ -24,9 +24,7 @@ public class ChatFragment extends Fragment {
     private ImageButton buSend;
     private ArrayAdapter<String> messagesAdapter;
 
-    public static int ROOM_GLOBAL = 0;
-    public static int ROOM_INDIVIDUAL = 1;
-
+    public static String ROOM_GLOBAL = "Global";
     public static final String ARG_CHAT_ROOM = "chat_room";
 
     @Override

@@ -18,12 +18,12 @@ public class NavListAdapter extends ArrayAdapter<NavItemModel> {
         super(context, 0);
     }
 
-    public void addHeader(int title) {
+    public void addHeader(String title) {
         add(new NavItemModel(title, -1, true));
     }
 
-    public void addItem(int title, int icon) {
-        add(new NavItemModel(title, icon, false));
+    public void addItem(NavKey key,String title, int iconID) {
+        add(new NavItemModel(key, title, iconID));
     }
 
     public void addItem(NavItemModel itemModel) {
@@ -62,7 +62,7 @@ public class NavListAdapter extends ArrayAdapter<NavItemModel> {
 
             TextView text = (TextView) view.findViewById(R.id.nav_text);
             ImageView icon = (ImageView) view.findViewById(R.id.nav_icon);
-            view.setTag(new ViewHolder(text, icon));
+            view.setTag(new ViewHolder(item.getKey(), text, icon));
         }
 
         if (holder == null && view != null) {
@@ -77,25 +77,28 @@ public class NavListAdapter extends ArrayAdapter<NavItemModel> {
                 holder.textHolder.setText(item.getTitle());
 
             if (holder.imageHolder != null) {
-                if (item.getIcon() > 0) {
+                if (item.getIconID() > 0) {
 
                     holder.imageHolder.setVisibility(View.VISIBLE);
-                    holder.imageHolder.setImageResource(item.getIcon());
+                    holder.imageHolder.setImageResource(item.getIconID());
                 } else {
                     holder.imageHolder.setVisibility(View.GONE);
                 }
             }
         }
+
         return view;
     }
 
     public static class ViewHolder {
+        public final NavKey key;
         public final TextView textHolder;
         public final ImageView imageHolder;
 
-        public ViewHolder(TextView text1, ImageView image1) {
-            this.textHolder = text1;
-            this.imageHolder = image1;
+        public ViewHolder(NavKey key, TextView text, ImageView image) {
+            this.key = key;
+            this.textHolder = text;
+            this.imageHolder = image;
         }
     }
 }
