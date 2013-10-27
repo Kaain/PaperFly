@@ -194,7 +194,7 @@ public class MainActivity extends Activity {
             case R.id.action_scanQR:
                 return doQRScan();
             case R.id.action_maps:
-                startActivity(new Intent(MainActivity.this, PathDescription.class));
+                startActivity(new Intent(this, PathDescription.class));
                 return true;
             case R.id.action_websockettest:
                 Intent intent = new Intent(this, WebSocketTestMainActivity.class);
@@ -202,6 +202,9 @@ public class MainActivity extends Activity {
                 return true;
             case R.id.action_show_persons:
                 openDrawerAndCloseOther(Gravity.RIGHT);
+                return true;
+            case R.id.action_settings:
+                startActivity(new Intent(this, SettingsActivity.class));
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

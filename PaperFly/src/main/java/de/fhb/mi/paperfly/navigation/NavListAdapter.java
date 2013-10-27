@@ -22,7 +22,7 @@ public class NavListAdapter extends ArrayAdapter<NavItemModel> {
         add(new NavItemModel(title, -1, true));
     }
 
-    public void addItem(NavKey key,String title, int iconID) {
+    public void addItem(NavKey key, String title, int iconID) {
         add(new NavItemModel(key, title, iconID));
     }
 
