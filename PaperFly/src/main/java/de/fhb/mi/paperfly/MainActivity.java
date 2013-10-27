@@ -265,16 +265,13 @@ public class MainActivity extends Activity {
         Log.d(TAG, "onActivityResult");
         if (requestCode == REQUESTCODE_QRSCAN) {
             if (resultCode == RESULT_OK) {
-                String contents = intent.getStringExtra("SCAN_RESULT");
+                String room = intent.getStringExtra("SCAN_RESULT");
                 String format = intent.getStringExtra("SCAN_RESULT_FORMAT");
-                switchToChatRoom(contents, format);
-                Toast.makeText(this, contents, Toast.LENGTH_SHORT).show();
+                switchToChatRoom(room, format);
+                Toast.makeText(this, room, Toast.LENGTH_SHORT).show();
             } else if (resultCode == RESULT_CANCELED) {
+                // TODO only for mockup test
                 String testRoom = "INFZ 305";
-                NavItemModel enterRoomNav = (NavItemModel) drawerLeftList.getItemAtPosition(drawerLeftList.getCheckedItemPosition());
-                enterRoomNav.setTitle(testRoom);
-                enterRoomNav.setIconID(-1);
-                ((BaseAdapter) drawerLeftList.getAdapter()).notifyDataSetChanged();
                 Toast.makeText(this, "Cancel", Toast.LENGTH_SHORT).show();
                 switchToChatRoom(testRoom, "");
             }
@@ -282,10 +279,10 @@ public class MainActivity extends Activity {
         }
     }
 
-    private void switchToChatRoom(String contents, String format) {
+    private void switchToChatRoom(String room, String format) {
         Fragment fragment = new ChatFragment();
         Bundle args = new Bundle();
-        args.putString(ChatFragment.ARG_CHAT_ROOM, contents);
+        args.putString(ChatFragment.ARG_CHAT_ROOM, room);
         fragment.setArguments(args);
 
         // Insert the fragment by replacing any existing fragment
@@ -293,6 +290,11 @@ public class MainActivity extends Activity {
         fragmentManager.beginTransaction()
                 .replace(R.id.content_frame, fragment)
                 .commit();
+
+        NavItemModel enterRoomNav = (NavItemModel) drawerLeftList.getItemAtPosition(drawerLeftList.getCheckedItemPosition());
+        enterRoomNav.setTitle(room);
+        enterRoomNav.setIconID(-1);
+        ((BaseAdapter) drawerLeftList.getAdapter()).notifyDataSetChanged();
     }
 
     private void switchToGlobalChat() {
@@ -345,22 +347,7 @@ public class MainActivity extends Activity {
             ViewHolder vh = (ViewHolder) view.getTag();
             drawerLeftList.setSelection(position);
             drawerLayout.closeDrawer(Gravity.LEFT);
-
-            switch (vh.key){
-                case ENTER_ROOM:
-                    doQRScan(); // scans QR code and enters room in onActivityResult()
-                    break;
-                case GLOABAL:
-                    switchToGlobalChat();
-                    break;
-                case CHECK_PRESENCE:
-                    navigateTo(vh.key);
-                    break;
-                case ABOUT:
-                    break;
-            }
-
-
+            navigateTo(vh.key);
         }
     }
 
