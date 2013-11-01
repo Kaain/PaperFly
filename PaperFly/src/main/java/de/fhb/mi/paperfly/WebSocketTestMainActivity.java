@@ -24,7 +24,6 @@ public class WebSocketTestMainActivity extends Activity {
 
     private void start(final String wsuri, final String message) {
 
-
         try {
             mConnection.connect(wsuri, new WebSocketConnectionHandler() {
 
@@ -57,7 +56,7 @@ public class WebSocketTestMainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_websockets);
         inURL = (EditText) findViewById(R.id.inURL);
-        inURL.setText(AuthHelper.YOUR_URL);
+        inURL.setText(AuthHelper.URL_LOGIN);
         inMessage = (EditText) findViewById(R.id.inMessage);
         laOutput = (TextView) findViewById(R.id.laOutput);
         buGo = (Button) findViewById(R.id.buGo);

@@ -31,6 +31,7 @@ public class LoginActivity extends Activity {
      * The default email to populate the email field with.
      */
     public static final String EXTRA_EMAIL = "com.example.android.authenticatordemo.extra.EMAIL";
+    public static final String LOGIN_SUCCESFUL = "LOGIN_SUCCESFUL";
     private static final String TAG = "LoginActivity";
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
@@ -84,7 +85,7 @@ public class LoginActivity extends Activity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        getMenuInflater().inflate(R.menu.login, menu);
+//        getMenuInflater().inflate(R.menu.login, menu);
         return true;
     }
 
@@ -215,6 +216,7 @@ public class LoginActivity extends Activity {
 
             if (success) {
                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                intent.putExtra(LOGIN_SUCCESFUL, true);
                 startActivity(intent);
                 finish();
             } else {

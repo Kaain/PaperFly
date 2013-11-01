@@ -1,11 +1,16 @@
 package de.fhb.mi.paperfly;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.widget.DrawerLayout;
@@ -21,6 +26,7 @@ import de.fhb.mi.paperfly.navigation.NavKey;
 import de.fhb.mi.paperfly.navigation.NavListAdapter;
 import de.fhb.mi.paperfly.navigation.NavListAdapter.ViewHolder;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,6 +41,9 @@ public class MainActivity extends Activity {
     private List<String> drawerRightValues;
     private ActionBarDrawerToggle drawerToggle;
     private CharSequence mTitle;
+    private UserLoginTask mAuthTask = null;
+    private UserLogoutTask logoutTask = null;
+    private View progressLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,24 +52,11 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         initViewsById();
 
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                synchronized (this) {
-                    if (!AuthHelper.authenticate(MainActivity.this)) {
-                        Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-                        startActivity(intent);
-                        finish();
-                    }
-                }
 
-            }
-        });
-        thread.start();
         // DUMMY DATA
         drawerRightValues = new ArrayList<String>();
         for (int i = 0; i < 50; i++) {
-            drawerRightValues.add(TITLE_RIGHT_DRAWER + i);
+            drawerRightValues.add("User" + i + TITLE_RIGHT_DRAWER);
         }
         mTitle = getTitle();
 
@@ -89,9 +85,66 @@ public class MainActivity extends Activity {
 
         generateNavigation();
 
-        if (savedInstanceState == null) {
-//            navigateTo(getResources().getString(R.string.nav_item_global));
-            navigateTo(NavKey.GLOABAL);
+
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.d(TAG, "onStart");
+        Bundle bundle = getIntent().getExtras();
+        if (bundle != null) {
+            boolean loginSuccessful = getIntent().getExtras().getBoolean(LoginActivity.LOGIN_SUCCESFUL);
+            if (!loginSuccessful) {
+                showProgress(true);
+                bundle.clear();
+                mAuthTask = new UserLoginTask();
+                mAuthTask.execute();
+            }
+        } else {
+            showProgress(true);
+            mAuthTask = new UserLoginTask();
+            mAuthTask.execute();
+        }
+    }
+
+    /**
+     * Shows the progress UI and hides the login form.
+     */
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
+    private void showProgress(final boolean show) {
+        // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
+        // for very easy animations. If available, use these APIs to fade-in
+        // the progress spinner.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
+            int shortAnimTime = getResources().getInteger(android.R.integer.config_longAnimTime);
+
+            progressLayout.setVisibility(View.VISIBLE);
+            progressLayout.animate()
+                    .setDuration(shortAnimTime)
+                    .alpha(show ? 1 : 0)
+                    .setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            progressLayout.setVisibility(show ? View.VISIBLE : View.GONE);
+                        }
+                    });
+
+            drawerLayout.setVisibility(View.VISIBLE);
+            drawerLayout.animate()
+                    .setDuration(shortAnimTime)
+                    .alpha(show ? 0 : 1)
+                    .setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            drawerLayout.setVisibility(show ? View.GONE : View.VISIBLE);
+                        }
+                    });
+        } else {
+            // The ViewPropertyAnimator APIs are not available, so simply show
+            // and hide the relevant UI components.
+            progressLayout.setVisibility(show ? View.VISIBLE : View.GONE);
+            drawerLayout.setVisibility(show ? View.GONE : View.VISIBLE);
         }
     }
 
@@ -105,7 +158,7 @@ public class MainActivity extends Activity {
         mAdapter.addItem(NavKey.GLOABAL, this.getResources().getString(R.string.nav_item_global), -1);
         mAdapter.addItem(NavKey.ENTER_ROOM, this.getResources().getString(R.string.nav_item_enter_room), android.R.drawable.ic_menu_camera);
 
-        mAdapter.addHeader(this.getResources().getString(R.string.nav_header_help));
+        mAdapter.addHeader(this.getResources().getString(R.string.action_help));
         mAdapter.addItem(NavKey.ABOUT, this.getResources().getString(R.string.nav_item_about), android.R.drawable.ic_menu_help);
 
         drawerLeftList.setAdapter(mAdapter);
@@ -126,6 +179,7 @@ public class MainActivity extends Activity {
     private void initViewsById() {
         Log.d(TAG, "initViewsById");
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        progressLayout = findViewById(R.id.login_status);
         drawerRightList = (ListView) findViewById(R.id.right_drawer);
         drawerLeftList = (ListView) findViewById(R.id.left_drawer);
     }
@@ -207,8 +261,6 @@ public class MainActivity extends Activity {
             case android.R.id.home:
                 drawerToggle.onOptionsItemSelected(item);
                 return true;
-            case R.id.action_scanQR:
-                return doQRScan();
             case R.id.action_maps:
                 startActivity(new Intent(this, PathDescription.class));
                 return true;
@@ -222,9 +274,13 @@ public class MainActivity extends Activity {
             case R.id.action_settings:
                 startActivity(new Intent(this, SettingsActivity.class));
                 return true;
+            case R.id.action_help:
+                startActivity(new Intent(this, HelpActivity.class));
+                return true;
             case R.id.action_logout:
                 deleteFile(AuthHelper.FILE_NAME);
-                finish();
+                logoutTask = new UserLogoutTask();
+                logoutTask.execute();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -374,4 +430,50 @@ public class MainActivity extends Activity {
         }
     }
 
+    private class UserLoginTask extends AsyncTask<String, Void, Boolean> {
+        @Override
+        protected Boolean doInBackground(String... params) {
+            if (AuthHelper.authenticate(MainActivity.this)) {
+                return true;
+            }
+            return false;
+        }
+
+        @Override
+        protected void onPostExecute(final Boolean success) {
+            mAuthTask = null;
+            showProgress(false);
+
+            if (success) {
+                Log.d(TAG, "navigateTo Global");
+                navigateTo(NavKey.GLOABAL);
+            } else {
+                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        }
+    }
+
+    private class UserLogoutTask extends AsyncTask<Void, Void, Boolean> {
+
+        @Override
+        protected Boolean doInBackground(Void... params) {
+            try {
+                AuthHelper.logout();
+                return true;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return false;
+        }
+
+        @Override
+        protected void onPostExecute(final Boolean success) {
+            mAuthTask = null;
+            if (success) {
+                finish();
+            }
+        }
+    }
 }

@@ -4,28 +4,32 @@ import android.app.Fragment;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.ListView;
+import android.widget.*;
 import de.fhb.mi.paperfly.R;
+import de.fhb.mi.paperfly.auth.AuthHelper;
+import de.tavendo.autobahn.WebSocketConnection;
+import de.tavendo.autobahn.WebSocketConnectionHandler;
+import de.tavendo.autobahn.WebSocketException;
+import de.tavendo.autobahn.WebSocketOptions;
 
 /**
  * @author Christoph Ott
  */
 public class ChatFragment extends Fragment {
 
+    public static final String TAG = "ChatFragment";
+    public static final String ARG_CHAT_ROOM = "chat_room";
+    public static String ROOM_GLOBAL = "Global";
+    private final WebSocketConnection mConnection = new WebSocketConnection();
     private View rootView;
     private ListView messagesList;
     private EditText messageInput;
     private ImageButton buSend;
     private ArrayAdapter<String> messagesAdapter;
-
-    public static String ROOM_GLOBAL = "Global";
-    public static final String ARG_CHAT_ROOM = "chat_room";
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -63,8 +67,8 @@ public class ChatFragment extends Fragment {
         buSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                messagesAdapter.add(messageInput.getText().toString());
-                messagesAdapter.notifyDataSetChanged();
+                String message = "{'text': '" + messageInput.getText().toString() + "'}";
+                mConnection.sendTextMessage(message);
                 messageInput.setText("");
             }
         });
@@ -74,12 +78,62 @@ public class ChatFragment extends Fragment {
         messagesList.setStackFromBottom(true);
         messagesList.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
 
+
         return rootView;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        Log.d(TAG, "onStart");
+        connectToWebsocket(AuthHelper.URL_CHAT_GLOBAL);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG, "onDestroy");
+        mConnection.disconnect();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.d(TAG, "onResume");
+        messageInput.requestFocus();
     }
 
     private void initViewsById() {
         messagesList = (ListView) this.rootView.findViewById(R.id.messagesList);
         messageInput = (EditText) this.rootView.findViewById(R.id.messageInput);
         buSend = (ImageButton) this.rootView.findViewById(R.id.buSend);
+    }
+
+    private void connectToWebsocket(final String wsuri) {
+        WebSocketOptions asd = new WebSocketOptions();
+        try {
+            mConnection.connect(wsuri, new WebSocketConnectionHandler() {
+
+                @Override
+                public void onOpen() {
+                    Log.d(TAG, "Status: Connected to " + wsuri);
+                }
+
+                @Override
+                public void onTextMessage(String payload) {
+                    Log.d(TAG, "Got payload: " + payload);
+                    messagesAdapter.add(payload);
+                    messagesAdapter.notifyDataSetChanged();
+                }
+
+                @Override
+                public void onClose(int code, String reason) {
+                    Toast.makeText(rootView.getContext(), "Connection lost.", Toast.LENGTH_LONG).show();
+                    Log.d(TAG, "Connection lost.");
+                }
+            });
+        } catch (WebSocketException e) {
+            Log.d(TAG, e.toString());
+        }
     }
 }

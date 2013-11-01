@@ -39,19 +39,36 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".auth.LoginActivity"
+            android:name="de.fhb.mi.paperfly.auth.LoginActivity"
             android:label="@string/title_activity_login"
-            android:windowSoftInputMode="adjustResize|stateVisible"
-            android:parentActivityName="de.fhb.mi.paperfly.MainActivity"></activity>
+            android:windowSoftInputMode="adjustResize|stateVisible" />
         <activity
             android:name="de.fhb.mi.paperfly.PathDescription"
             android:label="@string/title_activity_path_description" />
         <activity
             android:name="de.fhb.mi.paperfly.WebSocketTestMainActivity"
-            android:label="@string/title_activity_web_socket_test_main" />
+            android:label="@string/title_activity_web_socket_test_main"
+            android:parentActivityName="de.fhb.mi.paperfly.MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="de.fhb.mi.paperfly.MainActivity" />
+        </activity>
         <activity
             android:name="de.fhb.mi.paperfly.SettingsActivity"
-            android:label="@string/title_activity_settings" />
+            android:label="@string/title_activity_settings"
+            android:parentActivityName="de.fhb.mi.paperfly.MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="de.fhb.mi.paperfly.MainActivity" />
+        </activity>
+        <activity
+            android:name="de.fhb.mi.paperfly.HelpActivity"
+            android:label="@string/title_activity_help"
+            android:parentActivityName="de.fhb.mi.paperfly.MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="de.fhb.mi.paperfly.MainActivity" />
+        </activity>
     </application>
 
 </manifest>
