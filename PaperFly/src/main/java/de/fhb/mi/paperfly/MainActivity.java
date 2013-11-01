@@ -13,6 +13,8 @@ import android.util.Log;
 import android.view.*;
 import android.widget.*;
 import android.widget.AdapterView.OnItemClickListener;
+import de.fhb.mi.paperfly.auth.AuthHelper;
+import de.fhb.mi.paperfly.auth.LoginActivity;
 import de.fhb.mi.paperfly.fragments.ChatFragment;
 import de.fhb.mi.paperfly.navigation.NavItemModel;
 import de.fhb.mi.paperfly.navigation.NavKey;
@@ -41,6 +43,20 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         initViewsById();
 
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                synchronized (this) {
+                    if (!AuthHelper.authenticate(MainActivity.this)) {
+                        Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                        startActivity(intent);
+                        finish();
+                    }
+                }
+
+            }
+        });
+        thread.start();
         // DUMMY DATA
         drawerRightValues = new ArrayList<String>();
         for (int i = 0; i < 50; i++) {
@@ -207,7 +223,7 @@ public class MainActivity extends Activity {
                 startActivity(new Intent(this, SettingsActivity.class));
                 return true;
             case R.id.action_logout:
-                deleteFile(LoginActivity.FILE_NAME);
+                deleteFile(AuthHelper.FILE_NAME);
                 finish();
                 return true;
             default:

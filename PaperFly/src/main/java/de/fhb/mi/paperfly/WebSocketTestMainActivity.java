@@ -8,6 +8,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+import de.fhb.mi.paperfly.auth.AuthHelper;
 import de.tavendo.autobahn.WebSocketConnection;
 import de.tavendo.autobahn.WebSocketConnectionHandler;
 import de.tavendo.autobahn.WebSocketException;
@@ -56,7 +57,7 @@ public class WebSocketTestMainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_websockets);
         inURL = (EditText) findViewById(R.id.inURL);
-        inURL.setText(LoginActivity.YOUR_URL);
+        inURL.setText(AuthHelper.YOUR_URL);
         inMessage = (EditText) findViewById(R.id.inMessage);
         laOutput = (TextView) findViewById(R.id.laOutput);
         buGo = (Button) findViewById(R.id.buGo);
