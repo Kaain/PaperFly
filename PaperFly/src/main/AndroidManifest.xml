@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="de.fhb.mi.paperfly"
-    xmlns:android="http://schemas.android.com/apk/res/android"
     android:versionCode="1"
     android:versionName="1.0">
 
@@ -28,6 +27,9 @@
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
             android:value="AIzaSyAVboXhyWr7b1g3M98oeREcW2HS0QrmQNc" />
+        <meta-data
+            android:name="android.app.default_searchable"
+            android:value="de.fhb.mi.paperfly.SearchUserActivity" />
 
         <activity
             android:name="de.fhb.mi.paperfly.MainActivity"
@@ -35,6 +37,7 @@
             android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -49,7 +52,7 @@
             android:name="de.fhb.mi.paperfly.WebSocketTestMainActivity"
             android:label="@string/title_activity_web_socket_test_main"
             android:parentActivityName="de.fhb.mi.paperfly.MainActivity">
-            <meta-data
+        <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="de.fhb.mi.paperfly.MainActivity" />
         </activity>
@@ -57,7 +60,7 @@
             android:name="de.fhb.mi.paperfly.SettingsActivity"
             android:label="@string/title_activity_settings"
             android:parentActivityName="de.fhb.mi.paperfly.MainActivity">
-            <meta-data
+        <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="de.fhb.mi.paperfly.MainActivity" />
         </activity>
@@ -66,6 +69,33 @@
             android:label="@string/title_activity_help"
             android:parentActivityName="de.fhb.mi.paperfly.MainActivity">
             <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="de.fhb.mi.paperfly.MainActivity" />
+        </activity>
+        <activity
+            android:name="de.fhb.mi.paperfly.SearchUserActivity"
+            android:label="@string/title_activity_search_user"
+            android:parentActivityName="de.fhb.mi.paperfly.MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="de.fhb.mi.paperfly.MainActivity" />
+
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.app.searchable"
+                android:resource="@xml/searchable" />
+        </activity>
+        <activity
+            android:name="de.fhb.mi.paperfly.UserProfileActivity"
+            android:label="@string/title_activity_user_profile"
+            android:parentActivityName="de.fhb.mi.paperfly.MainActivity">
+        <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="de.fhb.mi.paperfly.MainActivity" />
         </activity>

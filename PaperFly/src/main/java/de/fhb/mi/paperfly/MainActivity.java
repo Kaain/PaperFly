@@ -6,6 +6,8 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.app.SearchManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
@@ -16,6 +18,7 @@ import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.*;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
 import android.widget.AdapterView.OnItemClickListener;
 import de.fhb.mi.paperfly.auth.AuthHelper;
@@ -35,6 +38,7 @@ public class MainActivity extends Activity {
     private static final String TITLE_LEFT_DRAWER = "Navigation";
     private static final String TITLE_RIGHT_DRAWER = "Status";
     private static final int REQUESTCODE_QRSCAN = 100;
+    private static final int REQUESTCODE_SEARCH_USER = 101;
     private DrawerLayout drawerLayout;
     private ListView drawerRightList;
     private ListView drawerLeftList;
@@ -100,6 +104,8 @@ public class MainActivity extends Activity {
                 bundle.clear();
                 mAuthTask = new UserLoginTask();
                 mAuthTask.execute();
+            } else {
+                navigateTo(NavKey.GLOABAL);
             }
         } else {
             showProgress(true);
@@ -165,11 +171,24 @@ public class MainActivity extends Activity {
     }
 
     @Override
+    public boolean onSearchRequested() {
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+        return super.onSearchRequested();
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         Log.d(TAG, "onCreateOptionsMenu");
         // Inflate the menu; this adds items to the action bar if it is present.
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main, menu);
+
+        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        SearchView searchView = (SearchView) menu.findItem(R.id.action_search_user).getActionView();
+        // Assumes current activity is the searchable activity
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+        searchView.setIconifiedByDefault(false); // Do not iconify the widget; expand it by default
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -267,6 +286,9 @@ public class MainActivity extends Activity {
             case R.id.action_websockettest:
                 Intent intent = new Intent(this, WebSocketTestMainActivity.class);
                 startActivity(intent);
+                return true;
+            case R.id.action_search_user:
+                InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
                 return true;
             case R.id.action_show_persons:
                 openDrawerAndCloseOther(Gravity.RIGHT);
@@ -430,13 +452,11 @@ public class MainActivity extends Activity {
         }
     }
 
+
     private class UserLoginTask extends AsyncTask<String, Void, Boolean> {
         @Override
         protected Boolean doInBackground(String... params) {
-            if (AuthHelper.authenticate(MainActivity.this)) {
-                return true;
-            }
-            return false;
+            return AuthHelper.authenticate(MainActivity.this);
         }
 
         @Override

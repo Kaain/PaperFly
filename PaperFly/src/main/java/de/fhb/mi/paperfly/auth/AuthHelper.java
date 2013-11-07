@@ -1,6 +1,7 @@
 package de.fhb.mi.paperfly.auth;
 
 import android.content.Context;
+import android.util.Base64;
 import android.util.Log;
 import lombok.Cleanup;
 import org.apache.http.HttpResponse;
@@ -15,8 +16,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 
 /**
  * @author Christoph Ott
@@ -66,24 +65,24 @@ public class AuthHelper {
     }
 
     public static boolean authenticate(Context context, String mail, String password) throws IOException {
-//        String credentials = mail + ":" + password;
-//        String base64EncodedCredentials = Base64.encodeToString(credentials.getBytes(), Base64.NO_WRAP);
-//        return authenticate(context, base64EncodedCredentials);
+        String credentials = mail + ":" + password;
+        String base64EncodedCredentials = Base64.encodeToString(credentials.getBytes(), Base64.NO_WRAP);
+        return authenticate(context, base64EncodedCredentials);
 
-        try {
-            MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
-            messageDigest.update(password.getBytes());
-            byte[] byteData = messageDigest.digest();
-            StringBuffer sb = new StringBuffer();
-
-            for (int i = 0; i < byteData.length; i++) {
-                sb.append(Integer.toString((byteData[i] & 0xff) + 0x100, 16).substring(1));
-            }
-            return authDigst(context, mail, sb.toString());
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }
-        return false;
+//        try {
+//            MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+//            messageDigest.update(password.getBytes());
+//            byte[] byteData = messageDigest.digest();
+//            StringBuffer sb = new StringBuffer();
+//
+//            for (int i = 0; i < byteData.length; i++) {
+//                sb.append(Integer.toString((byteData[i] & 0xff) + 0x100, 16).substring(1));
+//            }
+//            return authDigst(context, mail, sb.toString());
+//        } catch (NoSuchAlgorithmException e) {
+//            e.printStackTrace();
+//        }
+//        return false;
     }
 
     private static boolean authDigst(Context context, String mail, String hashPw) {

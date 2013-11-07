@@ -4,14 +4,15 @@
         android:showAsAction="never"
         android:title="@string/action_websockettest" />
     <item
-        android:id="@+id/action_maps"
-        android:icon="@android:drawable/ic_menu_mapmode"
-        android:showAsAction="ifRoom"
-        android:title="@string/menu_maps" />
+        android:id="@+id/action_search_user"
+        android:actionViewClass="android.widget.SearchView"
+        android:icon="@android:drawable/ic_menu_search"
+        android:showAsAction="collapseActionView|always"
+        android:title="@string/action_search_user" />
     <item
         android:id="@+id/action_show_persons"
         android:icon="@drawable/ic_action_group"
-        android:showAsAction="always"
+        android:showAsAction="ifRoom"
         android:title="@string/action_show_persons" />
     <item
         android:id="@+id/action_settings"
