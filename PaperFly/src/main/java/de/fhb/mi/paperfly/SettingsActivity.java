@@ -10,7 +10,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.preference.*;
 import android.text.TextUtils;
-import android.util.Log;
 
 import java.util.List;
 
@@ -49,7 +48,6 @@ public class SettingsActivity extends PreferenceActivity {
      */
     private void setupSimplePreferencesScreen() {
         if (!isSimplePreferences(this)) {
-            Log.wtf(""," as");
             return;
         }
 

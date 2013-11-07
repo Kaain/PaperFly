@@ -40,6 +40,10 @@ public class UserProfileActivity extends Activity {
         // as you specify a parent activity in AndroidManifest.xml.
         switch (item.getItemId()) {
             case R.id.action_settings:
+                startActivity(new Intent(this, SettingsActivity.class));
+                return true;
+            case R.id.action_help:
+                startActivity(new Intent(this, HelpActivity.class));
                 return true;
             case R.id.action_maps:
                 double latitude = 52.411433;

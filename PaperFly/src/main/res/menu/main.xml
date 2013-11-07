@@ -2,7 +2,9 @@
     <item
         android:id="@+id/action_websockettest"
         android:showAsAction="never"
-        android:title="@string/action_websockettest" />
+        android:title="@string/action_websockettest"
+        android:visible="false" />
+    <!--TODO MOCKUP-->
     <item
         android:id="@+id/action_search_user"
         android:actionViewClass="android.widget.SearchView"

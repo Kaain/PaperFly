@@ -106,6 +106,7 @@ public class MainActivity extends Activity {
                 mAuthTask.execute();
             } else {
                 navigateTo(NavKey.GLOABAL);
+                // TODO select global
             }
         } else {
             showProgress(true);
@@ -163,9 +164,6 @@ public class MainActivity extends Activity {
         mAdapter.addHeader(this.getResources().getString(R.string.nav_header_chats));
         mAdapter.addItem(NavKey.GLOABAL, this.getResources().getString(R.string.nav_item_global), -1);
         mAdapter.addItem(NavKey.ENTER_ROOM, this.getResources().getString(R.string.nav_item_enter_room), android.R.drawable.ic_menu_camera);
-
-        mAdapter.addHeader(this.getResources().getString(R.string.action_help));
-        mAdapter.addItem(NavKey.ABOUT, this.getResources().getString(R.string.nav_item_about), android.R.drawable.ic_menu_help);
 
         drawerLeftList.setAdapter(mAdapter);
     }
@@ -288,7 +286,6 @@ public class MainActivity extends Activity {
                 startActivity(intent);
                 return true;
             case R.id.action_search_user:
-                InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
                 return true;
             case R.id.action_show_persons:
                 openDrawerAndCloseOther(Gravity.RIGHT);
@@ -356,7 +353,7 @@ public class MainActivity extends Activity {
         } else {
             // TODO only for mockup test
             switchToChatRoom("INFZ_305", "");
-            Toast.makeText(this, "Keine Kamera da :(", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Keine Kamera da.(Für Mockup) INFZ_305 als Raum", Toast.LENGTH_SHORT).show();
             return false;
         }
     }
@@ -427,8 +424,7 @@ public class MainActivity extends Activity {
                 switchToGlobalChat();
                 break;
             case CHECK_PRESENCE:
-                break;
-            case ABOUT:
+                new InfoDialog().show(getFragmentManager(), TAG);
                 break;
         }
         drawerLayout.closeDrawer(Gravity.LEFT);
@@ -467,6 +463,7 @@ public class MainActivity extends Activity {
             if (success) {
                 Log.d(TAG, "navigateTo Global");
                 navigateTo(NavKey.GLOABAL);
+                // TODO select global
             } else {
                 Intent intent = new Intent(MainActivity.this, LoginActivity.class);
                 startActivity(intent);

@@ -1,5 +1,6 @@
 package de.fhb.mi.paperfly.fragments;
 
+import android.app.Activity;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.text.Editable;
@@ -9,12 +10,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
+import de.fhb.mi.paperfly.PaperFlyApp;
 import de.fhb.mi.paperfly.R;
-import de.fhb.mi.paperfly.auth.AuthHelper;
 import de.tavendo.autobahn.WebSocketConnection;
 import de.tavendo.autobahn.WebSocketConnectionHandler;
 import de.tavendo.autobahn.WebSocketException;
 import de.tavendo.autobahn.WebSocketOptions;
+
+import java.util.List;
 
 /**
  * @author Christoph Ott
@@ -30,14 +33,21 @@ public class ChatFragment extends Fragment {
     private EditText messageInput;
     private ImageButton buSend;
     private ArrayAdapter<String> messagesAdapter;
+    private boolean globalRoom;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        String room = getArguments().getString(ARG_CHAT_ROOM);
         this.rootView = inflater.inflate(R.layout.fragment_chat, container, false);
         initViewsById();
+
+        String room = getArguments().getString(ARG_CHAT_ROOM);
+        if (room == ROOM_GLOBAL) {
+            globalRoom = true;
+        } else {
+            globalRoom = false;
+        }
 
         messagesAdapter = new ArrayAdapter<String>(rootView.getContext(), android.R.layout.simple_list_item_1);
 
@@ -68,13 +78,16 @@ public class ChatFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 String message = "{'text': '" + messageInput.getText().toString() + "'}";
-                mConnection.sendTextMessage(message);
+                messagesAdapter.add(messageInput.getText().toString());
+                messagesAdapter.notifyDataSetChanged();
+//                ((PaperFlyApp)getActivity().getApplication()).getChatGlobal().add(messageInput.getText().toString());
+// TODO MOCKUP               mConnection.sendTextMessage(message);
                 messageInput.setText("");
             }
         });
         buSend.setClickable(false);
 
-        messagesList.setAdapter(messagesAdapter);
+//        messagesList.setAdapter(messagesAdapter);
         messagesList.setStackFromBottom(true);
         messagesList.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
 
@@ -86,20 +99,53 @@ public class ChatFragment extends Fragment {
     public void onStart() {
         super.onStart();
         Log.d(TAG, "onStart");
-        connectToWebsocket(AuthHelper.URL_CHAT_GLOBAL);
+// TODO MOCKUP        connectToWebsocket(AuthHelper.URL_CHAT_GLOBAL);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         Log.d(TAG, "onDestroy");
-        mConnection.disconnect();
+// TODO MOCKUP        mConnection.disconnect();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        Log.d(TAG, "onPause");
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        Log.d(TAG, "onStop");
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        Log.d(TAG, "onDetach");
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        Log.d(TAG, "onAttach");
     }
 
     @Override
     public void onResume() {
         super.onResume();
         Log.d(TAG, "onResume");
+
+        List<String> chatList;
+        if (globalRoom) {
+            chatList = ((PaperFlyApp) getActivity().getApplication()).getChatGlobal();
+        } else {
+            chatList = ((PaperFlyApp) getActivity().getApplication()).getChatRoom();
+        }
+        messagesAdapter = new ArrayAdapter<String>(rootView.getContext(), android.R.layout.simple_list_item_1, chatList);
+        messagesList.setAdapter(messagesAdapter);
         messageInput.requestFocus();
     }
 
