@@ -13,6 +13,13 @@ repositories {
     maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
 }
 
+ext.daggerVersion = '1.0.0';
+ext.androidAnnotationsVersion = '2.7.1';
+
+configurations {
+    apt
+}
+
 android {
     compileSdkVersion 18
     buildToolsVersion "18.1.0"
@@ -24,10 +31,49 @@ android {
 }
 
 dependencies {
+    apt "com.googlecode.androidannotations:androidannotations:${androidAnnotationsVersion}"
+    compile "com.googlecode.androidannotations:androidannotations-api:${androidAnnotationsVersion}"
+    apt "com.squareup.dagger:dagger-compiler:${daggerVersion}"
+    compile "com.squareup.dagger:dagger:${daggerVersion}"
+
     compile 'com.android.support:appcompat-v7:18.0.0'
     compile 'com.android.support:support-v4:13.0.0'
     compile 'com.google.zxing:core:2.2'
     compile 'de.tavendo:autobahn-android:0.5.2-SNAPSHOT'
     compile 'com.google.android.gms:play-services:3.1.36'
     compile 'org.projectlombok:lombok:1.12.2'
+
+    compile 'org.springframework.android:spring-android-rest-template:1.0.1.RELEASE'
+    compile 'org.springframework.android:spring-android-auth:1.0.1.RELEASE'
+    compile 'org.springframework.android:spring-android-core:1.0.1.RELEASE'
+}
+
+def getSourceSetName(variant) {
+    return new File(variant.dirName).getName();
+}
+
+android.applicationVariants.all { variant ->
+    def aptOutputDir = project.file("build/source/apt")
+    def aptOutput = new File(aptOutputDir, variant.dirName)
+    println "****************************"
+    println "variant: ${variant.name}"
+    println "manifest:  ${variant.processResources.manifestFile}"
+    println "aptOutput:  ${aptOutput}"
+    println "****************************"
+
+    android.sourceSets[getSourceSetName(variant)].java.srcDirs += aptOutput.getPath()
+
+    variant.javaCompile.options.compilerArgs += [
+            '-processorpath', configurations.apt.getAsPath(),
+            '-AandroidManifestFile=' + variant.processResources.manifestFile,
+            '-s', aptOutput
+    ]
+
+    variant.javaCompile.source = variant.javaCompile.source.filter { p ->
+        return !p.getPath().startsWith(aptOutputDir.getPath())
+    }
+
+    variant.javaCompile.doFirst {
+        aptOutput.mkdirs()
+    }
 }

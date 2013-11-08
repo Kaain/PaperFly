@@ -8,7 +8,7 @@
     tools:context=".MainActivity">
 
     <android.support.v4.widget.DrawerLayout
-        android:id="@+id/drawer_layout"
+        android:id="@+id/drawerLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -20,7 +20,7 @@
 
         <!-- The left navigation drawer -->
         <ListView
-            android:id="@+id/left_drawer"
+            android:id="@+id/drawerLeft"
             android:layout_width="240dp"
             android:layout_height="match_parent"
             android:layout_gravity="left"
@@ -30,7 +30,7 @@
             android:dividerHeight="0dp" />
         <!-- The right navigation drawer -->
         <ListView
-            android:id="@+id/right_drawer"
+            android:id="@+id/drawerRight"
             android:layout_width="240dp"
             android:layout_height="match_parent"
             android:layout_gravity="right"
@@ -42,7 +42,7 @@
 
     <!-- Login progress -->
     <LinearLayout
-        android:id="@+id/login_status"
+        android:id="@+id/progressLayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"

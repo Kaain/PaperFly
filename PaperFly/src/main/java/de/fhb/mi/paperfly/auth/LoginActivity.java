@@ -16,7 +16,7 @@ import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
-import de.fhb.mi.paperfly.MainActivity;
+import de.fhb.mi.paperfly.MainActivity_;
 import de.fhb.mi.paperfly.R;
 
 import java.io.IOException;
@@ -215,7 +215,7 @@ public class LoginActivity extends Activity {
             showProgress(false);
 
             if (success) {
-                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                Intent intent = new Intent(LoginActivity.this, MainActivity_.class);
                 intent.putExtra(LOGIN_SUCCESFUL, true);
                 startActivity(intent);
                 finish();
