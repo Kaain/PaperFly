@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.*;
 import de.fhb.mi.paperfly.PaperFlyApp;
 import de.fhb.mi.paperfly.R;
+import de.fhb.mi.paperfly.auth.AuthHelper;
 import de.tavendo.autobahn.WebSocketConnection;
 import de.tavendo.autobahn.WebSocketConnectionHandler;
 import de.tavendo.autobahn.WebSocketException;
@@ -81,7 +82,7 @@ public class ChatFragment extends Fragment {
                 messagesAdapter.add(messageInput.getText().toString());
                 messagesAdapter.notifyDataSetChanged();
 //                ((PaperFlyApp)getActivity().getApplication()).getChatGlobal().add(messageInput.getText().toString());
-// TODO MOCKUP               mConnection.sendTextMessage(message);
+                mConnection.sendTextMessage(message);
                 messageInput.setText("");
             }
         });
@@ -99,14 +100,14 @@ public class ChatFragment extends Fragment {
     public void onStart() {
         super.onStart();
         Log.d(TAG, "onStart");
-// TODO MOCKUP        connectToWebsocket(AuthHelper.URL_CHAT_GLOBAL);
+        connectToWebsocket(AuthHelper.URL_CHAT_GLOBAL);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         Log.d(TAG, "onDestroy");
-// TODO MOCKUP        mConnection.disconnect();
+        mConnection.disconnect();
     }
 
     @Override
