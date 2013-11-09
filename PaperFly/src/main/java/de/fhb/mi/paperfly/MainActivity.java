@@ -21,9 +21,6 @@ import android.view.*;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
 import android.widget.AdapterView.OnItemClickListener;
-import com.googlecode.androidannotations.annotations.EActivity;
-import com.googlecode.androidannotations.annotations.OnActivityResult;
-import com.googlecode.androidannotations.annotations.ViewById;
 import de.fhb.mi.paperfly.auth.AuthHelper;
 import de.fhb.mi.paperfly.auth.LoginActivity;
 import de.fhb.mi.paperfly.fragments.ChatFragment;
@@ -36,25 +33,20 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-@EActivity
 public class MainActivity extends Activity {
     private static final String TAG = "MainActivity";
     private static final String TITLE_LEFT_DRAWER = "Navigation";
     private static final String TITLE_RIGHT_DRAWER = "Status";
     private static final int REQUESTCODE_QRSCAN = 100;
     private static final int REQUESTCODE_SEARCH_USER = 101;
-    @ViewById
-    DrawerLayout drawerLayout;
-    @ViewById
-    ListView drawerRight;
-    @ViewById
-    ListView drawerLeft;
+    private DrawerLayout drawerLayout;
+    private ListView drawerRightList;
+    private ListView drawerLeftList;
     private List<String> drawerRightValues;
     private ActionBarDrawerToggle drawerToggle;
     private CharSequence mTitle;
     private UserLoginTask mAuthTask = null;
     private UserLogoutTask logoutTask = null;
-    @ViewById
     private View progressLayout;
 
     @Override
@@ -62,6 +54,8 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate");
         setContentView(R.layout.activity_main);
+        initViewsById();
+
 
         // DUMMY DATA
         drawerRightValues = new ArrayList<String>();
@@ -79,10 +73,10 @@ public class MainActivity extends Activity {
         getActionBar().setHomeButtonEnabled(true);
 
         // Set the adapter for the list view
-        drawerRight.setAdapter(new ArrayAdapter<String>(this,
+        drawerRightList.setAdapter(new ArrayAdapter<String>(this,
                 R.layout.drawer_list_item, drawerRightValues));
         // Set the list's click listener
-        drawerRight.setOnItemClickListener(new OnItemClickListener() {
+        drawerRightList.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
@@ -91,9 +85,11 @@ public class MainActivity extends Activity {
 
 
         // Set the list's click listener
-        drawerLeft.setOnItemClickListener(new DrawerItemClickListener());
+        drawerLeftList.setOnItemClickListener(new DrawerItemClickListener());
 
         generateNavigation();
+
+
     }
 
     @Override
@@ -169,7 +165,7 @@ public class MainActivity extends Activity {
         mAdapter.addItem(NavKey.GLOABAL, this.getResources().getString(R.string.nav_item_global), -1);
         mAdapter.addItem(NavKey.ENTER_ROOM, this.getResources().getString(R.string.nav_item_enter_room), android.R.drawable.ic_menu_camera);
 
-        drawerLeft.setAdapter(mAdapter);
+        drawerLeftList.setAdapter(mAdapter);
     }
 
     @Override
@@ -192,6 +188,17 @@ public class MainActivity extends Activity {
         searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
         searchView.setIconifiedByDefault(false); // Do not iconify the widget; expand it by default
         return super.onCreateOptionsMenu(menu);
+    }
+
+    /**
+     * Initializes all views in the layout.
+     */
+    private void initViewsById() {
+        Log.d(TAG, "initViewsById");
+        drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        progressLayout = findViewById(R.id.login_status);
+        drawerRightList = (ListView) findViewById(R.id.right_drawer);
+        drawerLeftList = (ListView) findViewById(R.id.left_drawer);
     }
 
     /**
@@ -351,39 +358,24 @@ public class MainActivity extends Activity {
         }
     }
 
-    @OnActivityResult(REQUESTCODE_QRSCAN)
-    public void onResultQRScan(int resultCode, Intent data) {
-        if (resultCode == RESULT_OK) {
-            String room = data.getStringExtra("SCAN_RESULT");
-            String format = data.getStringExtra("SCAN_RESULT_FORMAT");
-            switchToChatRoom(room, format);
-            Toast.makeText(this, room, Toast.LENGTH_SHORT).show();
-        } else if (resultCode == RESULT_CANCELED) {
-            // TODO only for mockup test
-            String testRoom = "INFZ 305";
-            Toast.makeText(this, "Cancel", Toast.LENGTH_SHORT).show();
-            switchToChatRoom(testRoom, "");
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        Log.d(TAG, "onActivityResult");
+        if (requestCode == REQUESTCODE_QRSCAN) {
+            if (resultCode == RESULT_OK) {
+                String room = intent.getStringExtra("SCAN_RESULT");
+                String format = intent.getStringExtra("SCAN_RESULT_FORMAT");
+                switchToChatRoom(room, format);
+                Toast.makeText(this, room, Toast.LENGTH_SHORT).show();
+            } else if (resultCode == RESULT_CANCELED) {
+                // TODO only for mockup test
+                String testRoom = "INFZ 305";
+                Toast.makeText(this, "Cancel", Toast.LENGTH_SHORT).show();
+                switchToChatRoom(testRoom, "");
+            }
+
         }
     }
-
-//    @Override
-//    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
-//        Log.d(TAG, "onActivityResult");
-//        if (requestCode == REQUESTCODE_QRSCAN) {
-//            if (resultCode == RESULT_OK) {
-//                String room = intent.getStringExtra("SCAN_RESULT");
-//                String format = intent.getStringExtra("SCAN_RESULT_FORMAT");
-//                switchToChatRoom(room, format);
-//                Toast.makeText(this, room, Toast.LENGTH_SHORT).show();
-//            } else if (resultCode == RESULT_CANCELED) {
-//                // TODO only for mockup test
-//                String testRoom = "INFZ 305";
-//                Toast.makeText(this, "Cancel", Toast.LENGTH_SHORT).show();
-//                switchToChatRoom(testRoom, "");
-//            }
-//
-//        }
-//    }
 
     private void switchToChatRoom(String room, String format) {
         Fragment fragment = new ChatFragment();
@@ -397,10 +389,10 @@ public class MainActivity extends Activity {
                 .replace(R.id.content_frame, fragment)
                 .commit();
 
-        NavItemModel enterRoomNav = (NavItemModel) drawerLeft.getItemAtPosition(drawerLeft.getCheckedItemPosition());
+        NavItemModel enterRoomNav = (NavItemModel) drawerLeftList.getItemAtPosition(drawerLeftList.getCheckedItemPosition());
         enterRoomNav.setTitle(room);
         enterRoomNav.setIconID(-1);
-        ((BaseAdapter) drawerLeft.getAdapter()).notifyDataSetChanged();
+        ((BaseAdapter) drawerLeftList.getAdapter()).notifyDataSetChanged();
     }
 
     private void switchToGlobalChat() {
@@ -450,7 +442,7 @@ public class MainActivity extends Activity {
         public void onItemClick(AdapterView parent, View view, int position, long id) {
             Log.d(TAG, "onItemClick Navigation");
             ViewHolder vh = (ViewHolder) view.getTag();
-            drawerLeft.setSelection(position);
+            drawerLeftList.setSelection(position);
             drawerLayout.closeDrawer(Gravity.LEFT);
             navigateTo(vh.key);
         }

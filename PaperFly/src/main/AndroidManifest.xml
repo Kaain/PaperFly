@@ -10,7 +10,7 @@
 
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE " />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -33,7 +33,7 @@
             android:value="de.fhb.mi.paperfly.SearchUserActivity" />
 
         <activity
-            android:name=".MainActivity_"
+            android:name="de.fhb.mi.paperfly.MainActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/app_name">
             <intent-filter>
@@ -52,10 +52,10 @@
         <activity
             android:name="de.fhb.mi.paperfly.WebSocketTestMainActivity"
             android:label="@string/title_activity_web_socket_test_main"
-            android:parentActivityName=".MainActivity_y">
+            android:parentActivityName="de.fhb.mi.paperfly.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity_" />
+                android:value="de.fhb.mi.paperfly.MainActivity" />
         </activity>
         <activity
             android:name="de.fhb.mi.paperfly.SettingsActivity"
@@ -66,8 +66,8 @@
         <activity
             android:name="de.fhb.mi.paperfly.SearchUserActivity"
             android:label="@string/title_activity_search_user"
-            android:parentActivityName=".MainActivity_">
-            <meta-data
+            android:parentActivityName="de.fhb.mi.paperfly.MainActivity">
+        <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="de.fhb.mi.paperfly.MainActivity" />
 
@@ -85,10 +85,10 @@
         <activity
             android:name="de.fhb.mi.paperfly.UserProfileActivity"
             android:label="@string/title_activity_user_profile"
-            android:parentActivityName=".MainActivity_">
+            android:parentActivityName="de.fhb.mi.paperfly.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity_" />
+                android:value="de.fhb.mi.paperfly.MainActivity" />
         </activity>
     </application>
 
