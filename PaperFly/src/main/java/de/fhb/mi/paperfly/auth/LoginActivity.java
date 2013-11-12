@@ -10,12 +10,12 @@ import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.View;
-import android.view.inputmethod.EditorInfo;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 import de.fhb.mi.paperfly.MainActivity;
 import de.fhb.mi.paperfly.R;
 
@@ -36,7 +36,8 @@ public class LoginActivity extends Activity {
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
-    private UserLoginTask mAuthTask = null;
+    private UserLoginTask mLoginTask = null;
+    private UserRegisterTask mRegisterTask = null;
     // Values for email and password at the time of the login attempt.
     private String mEmail;
     private String mPassword;
@@ -59,27 +60,11 @@ public class LoginActivity extends Activity {
         mEmailView.setText(mEmail);
 
         mPasswordView = (EditText) findViewById(R.id.password);
-        mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
-                if (id == R.id.login || id == EditorInfo.IME_NULL) {
-                    attemptLogin();
-                    return true;
-                }
-                return false;
-            }
-        });
 
         mLoginFormView = findViewById(R.id.login_form);
         mLoginStatusView = findViewById(R.id.login_status);
         mLoginStatusMessageView = (TextView) findViewById(R.id.login_status_message);
 
-        findViewById(R.id.sign_in_button).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                attemptLogin();
-            }
-        });
     }
 
     @Override
@@ -90,13 +75,16 @@ public class LoginActivity extends Activity {
     }
 
     /**
-     * Attempts to sign in or register the account specified by the login form.
-     * If there are form errors (invalid email, missing fields, etc.), the
-     * errors are presented and no actual login attempt is made.
+     * Attempt to login or register an user depending on which button was clicked.
+     *
+     * @param v the view which was clicked
      */
-    public void attemptLogin() {
-        Log.d(TAG, "attemptLogin");
-        if (mAuthTask != null) {
+    public void attemptLoginRegister(View v) {
+        Log.d(TAG, "attemptLoginRegister: " + ((Button) v).getText());
+        if (v.getId() == R.id.login_button && mLoginTask != null) {
+            return;
+        }
+        if (v.getId() == R.id.register_button && mRegisterTask != null) {
             return;
         }
 
@@ -108,6 +96,28 @@ public class LoginActivity extends Activity {
         mEmail = mEmailView.getText().toString();
         mPassword = mPasswordView.getText().toString();
 
+        if (checkValues()) {
+            // Show a progress spinner, and kick off a background task to
+            // perform the user login attempt.
+            mLoginStatusMessageView.setText(R.string.login_progress_signing_in);
+            showProgress(true);
+            if (v.getId() == R.id.login_button) {
+                mLoginTask = new UserLoginTask();
+                mLoginTask.execute(mEmail, mPassword);
+            }
+            if (v.getId() == R.id.register_button) {
+                mRegisterTask = new UserRegisterTask();
+                mRegisterTask.execute(mEmail, mPassword);
+            }
+        }
+    }
+
+    /**
+     * Checks if the values in the form are valid.
+     *
+     * @return true if the values are valid, false if not
+     */
+    private boolean checkValues() {
         boolean cancel = false;
         View focusView = null;
 
@@ -132,18 +142,13 @@ public class LoginActivity extends Activity {
             focusView = mEmailView;
             cancel = true;
         }
-
         if (cancel) {
             // There was an error; don't attempt login and focus the first
             // form field with an error.
             focusView.requestFocus();
+            return false;
         } else {
-            // Show a progress spinner, and kick off a background task to
-            // perform the user login attempt.
-            mLoginStatusMessageView.setText(R.string.login_progress_signing_in);
-            showProgress(true);
-            mAuthTask = new UserLoginTask();
-            mAuthTask.execute(mEmail, mPassword);
+            return true;
         }
     }
 
@@ -188,7 +193,7 @@ public class LoginActivity extends Activity {
     }
 
     /**
-     * Represents an asynchronous login/registration task used to authenticate
+     * Represents an asynchronous login task used to authenticate
      * the user.
      */
     public class UserLoginTask extends AsyncTask<String, Void, Boolean> {
@@ -205,13 +210,11 @@ public class LoginActivity extends Activity {
                 e.printStackTrace();
             }
             return false;
-            // TODO: register the new account here.
-
         }
 
         @Override
         protected void onPostExecute(final Boolean success) {
-            mAuthTask = null;
+            mLoginTask = null;
             showProgress(false);
 
             if (success) {
@@ -227,7 +230,41 @@ public class LoginActivity extends Activity {
 
         @Override
         protected void onCancelled() {
-            mAuthTask = null;
+            mLoginTask = null;
+            showProgress(false);
+        }
+    }
+
+    /**
+     * Represents an asynchronous registration task used to authenticate the user.
+     */
+    public class UserRegisterTask extends AsyncTask<String, Void, AuthStatus> {
+        @Override
+        protected AuthStatus doInBackground(String... params) {
+            String mail = params[0];
+            String pw = params[1];
+
+            return AuthHelper.register(mail, pw);
+        }
+
+        @Override
+        protected void onPostExecute(final AuthStatus authStatus) {
+            mRegisterTask = null;
+            showProgress(false);
+
+            switch (authStatus) {
+                case REGISTER_EMAIL_ALREADY_REGISTERED:
+                    Toast.makeText(getApplicationContext(), getApplicationContext().getResources().getString(R.string.register_info_error_email), Toast.LENGTH_LONG).show();
+                    break;
+                case REGISTER_SUCCESSFUL:
+                    ((TextView) findViewById(R.id.register_info)).setText(R.string.register_info_success);
+                    break;
+            }
+        }
+
+        @Override
+        protected void onCancelled() {
+            mRegisterTask = null;
             showProgress(false);
         }
     }

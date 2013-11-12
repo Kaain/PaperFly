@@ -5,8 +5,8 @@
     <string name="prompt_email">Email</string>
     <string name="prompt_password">Password</string>
 
-    <string name="action_sign_in_register"><b>Sign in</b> or register</string>
-    <string name="action_sign_in_short">Sign in</string>
+    <string name="action_sign_in">Sign in</string>
+    <string name="action_register">Register</string>
 
     <string name="action_forgot_password">Recover lost password</string>
 
@@ -16,4 +16,6 @@
     <string name="error_invalid_password">This password is too short</string>
     <string name="error_incorrect_password">This password is incorrect</string>
     <string name="error_field_required">This field is required</string>
+    <string name="register_info_success">Registration successful. Please sign in with your email and password.</string>
+    <string name="register_info_error_email">Email already registered.</string>
 </resources>

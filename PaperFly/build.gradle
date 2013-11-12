@@ -30,4 +30,5 @@ dependencies {
     compile 'de.tavendo:autobahn-android:0.5.2-SNAPSHOT'
     compile 'com.google.android.gms:play-services:3.1.36'
     compile 'org.projectlombok:lombok:1.12.2'
+    compile 'com.sun.jersey:jersey-archive:1.11'
 }

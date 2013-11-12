@@ -90,6 +90,12 @@ public class AuthHelper {
         return true;
     }
 
+    /**
+     * Authenticates the user, if he was logged at anytime.
+     *
+     * @param context the activity context
+     * @return true if the login was successful, false otherwise
+     */
     public static boolean authenticate(Context context) {
         Log.d(TAG, "authenticate file");
         try {
@@ -107,5 +113,23 @@ public class AuthHelper {
             Log.d(TAG, "IOException", e);
         }
         return false;
+    }
+
+    /**
+     * Registers an user.
+     *
+     * @param mail the users email address
+     * @param pw   the password
+     * @return true if registration was successful, false otherwise.
+     */
+    public static AuthStatus register(String mail, String pw) {
+        // TODO implement register
+
+        boolean valid = false;
+        if (valid) {
+            return AuthStatus.REGISTER_SUCCESSFUL;
+        } else {
+            return AuthStatus.REGISTER_EMAIL_ALREADY_REGISTERED;
+        }
     }
 }
