@@ -18,7 +18,7 @@ import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.*;
-import android.view.inputmethod.InputMethodManager;
+import android.view.MenuItem.OnActionExpandListener;
 import android.widget.*;
 import android.widget.AdapterView.OnItemClickListener;
 import de.fhb.mi.paperfly.auth.AuthHelper;
@@ -56,7 +56,6 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         initViewsById();
 
-
         // DUMMY DATA
         drawerRightValues = new ArrayList<String>();
         for (int i = 0; i < 50; i++) {
@@ -83,13 +82,16 @@ public class MainActivity extends Activity {
             }
         });
 
-
         // Set the list's click listener
         drawerLeftList.setOnItemClickListener(new DrawerItemClickListener());
 
         generateNavigation();
+    }
 
-
+    @Override
+    protected void onNewIntent(Intent intent) {
+        Log.d(TAG, "onNewIntent");
+        super.onNewIntent(intent);
     }
 
     @Override
@@ -169,13 +171,6 @@ public class MainActivity extends Activity {
     }
 
     @Override
-    public boolean onSearchRequested() {
-        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
-        return super.onSearchRequested();
-    }
-
-    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         Log.d(TAG, "onCreateOptionsMenu");
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -184,9 +179,27 @@ public class MainActivity extends Activity {
 
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         SearchView searchView = (SearchView) menu.findItem(R.id.action_search_user).getActionView();
+
+        // Get the menu item from the action bar
+        MenuItem menuItem = menu.findItem(R.id.action_search_user);
+        menuItem.setOnActionExpandListener(new OnActionExpandListener() {
+
+            @Override
+            public boolean onMenuItemActionExpand(MenuItem item) {
+                Log.d(TAG, "Search activated. Locking drawers.");
+                drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+                return true;
+            }
+
+            @Override
+            public boolean onMenuItemActionCollapse(MenuItem item) {
+                Log.d(TAG, "Search deactivated. Unlocking drawers.");
+                drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+                return true;
+            }
+        });
         // Assumes current activity is the searchable activity
         searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-        searchView.setIconifiedByDefault(false); // Do not iconify the widget; expand it by default
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -286,7 +299,7 @@ public class MainActivity extends Activity {
                 startActivity(intent);
                 return true;
             case R.id.action_search_user:
-                return true;
+                return false;
             case R.id.action_show_persons:
                 openDrawerAndCloseOther(Gravity.RIGHT);
                 return true;
@@ -447,7 +460,6 @@ public class MainActivity extends Activity {
             navigateTo(vh.key);
         }
     }
-
 
     private class UserLoginTask extends AsyncTask<String, Void, Boolean> {
         @Override
