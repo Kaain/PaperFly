@@ -29,7 +29,7 @@
             android:value="AIzaSyAVboXhyWr7b1g3M98oeREcW2HS0QrmQNc" />
         <meta-data
             android:name="android.app.default_searchable"
-            android:value="de.fhb.mi.paperfly.SearchUserActivity" />
+            android:value="de.fhb.mi.paperfly.user.SearchUserActivity" />
 
         <activity
             android:name="de.fhb.mi.paperfly.MainActivity"
@@ -46,9 +46,6 @@
             android:label="@string/title_activity_login"
             android:windowSoftInputMode="adjustResize|stateVisible" />
         <activity
-            android:name="de.fhb.mi.paperfly.PathDescription"
-            android:label="@string/title_activity_path_description" />
-        <activity
             android:name="de.fhb.mi.paperfly.WebSocketTestMainActivity"
             android:label="@string/title_activity_web_socket_test_main"
             android:parentActivityName="de.fhb.mi.paperfly.MainActivity">
@@ -63,7 +60,7 @@
             android:name="de.fhb.mi.paperfly.HelpActivity"
             android:label="@string/title_activity_help" />
         <activity
-            android:name=".SearchUserActivity"
+            android:name=".user.SearchUserActivity"
             android:label="@string/title_activity_search_user"
             android:parentActivityName="de.fhb.mi.paperfly.MainActivity">
             <meta-data
@@ -82,7 +79,7 @@
                 android:resource="@xml/searchable" />
         </activity>
         <activity
-            android:name=".UserProfileActivity"
+            android:name=".user.UserProfileActivity"
             android:label="@string/title_activity_user_profile"
             android:parentActivityName="de.fhb.mi.paperfly.MainActivity">
             <meta-data

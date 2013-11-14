@@ -291,9 +291,6 @@ public class MainActivity extends Activity {
             case android.R.id.home:
                 drawerToggle.onOptionsItemSelected(item);
                 return true;
-            case R.id.action_maps:
-                startActivity(new Intent(this, PathDescription.class));
-                return true;
             case R.id.action_websockettest:
                 Intent intent = new Intent(this, WebSocketTestMainActivity.class);
                 startActivity(intent);

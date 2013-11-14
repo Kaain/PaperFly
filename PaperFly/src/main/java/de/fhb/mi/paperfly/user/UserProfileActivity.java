@@ -1,4 +1,4 @@
-package de.fhb.mi.paperfly;
+package de.fhb.mi.paperfly.user;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -15,6 +15,9 @@ import android.os.IBinder;
 import android.view.*;
 import android.widget.TextView;
 import com.google.android.gms.common.GooglePlayServicesUtil;
+import de.fhb.mi.paperfly.HelpActivity;
+import de.fhb.mi.paperfly.R;
+import de.fhb.mi.paperfly.SettingsActivity;
 import de.fhb.mi.paperfly.service.BackgroundLocationService;
 
 public class UserProfileActivity extends Activity {

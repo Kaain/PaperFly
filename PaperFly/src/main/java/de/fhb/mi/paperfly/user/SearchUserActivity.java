@@ -1,4 +1,4 @@
-package de.fhb.mi.paperfly;
+package de.fhb.mi.paperfly.user;
 
 import android.app.ListActivity;
 import android.app.SearchManager;
@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import de.fhb.mi.paperfly.R;
 
 import java.util.ArrayList;
 import java.util.List;
