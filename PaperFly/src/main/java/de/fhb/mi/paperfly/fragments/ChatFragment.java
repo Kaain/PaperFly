@@ -79,9 +79,6 @@ public class ChatFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 String message = "{'text': '" + messageInput.getText().toString() + "'}";
-                messagesAdapter.add(messageInput.getText().toString());
-                messagesAdapter.notifyDataSetChanged();
-//                ((PaperFlyApp)getActivity().getApplication()).getChatGlobal().add(messageInput.getText().toString());
                 mConnection.sendTextMessage(message);
                 messageInput.setText("");
             }
