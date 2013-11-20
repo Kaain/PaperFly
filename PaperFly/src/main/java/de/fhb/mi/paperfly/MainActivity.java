@@ -164,7 +164,6 @@ public class MainActivity extends Activity {
 
     /**
      * generates NavigationList
-     *
      */
     private void generateNavigation() {
         //TODO muesste es nicht heißen generateNavigationLeft?
@@ -310,12 +309,6 @@ public class MainActivity extends Activity {
                 return false;
             case R.id.action_show_persons:
                 openDrawerAndCloseOther(Gravity.RIGHT);
-                return true;
-            case R.id.action_friends_list:
-                //TODO here
-                Toast toast = Toast.makeText(getApplicationContext(), "open friendsList", Toast.LENGTH_LONG);
-                toast.show();
-                openFriendsList();
                 return true;
             case R.id.action_settings:
                 startActivity(new Intent(this, SettingsActivity.class));

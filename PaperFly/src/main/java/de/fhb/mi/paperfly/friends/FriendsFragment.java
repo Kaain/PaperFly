@@ -9,11 +9,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import de.fhb.mi.paperfly.R;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import de.fhb.mi.paperfly.R;
 
 /**
  * ListView of marked contacts, called Friendslist
@@ -41,7 +40,7 @@ public class FriendsFragment extends Fragment {
             friendslistValues.add("User" + i);
         }
 
-        friendsListView.setAdapter(new ArrayAdapter<String>(rootView.getContext(), R.layout.fragment_friends, friendslistValues));
+        friendsListView.setAdapter(new ArrayAdapter<String>(rootView.getContext(), android.R.layout.simple_list_item_1, friendslistValues));
 
         return rootView;
     }
