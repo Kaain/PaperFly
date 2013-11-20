@@ -10,12 +10,14 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import de.fhb.mi.paperfly.PaperFlyApp;
 import de.fhb.mi.paperfly.R;
 
 /**
+ * ListView of marked contacts, called Friendslist
+ *
  * @author Andy Klay    klay@fh-brandenburg.de
  */
 public class FriendsFragment extends Fragment {
@@ -23,8 +25,8 @@ public class FriendsFragment extends Fragment {
     public static final String TAG = "FriendsFragment";
 
     private View rootView;
-    private ListView friendsList;
-
+    private ListView friendsListView;
+    private List<String> friendslistValues;
 
 
     @Override
@@ -33,13 +35,20 @@ public class FriendsFragment extends Fragment {
         this.rootView = inflater.inflate(R.layout.fragment_friends, container, false);
         initViewsById();
 
+        //TODO DUMMY DATA replace later
+        friendslistValues = new ArrayList<String>();
+        for (int i = 0; i < 20; i++) {
+            friendslistValues.add("User" + i);
+        }
+
+        friendsListView.setAdapter(new ArrayAdapter<String>(rootView.getContext(), R.layout.fragment_friends, friendslistValues));
+
         return rootView;
     }
 
     private void initViewsById() {
 
-
-
+        friendsListView = (ListView) rootView.findViewById(R.id.friendsList);
     }
 
     @Override
@@ -79,14 +88,14 @@ public class FriendsFragment extends Fragment {
 
         //TODO
 //        List<String> chatList;
-  //      if (globalRoom) {
-    //        chatList = ((PaperFlyApp) getActivity().getApplication()).getChatGlobal();
-      //  } else {
+        //      if (globalRoom) {
+        //        chatList = ((PaperFlyApp) getActivity().getApplication()).getChatGlobal();
+        //  } else {
         //    chatList = ((PaperFlyApp) getActivity().getApplication()).getChatRoom();
-       // }
-       // messagesAdapter = new ArrayAdapter<String>(rootView.getContext(), android.R.layout.simple_list_item_1, chatList);
-       // messagesList.setAdapter(messagesAdapter);
-       // messageInput.requestFocus();
+        // }
+        // messagesAdapter = new ArrayAdapter<String>(rootView.getContext(), android.R.layout.simple_list_item_1, chatList);
+        // messagesList.setAdapter(messagesAdapter);
+        // messageInput.requestFocus();
     }
 
 }
