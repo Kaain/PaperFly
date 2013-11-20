@@ -33,7 +33,7 @@ public class FriendsFragment extends Fragment {
         this.rootView = inflater.inflate(R.layout.fragment_friends, container, false);
         initViewsById();
 
-        return null;
+        return rootView;
     }
 
     private void initViewsById() {
@@ -41,10 +41,6 @@ public class FriendsFragment extends Fragment {
 
 
     }
-
-
-
-
 
     @Override
     public void onDestroy() {

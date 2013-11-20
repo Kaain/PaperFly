@@ -162,7 +162,12 @@ public class MainActivity extends Activity {
         }
     }
 
+    /**
+     * generates NavigationList
+     *
+     */
     private void generateNavigation() {
+        //TODO muesste es nicht heißen generateNavigationLeft?
         Log.d(TAG, "generateNavigation");
         NavListAdapter mAdapter = new NavListAdapter(this);
         mAdapter.addHeader(this.getResources().getString(R.string.nav_header_general));
@@ -172,7 +177,6 @@ public class MainActivity extends Activity {
         mAdapter.addItem(NavKey.GLOBAL, this.getResources().getString(R.string.nav_item_global), -1);
         mAdapter.addItem(NavKey.ENTER_ROOM, this.getResources().getString(R.string.nav_item_enter_room), android.R.drawable.ic_menu_camera);
         mAdapter.addItem(NavKey.OPEN_FRIENDSLIST, this.getResources().getString(R.string.nav_item_open_friendslist), android.R.drawable.ic_menu_share);
-        //TODO XXX
 
         drawerLeftList.setAdapter(mAdapter);
     }
@@ -386,14 +390,8 @@ public class MainActivity extends Activity {
      */
     private boolean openFriendsList() {
         Log.d(TAG, "openFriendsList");
-        //TODO
 
         Fragment fragment = new FriendsFragment();
-        Bundle args = new Bundle();
-        //args.putString(ChatFragment.ARG_CHAT_ROOM, ChatFragment.ROOM_GLOBAL);
-        //fragment.setArguments(args);
-
-        // Insert the fragment by replacing any existing fragment
         FragmentManager fragmentManager = getFragmentManager();
         fragmentManager.beginTransaction()
                 .replace(R.id.content_frame, fragment)
