@@ -19,6 +19,7 @@ import de.fhb.mi.paperfly.HelpActivity;
 import de.fhb.mi.paperfly.R;
 import de.fhb.mi.paperfly.SettingsActivity;
 import de.fhb.mi.paperfly.service.BackgroundLocationService;
+import de.fhb.mi.paperfly.service.BackgroundLocationService.LocationBinder;
 
 public class UserProfileActivity extends Activity {
 
@@ -36,7 +37,7 @@ public class UserProfileActivity extends Activity {
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
             // We've bound to LocalService, cast the IBinder and get LocalService instance
-            BackgroundLocationService.LocalBinder binder = (BackgroundLocationService.LocalBinder) service;
+            LocationBinder binder = (LocationBinder) service;
             mBackgroundLocationService = binder.getServerInstance();
             mBound = true;
         }
@@ -48,7 +49,7 @@ public class UserProfileActivity extends Activity {
     };
 
     private Intent getMapsIntent() {
-        // irgendwo an der FH
+        //TODO irgendwo an der FH
         double latitude = 52.411433;
         double longitude = 12.536933;
 

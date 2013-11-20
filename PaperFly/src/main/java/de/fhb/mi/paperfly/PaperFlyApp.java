@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import de.fhb.mi.paperfly.dto.TokenDTO;
 import de.fhb.mi.paperfly.service.BackgroundLocationService;
+import de.fhb.mi.paperfly.service.RestConsumerService;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -29,25 +30,6 @@ public class PaperFlyApp extends Application {
     @Setter
     private TokenDTO token;
 
-    @Override
-    public void onCreate() {
-        super.onCreate();
-
-        if (BackgroundLocationService.servicesAvailable(this)) {
-            Intent serviceIntent = new Intent(this, BackgroundLocationService.class);
-            startService(serviceIntent);
-        }
-
-        chatGlobal = new ArrayList<String>();
-        chatRoom = new ArrayList<String>();
-    }
-
-    @Override
-    public void onTerminate() {
-        stopService(new Intent(this, BackgroundLocationService.class));
-        super.onTerminate();
-    }
-
     public boolean isMyServiceRunning(Service serviceToCheck) {
         ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
         for (RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
@@ -56,5 +38,18 @@ public class PaperFlyApp extends Application {
             }
         }
         return false;
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+
+        if (BackgroundLocationService.servicesAvailable(this)) {
+            startService(new Intent(this, BackgroundLocationService.class));
+        }
+        startService(new Intent(this, RestConsumerService.class));
+
+        chatGlobal = new ArrayList<String>();
+        chatRoom = new ArrayList<String>();
     }
 }

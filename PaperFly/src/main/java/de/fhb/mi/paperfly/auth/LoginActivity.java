@@ -4,10 +4,14 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
@@ -17,11 +21,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 import de.fhb.mi.paperfly.MainActivity;
-import de.fhb.mi.paperfly.PaperFlyApp;
 import de.fhb.mi.paperfly.R;
-import de.fhb.mi.paperfly.dto.TokenDTO;
-
-import java.io.IOException;
+import de.fhb.mi.paperfly.service.RestConsumerService;
+import de.fhb.mi.paperfly.service.RestConsumerService.RestConsumerBinder;
 
 /**
  * Activity which displays a login screen to the user, offering registration as
@@ -49,32 +51,24 @@ public class LoginActivity extends Activity {
     private View mLoginFormView;
     private View mLoginStatusView;
     private TextView mLoginStatusMessageView;
+    private boolean mBound = false;
+    private RestConsumerService mRestConsumerService;
+    private ServiceConnection mConnection = new ServiceConnection() {
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+        @Override
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            // We've bound to LocalService, cast the IBinder and get LocalService instance
+            RestConsumerBinder binder = (RestConsumerBinder) service;
+            mRestConsumerService = binder.getServerInstance();
+            mBound = true;
+        }
 
-        setContentView(R.layout.activity_login);
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            mBound = false;
+        }
+    };
 
-        // Set up the login form.
-        mEmail = getIntent().getStringExtra(EXTRA_EMAIL);
-        mEmailView = (EditText) findViewById(R.id.email);
-        mEmailView.setText(mEmail);
-
-        mPasswordView = (EditText) findViewById(R.id.password);
-
-        mLoginFormView = findViewById(R.id.login_form);
-        mLoginStatusView = findViewById(R.id.login_status);
-        mLoginStatusMessageView = (TextView) findViewById(R.id.login_status_message);
-
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        super.onCreateOptionsMenu(menu);
-//        getMenuInflater().inflate(R.menu.login, menu);
-        return true;
-    }
 
     /**
      * Attempt to login or register an user depending on which button was clicked.
@@ -154,6 +148,48 @@ public class LoginActivity extends Activity {
         }
     }
 
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        setContentView(R.layout.activity_login);
+
+        // Set up the login form.
+        mEmail = getIntent().getStringExtra(EXTRA_EMAIL);
+        mEmailView = (EditText) findViewById(R.id.email);
+        mEmailView.setText(mEmail);
+
+        mPasswordView = (EditText) findViewById(R.id.password);
+
+        mLoginFormView = findViewById(R.id.login_form);
+        mLoginStatusView = findViewById(R.id.login_status);
+        mLoginStatusMessageView = (TextView) findViewById(R.id.login_status_message);
+
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+//        getMenuInflater().inflate(R.menu.login, menu);
+        return true;
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Intent serviceIntent = new Intent(this, RestConsumerService.class);
+        bindService(serviceIntent, mConnection, Context.BIND_AUTO_CREATE);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (mBound) {
+            unbindService(mConnection);
+            mBound = false;
+        }
+    }
+
     /**
      * Shows the progress UI and hides the login form.
      */
@@ -204,16 +240,13 @@ public class LoginActivity extends Activity {
             String mail = params[0];
             String pw = params[1];
 
-            try {
-                TokenDTO tokendto = AuthHelper.login(mail, pw);
-                if (tokendto != null) {
-                    ((PaperFlyApp) getApplication()).setToken(tokendto);
-                    return true;
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return false;
+            return mRestConsumerService.login(mail, pw);
+        }
+
+        @Override
+        protected void onCancelled() {
+            mLoginTask = null;
+            showProgress(false);
         }
 
         @Override
@@ -231,12 +264,6 @@ public class LoginActivity extends Activity {
                 mPasswordView.requestFocus();
             }
         }
-
-        @Override
-        protected void onCancelled() {
-            mLoginTask = null;
-            showProgress(false);
-        }
     }
 
     /**
@@ -252,6 +279,12 @@ public class LoginActivity extends Activity {
         }
 
         @Override
+        protected void onCancelled() {
+            mRegisterTask = null;
+            showProgress(false);
+        }
+
+        @Override
         protected void onPostExecute(final AuthStatus authStatus) {
             mRegisterTask = null;
             showProgress(false);
@@ -264,12 +297,6 @@ public class LoginActivity extends Activity {
                     ((TextView) findViewById(R.id.register_info)).setText(R.string.register_info_success);
                     break;
             }
-        }
-
-        @Override
-        protected void onCancelled() {
-            mRegisterTask = null;
-            showProgress(false);
         }
     }
 }

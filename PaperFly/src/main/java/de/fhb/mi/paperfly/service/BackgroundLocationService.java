@@ -22,7 +22,7 @@ public class BackgroundLocationService extends Service implements GooglePlayServ
         GooglePlayServicesClient.OnConnectionFailedListener,
         LocationListener {
     private static final String TAG = "BackgroundLocationService";
-    IBinder mBinder = new LocalBinder();
+    IBinder mBinder = new LocationBinder();
     private LocationClient mLocationClient;
     private LocationRequest mLocationRequest;
     private boolean mInProgress;
@@ -89,6 +89,7 @@ public class BackgroundLocationService extends Service implements GooglePlayServ
             mLocationClient = new LocationClient(this, this, this);
     }
 
+    @Override
     public IBinder onBind(Intent intent) {
         return mBinder;
     }
@@ -161,7 +162,7 @@ public class BackgroundLocationService extends Service implements GooglePlayServ
         return mLocationClient.getLastLocation();
     }
 
-    public class LocalBinder extends Binder {
+    public class LocationBinder extends Binder {
         public BackgroundLocationService getServerInstance() {
             return BackgroundLocationService.this;
         }
