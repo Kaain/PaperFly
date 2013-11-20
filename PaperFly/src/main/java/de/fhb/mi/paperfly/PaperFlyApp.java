@@ -6,6 +6,7 @@ import android.app.Application;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import de.fhb.mi.paperfly.dto.TokenDTO;
 import de.fhb.mi.paperfly.service.BackgroundLocationService;
 import lombok.Getter;
 import lombok.Setter;
@@ -24,6 +25,9 @@ public class PaperFlyApp extends Application {
     @Getter
     @Setter
     private List<String> chatRoom;
+    @Getter
+    @Setter
+    private TokenDTO token;
 
     @Override
     public void onCreate() {

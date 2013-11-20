@@ -25,6 +25,7 @@ android {
 
 def jersey_version = '1.11.1'
 def autobahn_version = '0.5.2-SNAPSHOT'
+def gson_version = '2.2.4'
 
 dependencies {
     compile 'com.android.support:appcompat-v7:18.0.0'
@@ -35,5 +36,5 @@ dependencies {
     compile 'org.projectlombok:lombok:1.12.2'
     compile 'com.sun.jersey.contribs.jersey-oauth:oauth-client:' + jersey_version
     compile 'com.sun.jersey.contribs.jersey-oauth:oauth-signature:' + jersey_version
-
+    compile 'com.google.code.gson:gson:' + gson_version
 }

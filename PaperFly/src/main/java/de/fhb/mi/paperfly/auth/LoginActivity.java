@@ -17,7 +17,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 import de.fhb.mi.paperfly.MainActivity;
+import de.fhb.mi.paperfly.PaperFlyApp;
 import de.fhb.mi.paperfly.R;
+import de.fhb.mi.paperfly.dto.TokenDTO;
 
 import java.io.IOException;
 
@@ -203,7 +205,9 @@ public class LoginActivity extends Activity {
             String pw = params[1];
 
             try {
-                if (AuthHelper.authenticate(LoginActivity.this, mail, pw)) {
+                TokenDTO tokendto = AuthHelper.login(mail, pw);
+                if (tokendto != null) {
+                    ((PaperFlyApp) getApplication()).setToken(tokendto);
                     return true;
                 }
             } catch (IOException e) {

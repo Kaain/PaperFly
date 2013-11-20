@@ -489,7 +489,11 @@ public class MainActivity extends Activity {
     private class UserLoginTask extends AsyncTask<String, Void, Boolean> {
         @Override
         protected Boolean doInBackground(String... params) {
-            return AuthHelper.authenticate(MainActivity.this);
+            if (((PaperFlyApp) getApplication()).getToken() != null) {
+                return true;
+            } else {
+                return false;
+            }
         }
 
         @Override
@@ -515,6 +519,7 @@ public class MainActivity extends Activity {
         protected Boolean doInBackground(Void... params) {
             try {
                 AuthHelper.logout();
+                ((PaperFlyApp) getApplication()).setToken(null);
                 return true;
             } catch (IOException e) {
                 e.printStackTrace();
