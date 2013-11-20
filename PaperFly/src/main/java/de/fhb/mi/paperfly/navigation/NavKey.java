@@ -4,5 +4,5 @@ package de.fhb.mi.paperfly.navigation;
  * @author Christoph Ott
  */
 public enum NavKey {
-    HEADER, ENTER_ROOM, GLOABAL, CHECK_PRESENCE, ABOUT;
+    HEADER, ENTER_ROOM, GLOBAL, CHECK_PRESENCE, ABOUT, OPEN_FRIENDSLIST;
 }

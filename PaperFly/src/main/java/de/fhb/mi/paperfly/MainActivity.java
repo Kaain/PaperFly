@@ -34,6 +34,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @author Christoph Ott
+ * @author Andy Klay   klay@fh-brandenburg.de
+ */
 public class MainActivity extends Activity {
     private static final String TAG = "MainActivity";
     private static final String TITLE_LEFT_DRAWER = "Navigation";
@@ -108,7 +112,7 @@ public class MainActivity extends Activity {
                 mAuthTask = new UserLoginTask();
                 mAuthTask.execute();
             } else {
-                navigateTo(NavKey.GLOABAL);
+                navigateTo(NavKey.GLOBAL);
                 // TODO select global
             }
         } else {
@@ -165,8 +169,10 @@ public class MainActivity extends Activity {
         mAdapter.addItem(NavKey.CHECK_PRESENCE, this.getResources().getString(R.string.nav_item_check_presence), -1);
 
         mAdapter.addHeader(this.getResources().getString(R.string.nav_header_chats));
-        mAdapter.addItem(NavKey.GLOABAL, this.getResources().getString(R.string.nav_item_global), -1);
+        mAdapter.addItem(NavKey.GLOBAL, this.getResources().getString(R.string.nav_item_global), -1);
         mAdapter.addItem(NavKey.ENTER_ROOM, this.getResources().getString(R.string.nav_item_enter_room), android.R.drawable.ic_menu_camera);
+        mAdapter.addItem(NavKey.OPEN_FRIENDSLIST, this.getResources().getString(R.string.nav_item_open_friendslist), android.R.drawable.ic_menu_share);
+        //TODO XXX
 
         drawerLeftList.setAdapter(mAdapter);
     }
@@ -303,6 +309,9 @@ public class MainActivity extends Activity {
                 return true;
             case R.id.action_friends_list:
                 //TODO here
+                Toast toast = Toast.makeText(getApplicationContext(), "open friendsList", Toast.LENGTH_LONG);
+                toast.show();
+                openFriendsList();
                 return true;
             case R.id.action_settings:
                 startActivity(new Intent(this, SettingsActivity.class));
@@ -455,11 +464,14 @@ public class MainActivity extends Activity {
             case ENTER_ROOM:
                 doQRScan();
                 break;
-            case GLOABAL:
+            case GLOBAL:
                 switchToGlobalChat();
                 break;
             case CHECK_PRESENCE:
                 new InfoDialog().show(getFragmentManager(), TAG);
+                break;
+            case OPEN_FRIENDSLIST:
+                openFriendsList();
                 break;
         }
         drawerLayout.closeDrawer(Gravity.LEFT);
@@ -496,7 +508,7 @@ public class MainActivity extends Activity {
 
             if (success) {
                 Log.d(TAG, "navigateTo Global");
-                navigateTo(NavKey.GLOABAL);
+                navigateTo(NavKey.GLOBAL);
                 // TODO select global
             } else {
                 Intent intent = new Intent(MainActivity.this, LoginActivity.class);
