@@ -24,6 +24,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import de.fhb.mi.paperfly.auth.AuthHelper;
 import de.fhb.mi.paperfly.auth.LoginActivity;
 import de.fhb.mi.paperfly.fragments.ChatFragment;
+import de.fhb.mi.paperfly.friends.FriendsFragment;
 import de.fhb.mi.paperfly.navigation.NavItemModel;
 import de.fhb.mi.paperfly.navigation.NavKey;
 import de.fhb.mi.paperfly.navigation.NavListAdapter;
@@ -300,6 +301,9 @@ public class MainActivity extends Activity {
             case R.id.action_show_persons:
                 openDrawerAndCloseOther(Gravity.RIGHT);
                 return true;
+            case R.id.action_friends_list:
+                //TODO here
+                return true;
             case R.id.action_settings:
                 startActivity(new Intent(this, SettingsActivity.class));
                 return true;
@@ -366,6 +370,27 @@ public class MainActivity extends Activity {
             Toast.makeText(this, "Keine Kamera da.(Für Mockup) INFZ_305 als Raum", Toast.LENGTH_SHORT).show();
             return false;
         }
+    }
+
+    /**
+     * Creates a new Fragment for Friendslist
+     */
+    private boolean openFriendsList() {
+        Log.d(TAG, "openFriendsList");
+        //TODO
+
+        Fragment fragment = new FriendsFragment();
+        Bundle args = new Bundle();
+        //args.putString(ChatFragment.ARG_CHAT_ROOM, ChatFragment.ROOM_GLOBAL);
+        //fragment.setArguments(args);
+
+        // Insert the fragment by replacing any existing fragment
+        FragmentManager fragmentManager = getFragmentManager();
+        fragmentManager.beginTransaction()
+                .replace(R.id.content_frame, fragment)
+                .commit();
+
+        return true;
     }
 
     @Override
