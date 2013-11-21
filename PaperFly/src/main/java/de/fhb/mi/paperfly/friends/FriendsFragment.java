@@ -2,30 +2,35 @@ package de.fhb.mi.paperfly.friends;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import de.fhb.mi.paperfly.R;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import de.fhb.mi.paperfly.R;
+import de.fhb.mi.paperfly.user.UserProfileActivity;
 
 /**
  * ListView of marked contacts, called Friendslist
  *
  * @author Andy Klay    klay@fh-brandenburg.de
  */
-public class FriendsFragment extends Fragment {
+public class FriendsFragment extends Fragment implements AdapterView.OnItemClickListener {
 
     public static final String TAG = "FriendsFragment";
 
     private View rootView;
     private ListView friendsListView;
     private List<String> friendslistValues;
+    private ArrayAdapter<String> listAdapter;
 
 
     @Override
@@ -40,7 +45,8 @@ public class FriendsFragment extends Fragment {
             friendslistValues.add("User" + i);
         }
 
-        friendsListView.setAdapter(new ArrayAdapter<String>(rootView.getContext(), android.R.layout.simple_list_item_1, friendslistValues));
+        listAdapter=new ArrayAdapter<String>(rootView.getContext(), android.R.layout.simple_list_item_1, friendslistValues);
+        friendsListView.setAdapter(listAdapter);
 
         return rootView;
     }
@@ -49,6 +55,7 @@ public class FriendsFragment extends Fragment {
 
         friendsListView = (ListView) rootView.findViewById(R.id.friendsList);
     }
+
 
     @Override
     public void onDestroy() {
@@ -84,17 +91,13 @@ public class FriendsFragment extends Fragment {
     public void onResume() {
         super.onResume();
         Log.d(TAG, "onResume");
-
-        //TODO
-//        List<String> chatList;
-        //      if (globalRoom) {
-        //        chatList = ((PaperFlyApp) getActivity().getApplication()).getChatGlobal();
-        //  } else {
-        //    chatList = ((PaperFlyApp) getActivity().getApplication()).getChatRoom();
-        // }
-        // messagesAdapter = new ArrayAdapter<String>(rootView.getContext(), android.R.layout.simple_list_item_1, chatList);
-        // messagesList.setAdapter(messagesAdapter);
-        // messageInput.requestFocus();
     }
 
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+        Intent intent = new Intent(getActivity(),UserProfileActivity.class);
+        intent.putExtra(UserProfileActivity.ARGS_USER, listAdapter.getItem(position).toString());
+        startActivity(intent);
+    }
 }
