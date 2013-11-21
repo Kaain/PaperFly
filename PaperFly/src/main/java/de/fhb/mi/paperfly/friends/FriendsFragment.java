@@ -47,12 +47,11 @@ public class FriendsFragment extends Fragment implements AdapterView.OnItemClick
 
         listAdapter=new ArrayAdapter<String>(rootView.getContext(), android.R.layout.simple_list_item_1, friendslistValues);
         friendsListView.setAdapter(listAdapter);
-
+        friendsListView.setOnItemClickListener(this);
         return rootView;
     }
 
     private void initViewsById() {
-
         friendsListView = (ListView) rootView.findViewById(R.id.friendsList);
     }
 
@@ -95,7 +94,7 @@ public class FriendsFragment extends Fragment implements AdapterView.OnItemClick
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
+        Log.d(TAG,"onItemClick");
         Intent intent = new Intent(getActivity(),UserProfileActivity.class);
         intent.putExtra(UserProfileActivity.ARGS_USER, listAdapter.getItem(position).toString());
         startActivity(intent);
