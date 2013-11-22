@@ -64,12 +64,23 @@ public class MainActivity extends Activity {
     private UserLogoutTask logoutTask = null;
     private View progressLayout;
 
+    public final static String FRAGMENT_BEFORE="fragment_before";
+    private NavKey before;
+//    private NavKey before;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate");
         setContentView(R.layout.activity_main);
         initViewsById();
+
+        //open last fragment while backnavigation
+//        private NavKey before = Integer.valueOf(this.getIntent().getExtras().get(this.FRAGMENT_BEFORE));
+//        if(this.getIntent()!=null){
+//            Object navkey =this.getIntent().getExtras().get(this.FRAGMENT_BEFORE);
+//        }
+
 
         // DUMMY DATA
         drawerRightValues = new ArrayList<String>();
@@ -181,7 +192,7 @@ public class MainActivity extends Activity {
         NavListAdapter mAdapter = new NavListAdapter(this);
         mAdapter.addHeader(this.getResources().getString(R.string.nav_header_general));
         mAdapter.addItem(NavKey.CHECK_PRESENCE, this.getResources().getString(R.string.nav_item_check_presence), -1);
-        mAdapter.addItem(NavKey.OPEN_FRIENDSLIST, this.getResources().getString(R.string.nav_item_open_friendslist), android.R.drawable.ic_menu_share);
+        mAdapter.addItem(NavKey.FRIENDSLIST, this.getResources().getString(R.string.nav_item_open_friendslist), android.R.drawable.ic_menu_share);
 
         mAdapter.addHeader(this.getResources().getString(R.string.nav_header_chats));
         mAdapter.addItem(NavKey.GLOBAL, this.getResources().getString(R.string.nav_item_global), -1);
@@ -472,7 +483,7 @@ public class MainActivity extends Activity {
             case CHECK_PRESENCE:
                 new InfoDialog().show(getFragmentManager(), TAG);
                 break;
-            case OPEN_FRIENDSLIST:
+            case FRIENDSLIST:
                 openFriendsList();
                 break;
         }

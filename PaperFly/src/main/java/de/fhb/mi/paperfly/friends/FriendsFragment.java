@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.fhb.mi.paperfly.R;
+import de.fhb.mi.paperfly.navigation.NavKey;
 import de.fhb.mi.paperfly.user.UserProfileActivity;
 
 /**
@@ -97,6 +98,7 @@ public class FriendsFragment extends Fragment implements AdapterView.OnItemClick
         Log.d(TAG,"onItemClick");
         Intent intent = new Intent(getActivity(),UserProfileActivity.class);
         intent.putExtra(UserProfileActivity.ARGS_USER, listAdapter.getItem(position).toString());
+        intent.putExtra(UserProfileActivity.FROM, NavKey.FRIENDSLIST.toString());
         startActivity(intent);
     }
 }
