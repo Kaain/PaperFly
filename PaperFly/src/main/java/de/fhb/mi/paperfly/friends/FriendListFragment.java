@@ -24,9 +24,9 @@ import de.fhb.mi.paperfly.user.UserProfileActivity;
  *
  * @author Andy Klay    klay@fh-brandenburg.de
  */
-public class FriendsFragment extends Fragment implements AdapterView.OnItemClickListener {
+public class FriendListFragment extends Fragment implements AdapterView.OnItemClickListener {
 
-    public static final String TAG = "FriendsFragment";
+    public static final String TAG = "FriendListFragment";
     private View rootView;
     private ListView friendsListView;
     private List<String> friendslistValues;

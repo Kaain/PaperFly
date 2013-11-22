@@ -185,11 +185,11 @@ public class UserProfileActivity extends Activity {
 //    @Override
 //    public void onBackPressed() {
 //
-//        if(getIntent().getExtras().getString(FROM).equals(NavKey.FRIENDSLIST.toString())){
+//        if(getIntent().getExtras().getString(FROM).equals(NavKey.FRIENDLIST.toString())){
 //            //TODO
 //            Toast.makeText(this, "navigate back to friendslist", Toast.LENGTH_LONG).show();
 //            Intent intent = new Intent(UserProfileActivity.this, MainActivity.class);
-//            intent.putExtra(MainActivity.FRAGMENT_BEFORE, NavKey.FRIENDSLIST);
+//            intent.putExtra(MainActivity.FRAGMENT_BEFORE, NavKey.FRIENDLIST);
 //            startActivity(intent);
 //            finish();
 //        }else{

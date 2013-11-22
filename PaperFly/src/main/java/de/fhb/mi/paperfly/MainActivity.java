@@ -38,7 +38,7 @@ import java.util.List;
 import de.fhb.mi.paperfly.auth.AuthHelper;
 import de.fhb.mi.paperfly.auth.LoginActivity;
 import de.fhb.mi.paperfly.fragments.ChatFragment;
-import de.fhb.mi.paperfly.friends.FriendsFragment;
+import de.fhb.mi.paperfly.friends.FriendListFragment;
 import de.fhb.mi.paperfly.navigation.NavItemModel;
 import de.fhb.mi.paperfly.navigation.NavKey;
 import de.fhb.mi.paperfly.navigation.NavListAdapter;
@@ -184,7 +184,7 @@ public class MainActivity extends Activity {
         NavListAdapter mAdapter = new NavListAdapter(this);
         mAdapter.addHeader(this.getResources().getString(R.string.nav_header_general));
         mAdapter.addItem(NavKey.CHECK_PRESENCE, this.getResources().getString(R.string.nav_item_check_presence), -1);
-        mAdapter.addItem(NavKey.FRIENDSLIST, this.getResources().getString(R.string.nav_item_open_friendslist), android.R.drawable.ic_menu_share);
+        mAdapter.addItem(NavKey.FRIENDLIST, this.getResources().getString(R.string.nav_item_open_friendlist), android.R.drawable.ic_menu_share);
 
         mAdapter.addHeader(this.getResources().getString(R.string.nav_header_chats));
         mAdapter.addItem(NavKey.GLOBAL, this.getResources().getString(R.string.nav_item_global), -1);
@@ -395,10 +395,10 @@ public class MainActivity extends Activity {
     /**
      * Creates a new Fragment for Friendslist
      */
-    private boolean openFriendsList() {
-        Log.d(TAG, "openFriendsList");
+    private boolean openFriendList() {
+        Log.d(TAG, "openFriendList");
 
-        Fragment fragment = new FriendsFragment();
+        Fragment fragment = new FriendListFragment();
         FragmentManager fragmentManager = getFragmentManager();
         fragmentManager.beginTransaction()
                 .replace(R.id.content_frame, fragment)
@@ -475,8 +475,8 @@ public class MainActivity extends Activity {
             case CHECK_PRESENCE:
                 new InfoDialog().show(getFragmentManager(), TAG);
                 break;
-            case FRIENDSLIST:
-                openFriendsList();
+            case FRIENDLIST:
+                openFriendList();
                 break;
         }
         drawerLayout.closeDrawer(Gravity.LEFT);
