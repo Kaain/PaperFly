@@ -36,9 +36,7 @@
         </activity>
         <activity android:name="de.fhb.mi.paperfly.SettingsActivity" android:label="@string/title_activity_settings" />
         <activity android:name="de.fhb.mi.paperfly.HelpActivity" android:label="@string/title_activity_help" />
-        <activity android:name=".user.SearchUserActivity" android:label="@string/title_activity_search_user"
-            android:parentActivityName="de.fhb.mi.paperfly.MainActivity">
-            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value="de.fhb.mi.paperfly.MainActivity" />
+        <activity android:name=".user.SearchUserActivity" android:label="@string/title_activity_search_user">
 
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
@@ -49,9 +47,8 @@
 
             <meta-data android:name="android.app.searchable" android:resource="@xml/searchable" />
         </activity>
-        <activity android:name=".user.UserProfileActivity" android:label="@string/title_activity_user_profile"
-            android:parentActivityName="de.fhb.mi.paperfly.MainActivity">
-            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value="de.fhb.mi.paperfly.MainActivity" />
+        <activity android:name=".user.UserProfileActivity" android:label="@string/title_activity_user_profile">
+
         </activity>
 
         <service android:name=".service.BackgroundLocationService" />

@@ -32,7 +32,7 @@ public class SearchUserActivity extends ListActivity {
         Intent intent = new Intent(this, UserProfileActivity.class);
         intent.putExtra(UserProfileActivity.ARGS_USER, getListAdapter().getItem(position).toString());
         startActivity(intent);
-        finish();
+//        finish();
     }
 
     private void handleIntent(Intent intent) {
