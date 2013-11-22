@@ -27,7 +27,6 @@ import de.fhb.mi.paperfly.user.UserProfileActivity;
 public class FriendsFragment extends Fragment implements AdapterView.OnItemClickListener {
 
     public static final String TAG = "FriendsFragment";
-
     private View rootView;
     private ListView friendsListView;
     private List<String> friendslistValues;
@@ -55,7 +54,6 @@ public class FriendsFragment extends Fragment implements AdapterView.OnItemClick
     private void initViewsById() {
         friendsListView = (ListView) rootView.findViewById(R.id.friendsList);
     }
-
 
     @Override
     public void onDestroy() {
@@ -98,7 +96,6 @@ public class FriendsFragment extends Fragment implements AdapterView.OnItemClick
         Log.d(TAG,"onItemClick");
         Intent intent = new Intent(getActivity(),UserProfileActivity.class);
         intent.putExtra(UserProfileActivity.ARGS_USER, listAdapter.getItem(position).toString());
-        intent.putExtra(UserProfileActivity.FROM, NavKey.FRIENDSLIST.toString());
         startActivity(intent);
     }
 }

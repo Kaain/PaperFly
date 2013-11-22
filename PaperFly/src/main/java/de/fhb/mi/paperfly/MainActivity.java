@@ -64,8 +64,7 @@ public class MainActivity extends Activity {
     private UserLogoutTask logoutTask = null;
     private View progressLayout;
 
-    public final static String FRAGMENT_BEFORE="fragment_before";
-    private NavKey before;
+//    public final static String FRAGMENT_BEFORE="fragment_before";
 //    private NavKey before;
 
     @Override
@@ -74,13 +73,6 @@ public class MainActivity extends Activity {
         Log.d(TAG, "onCreate");
         setContentView(R.layout.activity_main);
         initViewsById();
-
-        //open last fragment while backnavigation
-//        private NavKey before = Integer.valueOf(this.getIntent().getExtras().get(this.FRAGMENT_BEFORE));
-//        if(this.getIntent()!=null){
-//            Object navkey =this.getIntent().getExtras().get(this.FRAGMENT_BEFORE);
-//        }
-
 
         // DUMMY DATA
         drawerRightValues = new ArrayList<String>();

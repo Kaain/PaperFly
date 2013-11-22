@@ -40,10 +40,9 @@ public class UserProfileActivity extends Activity {
      */
     private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
     private static final String TAG = "UserProfileActivity";
-    public static final String FROM = "from";
+//    public static final String FROM = "from";
     private BackgroundLocationService mBackgroundLocationService;
     private boolean mBound = false;
-    private boolean parentCallFragment;
     private ServiceConnection mConnection = new ServiceConnection() {
 
         @Override
@@ -62,7 +61,7 @@ public class UserProfileActivity extends Activity {
 
 
     private Intent getMapsIntent() {
-        //TODOjava.lang.Object irgendwo an der FH
+        //TODO java.lang.Object irgendwo an der FH
         double latitude = 52.411433;
         double longitude = 12.536933;
 
@@ -92,13 +91,6 @@ public class UserProfileActivity extends Activity {
                 }
         }
     }
-
-    // @Override
-    // public View onCreateView(LayoutInflater inflater, ViewGroup container,
-    //                         Bundle savedInstanceState) {
-    //    this.rootView = inflater.inflate(R.layout.activity_profile, container, false);
-    //    return rootView;
-    //}
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -190,21 +182,20 @@ public class UserProfileActivity extends Activity {
         }
     }
 
-    @Override
-    public void onBackPressed() {
-
-        if(getIntent().getExtras().getString(FROM).equals(NavKey.FRIENDSLIST.toString())){
-            //TODO
-            Toast.makeText(this, "navigate back to friendslist", Toast.LENGTH_LONG).show();
-            Intent intent = new Intent(UserProfileActivity.this, MainActivity.class);
-            intent.putExtra(MainActivity.FRAGMENT_BEFORE, NavKey.FRIENDSLIST);
-            startActivity(intent);
-            finish();
-        }else{
-            super.onBackPressed();
-        }
-    }
-
+//    @Override
+//    public void onBackPressed() {
+//
+//        if(getIntent().getExtras().getString(FROM).equals(NavKey.FRIENDSLIST.toString())){
+//            //TODO
+//            Toast.makeText(this, "navigate back to friendslist", Toast.LENGTH_LONG).show();
+//            Intent intent = new Intent(UserProfileActivity.this, MainActivity.class);
+//            intent.putExtra(MainActivity.FRAGMENT_BEFORE, NavKey.FRIENDSLIST);
+//            startActivity(intent);
+//            finish();
+//        }else{
+//            super.onBackPressed();
+//        }
+//    }
 
     /**
      * A placeholder fragment containing a simple view.
@@ -237,5 +228,4 @@ public class UserProfileActivity extends Activity {
             return rootView;
         }
     }
-
 }
