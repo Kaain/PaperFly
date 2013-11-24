@@ -54,15 +54,10 @@ import java.util.List;
 public class RestConsumerService extends Service implements RestConsumer {
 
 
-//    public static final String URL_LOGIN_BASIC = "http://46.137.173.175:8080/PaperFlyServer-web/secure/";
-//    public static final String URL_LOGIN = "http://46.137.173.175:8080/PaperFlyServer-web/rest/v1/auth/login";
-//    public static final String URL_GET_ACCOUNT = "http://46.137.173.175:8080/PaperFlyServer-web/rest/v1/account/";
-//    public static final String URL_LOGOUT = "http://46.137.173.175:8080/PaperFlyServer-web/rest/v1/auth/logout";
-
-    public static final String URL_LOGIN_BASIC = "http://localhost:8080/PaperFlyServer-web/secure/";
-    public static final String URL_LOGIN = "http://localhost:8080/PaperFlyServer-web/rest/v1/auth/login";
-    public static final String URL_GET_ACCOUNT = "http://localhost:8080/PaperFlyServer-web/rest/v1/account/";
-    public static final String URL_LOGOUT = "http://localhost:8080/PaperFlyServer-web/rest/v1/auth/logout";
+    public static final String URL_LOGIN_BASIC = "http://46.137.173.175:8080/PaperFlyServer-web/secure/";
+    public static final String URL_LOGIN = "http://46.137.173.175:8080/PaperFlyServer-web/rest/v1/auth/login";
+    public static final String URL_GET_ACCOUNT = "http://46.137.173.175:8080/PaperFlyServer-web/rest/v1/account/";
+    public static final String URL_LOGOUT = "http://46.137.173.175:8080/PaperFlyServer-web/rest/v1/auth/logout";
 
 
     private static final String TAG = "RestConsumerService";
