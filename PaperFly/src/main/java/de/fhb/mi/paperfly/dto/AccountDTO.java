@@ -16,7 +16,13 @@
  */
 package de.fhb.mi.paperfly.dto;
 
-import lombok.*;
+import java.util.List;
+
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 /**
  * @author Michael Koppen <michael.koppen@googlemail.com>
@@ -29,8 +35,9 @@ import lombok.*;
 public class AccountDTO extends BaseDTO {
 
     private Long id;
-    private String email;
-    private String username;
     private String lastName;
-    private String firstName;
+    private String username;
+    private String email;
+    private String firstname;
+    private List<String> friendlist;
 }
