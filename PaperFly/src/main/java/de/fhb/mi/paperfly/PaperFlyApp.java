@@ -6,6 +6,8 @@ import android.app.Application;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+
+import de.fhb.mi.paperfly.dto.AccountDTO;
 import de.fhb.mi.paperfly.dto.TokenDTO;
 import de.fhb.mi.paperfly.service.BackgroundLocationService;
 import de.fhb.mi.paperfly.service.RestConsumerService;
@@ -51,5 +53,9 @@ public class PaperFlyApp extends Application {
 
         chatGlobal = new ArrayList<String>();
         chatRoom = new ArrayList<String>();
+    }
+
+    public void setAccount(AccountDTO account) {
+       //TODO
     }
 }
