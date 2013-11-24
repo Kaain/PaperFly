@@ -32,6 +32,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,8 +51,8 @@ public class FriendListFragment extends Fragment implements AdapterView.OnItemCl
 
     public static final String TAG = "FriendListFragment";
     private View rootView;
-    private ListView friendsListView;
-    private List<String> friendslistValues;
+    private ListView friendListView;
+    private List<String> friendListValues;
     private ArrayAdapter<String> listAdapter;
 
     /** Begin *************************************** Rest-Connection ****************************** **/
@@ -65,15 +66,26 @@ public class FriendListFragment extends Fragment implements AdapterView.OnItemCl
             RestConsumerService.RestConsumerBinder binder = (RestConsumerService.RestConsumerBinder) service;
             mRestConsumerService = binder.getServerInstance();
             mBound = true;
+            Toast.makeText(rootView.getContext(), "Connected", Toast.LENGTH_SHORT)
+                    .show();
         }
 
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
             mBound = false;
+            //TODO mRestConsumerService=null;
         }
     };
     /** End *************************************** Rest-Connection ****************************** **/
 
+
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        Intent serviceIntent = new Intent(rootView.getContext(), RestConsumerService.class);
+        mBound=rootView.getContext().bindService(serviceIntent, mConnection, Context.BIND_IMPORTANT);
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -82,39 +94,49 @@ public class FriendListFragment extends Fragment implements AdapterView.OnItemCl
         this.rootView = inflater.inflate(R.layout.fragment_friends, container, false);
         initViewsById();
         AccountDTO account;
-        friendslistValues = new ArrayList<String>();
 
-        Intent intent = new Intent(rootView.getContext(), RestConsumerService.class);
-        rootView.getContext().bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+        friendListValues = new ArrayList<String>();
+        friendListValues.add("before ...");
+        friendListValues.add(Boolean.toString(mBound));
 
-        friendslistValues.add("before ...");
         if(mRestConsumerService!=null){
             Log.d(TAG, "mRestConsumerService exists");
             //TODO get username from session or something like that
-            account=mRestConsumerService.getAccountByUsername("username");
+            mRestConsumerService.getAccount("test");
+//            account=mRestConsumerService.getAccountByUsername("username");
 
-            friendslistValues.add("mRestConsumerService exists");
-            if(account!=null && account.getFriendlist()!=null){
-                for(String friendName : account.getFriendlist()){
-                    friendslistValues.add(friendName);
-                }
-
-            }
+//            friendListValues.add("mRestConsumerService exists");
+//            if(account!=null && account.getFriendlist()!=null){
+//                for(String friendName : account.getFriendlist()){
+//                    friendListValues.add(friendName);
+//                }
+//
+//            }
         }
+
+//        account=mRestConsumerService.getAccountByUsername("username");
+//
+//        friendListValues.add("mRestConsumerService exists");
+//        if(account!=null && account.getFriendlist()!=null){
+//            for(String friendName : account.getFriendlist()){
+//                friendListValues.add(friendName);
+//            }
+//
+//        }
 
 //        //TODO DUMMY DATA replace later
 //        for (int i = 0; i < 20; i++) {
-//            friendslistValues.add("User" + i);
+//            friendListValues.add("User" + i);
 //        }
 
-        listAdapter=new ArrayAdapter<String>(rootView.getContext(), android.R.layout.simple_list_item_1, friendslistValues);
-        friendsListView.setAdapter(listAdapter);
-        friendsListView.setOnItemClickListener(this);
+        listAdapter=new ArrayAdapter<String>(rootView.getContext(), android.R.layout.simple_list_item_1, friendListValues);
+        friendListView.setAdapter(listAdapter);
+        friendListView.setOnItemClickListener(this);
         return rootView;
     }
 
     private void initViewsById() {
-        friendsListView = (ListView) rootView.findViewById(R.id.friendsList);
+        friendListView = (ListView) rootView.findViewById(R.id.friendsList);
     }
 
     @Override
@@ -157,6 +179,9 @@ public class FriendListFragment extends Fragment implements AdapterView.OnItemCl
     public void onResume() {
         super.onResume();
         Log.d(TAG, "onResume");
+//        TODO bindService(new Intent(this, LocalWordService.class), mConnection,
+//        same like in onStart()
+//                Context.BIND_AUTO_CREATE);
     }
 
     @Override
@@ -166,4 +191,6 @@ public class FriendListFragment extends Fragment implements AdapterView.OnItemCl
         intent.putExtra(UserProfileActivity.ARGS_USER, listAdapter.getItem(position).toString());
         startActivity(intent);
     }
+
+
 }
