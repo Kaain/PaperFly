@@ -23,6 +23,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
@@ -37,6 +38,7 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.fhb.mi.paperfly.MainActivity;
 import de.fhb.mi.paperfly.R;
 import de.fhb.mi.paperfly.dto.AccountDTO;
 import de.fhb.mi.paperfly.service.RestConsumerService;
@@ -54,8 +56,12 @@ public class FriendListFragment extends Fragment implements AdapterView.OnItemCl
     private ListView friendListView;
     private List<String> friendListValues;
     private ArrayAdapter<String> listAdapter;
+    private GetAccountTask mAccountTask = null;
+    AccountDTO account;
 
-    /** Begin *************************************** Rest-Connection ****************************** **/
+    /**
+     * Begin *************************************** Rest-Connection ****************************** *
+     */
     private boolean mBound = false;
     private RestConsumerService mRestConsumerService;
     private ServiceConnection mConnection = new ServiceConnection() {
@@ -66,25 +72,32 @@ public class FriendListFragment extends Fragment implements AdapterView.OnItemCl
             RestConsumerService.RestConsumerBinder binder = (RestConsumerService.RestConsumerBinder) service;
             mRestConsumerService = binder.getServerInstance();
             mBound = true;
-            Toast.makeText(rootView.getContext(), "Connected", Toast.LENGTH_SHORT)
+            Toast.makeText(rootView.getContext(), "RestConsumerService Connected", Toast.LENGTH_SHORT)
                     .show();
+
+            mAccountTask = new GetAccountTask();
+            mAccountTask.execute();
+
+
         }
 
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
+            Toast.makeText(rootView.getContext(), "RestConsumerService Dissssconnected", Toast.LENGTH_SHORT)
+                    .show();
             mBound = false;
-            //TODO mRestConsumerService=null;
+            mRestConsumerService = null;
         }
     };
-    /** End *************************************** Rest-Connection ****************************** **/
 
+    /**
+     * End *************************************** Rest-Connection ****************************** *
+     */
 
 
     @Override
     public void onStart() {
         super.onStart();
-        Intent serviceIntent = new Intent(rootView.getContext(), RestConsumerService.class);
-        mBound=rootView.getContext().bindService(serviceIntent, mConnection, Context.BIND_IMPORTANT);
     }
 
     @Override
@@ -93,43 +106,13 @@ public class FriendListFragment extends Fragment implements AdapterView.OnItemCl
 
         this.rootView = inflater.inflate(R.layout.fragment_friends, container, false);
         initViewsById();
-        AccountDTO account;
 
         friendListValues = new ArrayList<String>();
         friendListValues.add("before ...");
         friendListValues.add(Boolean.toString(mBound));
 
-        if(mRestConsumerService!=null){
-            Log.d(TAG, "mRestConsumerService exists");
-            //TODO get username from session or something like that
-            mRestConsumerService.getAccount("test");
-//            account=mRestConsumerService.getAccountByUsername("username");
 
-//            friendListValues.add("mRestConsumerService exists");
-//            if(account!=null && account.getFriendlist()!=null){
-//                for(String friendName : account.getFriendlist()){
-//                    friendListValues.add(friendName);
-//                }
-//
-//            }
-        }
-
-//        account=mRestConsumerService.getAccountByUsername("username");
-//
-//        friendListValues.add("mRestConsumerService exists");
-//        if(account!=null && account.getFriendlist()!=null){
-//            for(String friendName : account.getFriendlist()){
-//                friendListValues.add(friendName);
-//            }
-//
-//        }
-
-//        //TODO DUMMY DATA replace later
-//        for (int i = 0; i < 20; i++) {
-//            friendListValues.add("User" + i);
-//        }
-
-        listAdapter=new ArrayAdapter<String>(rootView.getContext(), android.R.layout.simple_list_item_1, friendListValues);
+        listAdapter = new ArrayAdapter<String>(rootView.getContext(), android.R.layout.simple_list_item_1, friendListValues);
         friendListView.setAdapter(listAdapter);
         friendListView.setOnItemClickListener(this);
         return rootView;
@@ -173,24 +156,94 @@ public class FriendListFragment extends Fragment implements AdapterView.OnItemCl
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         Log.d(TAG, "onAttach");
+        Intent serviceIntent = new Intent(activity.getBaseContext(), RestConsumerService.class);
+        mBound = activity.getBaseContext().bindService(serviceIntent, mConnection, Context.BIND_IMPORTANT);
     }
 
     @Override
     public void onResume() {
         super.onResume();
         Log.d(TAG, "onResume");
-//        TODO bindService(new Intent(this, LocalWordService.class), mConnection,
-//        same like in onStart()
-//                Context.BIND_AUTO_CREATE);
     }
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        Log.d(TAG,"onItemClick");
-        Intent intent = new Intent(getActivity(),UserProfileActivity.class);
+        Log.d(TAG, "onItemClick");
+        Intent intent = new Intent(getActivity(), UserProfileActivity.class);
         intent.putExtra(UserProfileActivity.ARGS_USER, listAdapter.getItem(position).toString());
         startActivity(intent);
     }
 
+
+
+
+    /**
+     * Represents an asynchronous login task used to authenticate
+     * the user.
+     */
+    public class GetAccountTask extends AsyncTask<String, Void, Boolean> {
+
+//        AccountDTO accountInTask;
+
+        @Override
+        protected Boolean doInBackground(String... params) {
+//            String mail = params[0];
+//            String pw = params[1];
+            //TODO uebergabe von username
+            account=mRestConsumerService.getAccountByUsername("username");
+
+            if(account!=null){
+                return false;
+            }else{
+                return true;
+            }
+        }
+
+//        @Override
+//        protected void onCancelled() {
+//            mLoginTask = null;
+//            showProgress(false);
+//        }
+
+        @Override
+        protected void onPostExecute(final Boolean success) {
+            mAccountTask = null;
+//            showProgress(false);
+
+            if (success) {
+//                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+//                intent.putExtra(LOGIN_SUCCESFUL, true);
+//                startActivity(intent);
+//                finish();
+                Log.d("onPostExecute", "success");
+
+
+
+                if (mRestConsumerService != null) {
+                    Log.d(TAG, "mRestConsumerService exists");
+                    friendListValues.add("mRestConsumerService exists");
+
+                    if (account != null && account.getFriendList() != null) {
+                        for (AccountDTO friendAccount : account.getFriendList()) {
+                            friendListValues.add(friendAccount.getUsername());
+                        }
+                    }
+                } else {
+                    friendListValues.add("mRestConsumerService is null");
+                    Log.d(TAG, "create dummy entries");
+
+                    for (int i = 0; i < 5; i++) {
+                        friendListValues.add("Dummy User" + i);
+                    }
+                }
+
+                listAdapter.notifyDataSetChanged();
+            } else {
+//                mPasswordView.setError(getString(R.string.error_incorrect_password));
+//                mPasswordView.requestFocus();
+                Log.d("onPostExecute", "no success");
+            }
+        }
+    }
 
 }
