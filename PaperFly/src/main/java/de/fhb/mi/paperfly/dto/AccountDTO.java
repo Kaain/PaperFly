@@ -34,10 +34,9 @@ import lombok.ToString;
 @NoArgsConstructor
 public class AccountDTO extends BaseDTO {
 
-    private Long id;
-    private String lastName;
-    private String username;
     private String email;
-    private String firstname;
-    private List<String> friendlist;
+    private String username;
+    private String lastName;
+    private String firstName;
+    private List<AccountDTO> friendList;
 }
