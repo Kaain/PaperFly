@@ -1,3 +1,20 @@
+/*
+ * Copyright (C) 2013 Andy Klay, Christoph ott
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package de.fhb.mi.paperfly.user;
 
 import android.app.Activity;
@@ -23,13 +40,15 @@ import android.widget.Toast;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 
 import de.fhb.mi.paperfly.HelpActivity;
-import de.fhb.mi.paperfly.MainActivity;
 import de.fhb.mi.paperfly.R;
 import de.fhb.mi.paperfly.SettingsActivity;
-import de.fhb.mi.paperfly.navigation.NavKey;
 import de.fhb.mi.paperfly.service.BackgroundLocationService;
 import de.fhb.mi.paperfly.service.BackgroundLocationService.LocationBinder;
+import de.fhb.mi.paperfly.service.RestConsumerService;
 
+/**
+ * This activity show detail information of a user
+ */
 public class UserProfileActivity extends Activity {
 
     //private View rootView;
@@ -40,24 +59,58 @@ public class UserProfileActivity extends Activity {
      */
     private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
     private static final String TAG = "UserProfileActivity";
-//    public static final String FROM = "from";
+
     private BackgroundLocationService mBackgroundLocationService;
-    private boolean mBound = false;
-    private ServiceConnection mConnection = new ServiceConnection() {
+    private boolean mBoundLocationService = false;
+    private ServiceConnection mConnectionLocationService = new ServiceConnection() {
 
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
             // We've bound to LocalService, cast the IBinder and get LocalService instance
             LocationBinder binder = (LocationBinder) service;
             mBackgroundLocationService = binder.getServerInstance();
-            mBound = true;
+            mBoundLocationService = true;
         }
 
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
-            mBound = false;
+            mBoundLocationService = false;
         }
     };
+
+
+    /**
+     * Begin *************************************** Rest-Connection ****************************** *
+     */
+    private boolean mBound = false;
+    private RestConsumerService mRestConsumerService;
+//    private ServiceConnection mConnection = new ServiceConnection() {
+//
+//        @Override
+//        public void onServiceConnected(ComponentName className, IBinder service) {
+//            // We've bound to LocalService, cast the IBinder and get LocalService instance
+//            RestConsumerService.RestConsumerBinder binder = (RestConsumerService.RestConsumerBinder) service;
+//            mRestConsumerService = binder.getServerInstance();
+//            mBound = true;
+//            Toast.makeText(, "RestConsumerService Connected", Toast.LENGTH_SHORT)
+//                    .show();
+//
+//            mAccountTask = new GetAccountTask();
+//            mAccountTask.execute();
+//        }
+//
+//        @Override
+//        public void onServiceDisconnected(ComponentName arg0) {
+//            Toast.makeText(rootView.getContext(), "RestConsumerService Dissssconnected", Toast.LENGTH_SHORT)
+//                    .show();
+//            mBound = false;
+//            mRestConsumerService = null;
+//        }
+//    };
+
+    /**
+     * End *************************************** Rest-Connection ****************************** *
+     */
 
 
     private Intent getMapsIntent() {
@@ -147,16 +200,16 @@ public class UserProfileActivity extends Activity {
     protected void onStart() {
         super.onStart();
         Intent serviceIntent = new Intent(this, BackgroundLocationService.class);
-        bindService(serviceIntent, mConnection, Context.BIND_AUTO_CREATE);
+        bindService(serviceIntent, mConnectionLocationService, Context.BIND_AUTO_CREATE);
     }
 
     @Override
     protected void onStop() {
         // Disconnecting the client invalidates it.
         super.onStop();
-        if (mBound) {
-            unbindService(mConnection);
-            mBound = false;
+        if (mBoundLocationService) {
+            unbindService(mConnectionLocationService);
+            mBoundLocationService = false;
         }
     }
 
@@ -228,4 +281,58 @@ public class UserProfileActivity extends Activity {
             return rootView;
         }
     }
+
+
+
+//    /**
+//     * Represents an asynchronous login task used to authenticate
+//     * the user.
+//     */
+//    public class GetAccountTask extends AsyncTask<String, Void, Boolean> {
+//
+//        @Override
+//        protected Boolean doInBackground(String... params) {
+////            String mail = params[0];
+////            String pw = params[1];
+//            //TODO uebergabe von username
+//            account=mRestConsumerService.getAccountByUsername("username");
+//
+//            if(account!=null){
+//                return false;
+//            }else{
+//                return true;
+//            }
+//        }
+//
+//
+//        @Override
+//        protected void onPostExecute(final Boolean success) {
+//            mAccountTask = null;
+//
+//            if (success) {
+//                Log.d("onPostExecute", "success");
+//
+//                if (mRestConsumerService != null) {
+//                    Log.d(TAG, "mRestConsumerService exists");
+//                    friendListValues.add("mRestConsumerService exists");
+//
+//                    if (account != null && account.getFriendList() != null) {
+//                        for (AccountDTO friendAccount : account.getFriendList()) {
+//                            friendListValues.add(friendAccount.getUsername());
+//                        }
+//                    }
+//                } else {
+//                    friendListValues.add("mRestConsumerService is null");
+//                    Log.d(TAG, "create dummy entries");
+//
+//                    for (int i = 0; i < 5; i++) {
+//                        friendListValues.add("Dummy User" + i);
+//                    }
+//                }
+//
+//                listAdapter.notifyDataSetChanged();
+//            } else {
+//                Log.d(TAG, "onPostExecute no success");
+//            }
+//        }
 }

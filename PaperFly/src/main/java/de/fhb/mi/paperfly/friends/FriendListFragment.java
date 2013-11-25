@@ -38,7 +38,6 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.fhb.mi.paperfly.MainActivity;
 import de.fhb.mi.paperfly.R;
 import de.fhb.mi.paperfly.dto.AccountDTO;
 import de.fhb.mi.paperfly.service.RestConsumerService;
@@ -64,7 +63,7 @@ public class FriendListFragment extends Fragment implements AdapterView.OnItemCl
      */
     private boolean mBound = false;
     private RestConsumerService mRestConsumerService;
-    private ServiceConnection mConnection = new ServiceConnection() {
+    private ServiceConnection mConnectionRestService = new ServiceConnection() {
 
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
@@ -77,8 +76,6 @@ public class FriendListFragment extends Fragment implements AdapterView.OnItemCl
 
             mAccountTask = new GetAccountTask();
             mAccountTask.execute();
-
-
         }
 
         @Override
@@ -141,7 +138,7 @@ public class FriendListFragment extends Fragment implements AdapterView.OnItemCl
 
         super.onStop();
         if (mBound) {
-            rootView.getContext().unbindService(mConnection);
+            rootView.getContext().unbindService(mConnectionRestService);
             mBound = false;
         }
     }
@@ -157,7 +154,7 @@ public class FriendListFragment extends Fragment implements AdapterView.OnItemCl
         super.onAttach(activity);
         Log.d(TAG, "onAttach");
         Intent serviceIntent = new Intent(activity.getBaseContext(), RestConsumerService.class);
-        mBound = activity.getBaseContext().bindService(serviceIntent, mConnection, Context.BIND_IMPORTANT);
+        mBound = activity.getBaseContext().bindService(serviceIntent, mConnectionRestService, Context.BIND_IMPORTANT);
     }
 
     @Override
