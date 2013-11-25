@@ -75,7 +75,7 @@ public class FriendListFragment extends Fragment implements AdapterView.OnItemCl
                     .show();
 
             mAccountTask = new GetAccountTask();
-            mAccountTask.execute();
+            mAccountTask.execute("username");
         }
 
         @Override
@@ -90,7 +90,6 @@ public class FriendListFragment extends Fragment implements AdapterView.OnItemCl
     /**
      * End *************************************** Rest-Connection ****************************** *
      */
-
 
     @Override
     public void onStart() {
@@ -171,23 +170,17 @@ public class FriendListFragment extends Fragment implements AdapterView.OnItemCl
         startActivity(intent);
     }
 
-
-
-
     /**
      * Represents an asynchronous login task used to authenticate
      * the user.
      */
     public class GetAccountTask extends AsyncTask<String, Void, Boolean> {
 
-//        AccountDTO accountInTask;
-
         @Override
         protected Boolean doInBackground(String... params) {
-//            String mail = params[0];
-//            String pw = params[1];
-            //TODO uebergabe von username
-            account=mRestConsumerService.getAccountByUsername("username");
+            String username = params[0];
+
+            account=mRestConsumerService.getAccountByUsername(username);
 
             if(account!=null){
                 return false;
@@ -196,25 +189,12 @@ public class FriendListFragment extends Fragment implements AdapterView.OnItemCl
             }
         }
 
-//        @Override
-//        protected void onCancelled() {
-//            mLoginTask = null;
-//            showProgress(false);
-//        }
-
         @Override
         protected void onPostExecute(final Boolean success) {
             mAccountTask = null;
-//            showProgress(false);
 
             if (success) {
-//                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-//                intent.putExtra(LOGIN_SUCCESFUL, true);
-//                startActivity(intent);
-//                finish();
                 Log.d("onPostExecute", "success");
-
-
 
                 if (mRestConsumerService != null) {
                     Log.d(TAG, "mRestConsumerService exists");
@@ -236,8 +216,6 @@ public class FriendListFragment extends Fragment implements AdapterView.OnItemCl
 
                 listAdapter.notifyDataSetChanged();
             } else {
-//                mPasswordView.setError(getString(R.string.error_incorrect_password));
-//                mPasswordView.requestFocus();
                 Log.d("onPostExecute", "no success");
             }
         }
