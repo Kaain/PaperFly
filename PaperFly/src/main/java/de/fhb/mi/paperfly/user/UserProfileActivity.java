@@ -27,8 +27,10 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.location.Location;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -42,16 +44,19 @@ import com.google.android.gms.common.GooglePlayServicesUtil;
 import de.fhb.mi.paperfly.HelpActivity;
 import de.fhb.mi.paperfly.R;
 import de.fhb.mi.paperfly.SettingsActivity;
+import de.fhb.mi.paperfly.dto.AccountDTO;
 import de.fhb.mi.paperfly.service.BackgroundLocationService;
 import de.fhb.mi.paperfly.service.BackgroundLocationService.LocationBinder;
 import de.fhb.mi.paperfly.service.RestConsumerService;
 
 /**
  * This activity show detail information of a user
+ *
+ * @author Christoph Ott
+ * @author Andy Klay (klay@fh-brandenburg.de)
  */
 public class UserProfileActivity extends Activity {
 
-    //private View rootView;
     public static final String ARGS_USER = "user";
     /*
      * Define a request code to send to Google Play services
@@ -77,40 +82,6 @@ public class UserProfileActivity extends Activity {
             mBoundLocationService = false;
         }
     };
-
-
-    /**
-     * Begin *************************************** Rest-Connection ****************************** *
-     */
-    private boolean mBound = false;
-    private RestConsumerService mRestConsumerService;
-//    private ServiceConnection mConnection = new ServiceConnection() {
-//
-//        @Override
-//        public void onServiceConnected(ComponentName className, IBinder service) {
-//            // We've bound to LocalService, cast the IBinder and get LocalService instance
-//            RestConsumerService.RestConsumerBinder binder = (RestConsumerService.RestConsumerBinder) service;
-//            mRestConsumerService = binder.getServerInstance();
-//            mBound = true;
-//            Toast.makeText(, "RestConsumerService Connected", Toast.LENGTH_SHORT)
-//                    .show();
-//
-//            mAccountTask = new GetAccountTask();
-//            mAccountTask.execute();
-//        }
-//
-//        @Override
-//        public void onServiceDisconnected(ComponentName arg0) {
-//            Toast.makeText(rootView.getContext(), "RestConsumerService Dissssconnected", Toast.LENGTH_SHORT)
-//                    .show();
-//            mBound = false;
-//            mRestConsumerService = null;
-//        }
-//    };
-
-    /**
-     * End *************************************** Rest-Connection ****************************** *
-     */
 
 
     private Intent getMapsIntent() {
@@ -149,7 +120,6 @@ public class UserProfileActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
-
 
         if (savedInstanceState == null) {
             getFragmentManager().beginTransaction()
@@ -260,6 +230,43 @@ public class UserProfileActivity extends Activity {
         private TextView profileFirstname;
         private TextView profileLastname;
 
+        private GetAccountTask mAccountTask = null;
+        AccountDTO account = null;
+        String username = null;
+
+        /**
+         * Begin *************************************** Rest-Connection ****************************** *
+         */
+        private boolean mBound = false;
+        private RestConsumerService mRestConsumerService;
+        private ServiceConnection mConnectionRestService = new ServiceConnection() {
+
+            @Override
+            public void onServiceConnected(ComponentName className, IBinder service) {
+                RestConsumerService.RestConsumerBinder binder = (RestConsumerService.RestConsumerBinder) service;
+                mRestConsumerService = binder.getServerInstance();
+                mBound = true;
+                Toast.makeText(rootView.getContext(), "RestConsumerService Connected", Toast.LENGTH_SHORT)
+                        .show();
+
+                mAccountTask = new GetAccountTask();
+                mAccountTask.execute(username);
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName arg0) {
+                Toast.makeText(rootView.getContext(), "RestConsumerService Disconnected", Toast.LENGTH_SHORT)
+                        .show();
+                mBound = false;
+                mRestConsumerService = null;
+            }
+        };
+
+        /**
+         * End *************************************** Rest-Connection ****************************** *
+         */
+
+
         public PlaceholderFragment() {
         }
 
@@ -274,65 +281,77 @@ public class UserProfileActivity extends Activity {
                                  Bundle savedInstanceState) {
             rootView = inflater.inflate(R.layout.fragment_user_profile, container, false);
             initViews(rootView);
-            String username = getActivity().getIntent().getExtras().getString(ARGS_USER);
-            profileUsername.append(username);
-            profileFirstname.append(username);
-            profileLastname.append(username);
+            username = getActivity().getIntent().getExtras().getString(ARGS_USER);
             return rootView;
+        }
+
+        @Override
+        public void onStop() {
+            super.onStop();
+            Log.d(TAG, "onStop");
+
+            super.onStop();
+            if (mBound) {
+                rootView.getContext().unbindService(mConnectionRestService);
+                mBound = false;
+            }
+        }
+
+        @Override
+        public void onAttach(Activity activity) {
+            super.onAttach(activity);
+            Log.d(TAG, "onAttach");
+            Intent serviceIntent = new Intent(activity.getBaseContext(), RestConsumerService.class);
+            mBound = activity.getBaseContext().bindService(serviceIntent, mConnectionRestService, Context.BIND_IMPORTANT);
+        }
+
+        /**
+         * Represents an asynchronous GetAccountTask used to get an user
+         */
+        public class GetAccountTask extends AsyncTask<String, Void, Boolean> {
+
+            @Override
+            protected Boolean doInBackground(String... params) {
+                String username = params[0];
+
+                account = mRestConsumerService.getAccountByUsername(username);
+
+                if (account != null) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+
+            @Override
+            protected void onPostExecute(final Boolean success) {
+                mAccountTask = null;
+
+                if (success) {
+                    Log.d("onPostExecute", "success");
+
+                    if (mRestConsumerService != null) {
+                        Log.d(TAG, "mRestConsumerService exists");
+
+                        if (account != null) {
+                            profileUsername.append(account.getUsername());
+                            profileFirstname.append(account.getFirstName());
+                            profileLastname.append(account.getLastName());
+                        }
+                    } else {
+                        Log.d(TAG, "create dummy entries");
+
+                        profileUsername.append("unknown user");
+                        profileFirstname.append("unknown user");
+                        profileLastname.append("unknown user");
+                    }
+
+                } else {
+                    Log.d("onPostExecute", "no success");
+                }
+            }
         }
     }
 
 
-
-//    /**
-//     * Represents an asynchronous login task used to authenticate
-//     * the user.
-//     */
-//    public class GetAccountTask extends AsyncTask<String, Void, Boolean> {
-//
-//        @Override
-//        protected Boolean doInBackground(String... params) {
-////            String mail = params[0];
-////            String pw = params[1];
-//            //TODO uebergabe von username
-//            account=mRestConsumerService.getAccountByUsername("username");
-//
-//            if(account!=null){
-//                return false;
-//            }else{
-//                return true;
-//            }
-//        }
-//
-//
-//        @Override
-//        protected void onPostExecute(final Boolean success) {
-//            mAccountTask = null;
-//
-//            if (success) {
-//                Log.d("onPostExecute", "success");
-//
-//                if (mRestConsumerService != null) {
-//                    Log.d(TAG, "mRestConsumerService exists");
-//                    friendListValues.add("mRestConsumerService exists");
-//
-//                    if (account != null && account.getFriendList() != null) {
-//                        for (AccountDTO friendAccount : account.getFriendList()) {
-//                            friendListValues.add(friendAccount.getUsername());
-//                        }
-//                    }
-//                } else {
-//                    friendListValues.add("mRestConsumerService is null");
-//                    Log.d(TAG, "create dummy entries");
-//
-//                    for (int i = 0; i < 5; i++) {
-//                        friendListValues.add("Dummy User" + i);
-//                    }
-//                }
-//
-//                listAdapter.notifyDataSetChanged();
-//            } else {
-//                Log.d(TAG, "onPostExecute no success");
-//            }
-//        }
 }

@@ -46,7 +46,7 @@ import de.fhb.mi.paperfly.user.UserProfileActivity;
 /**
  * ListView of private contacts, a friendlist
  *
- * @author Andy Klay    klay@fh-brandenburg.de
+ * @author Andy Klay (klay@fh-brandenburg.de)
  */
 public class FriendListFragment extends Fragment implements AdapterView.OnItemClickListener {
 
@@ -80,7 +80,7 @@ public class FriendListFragment extends Fragment implements AdapterView.OnItemCl
 
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
-            Toast.makeText(rootView.getContext(), "RestConsumerService Dissssconnected", Toast.LENGTH_SHORT)
+            Toast.makeText(rootView.getContext(), "RestConsumerService Disconnected", Toast.LENGTH_SHORT)
                     .show();
             mBound = false;
             mRestConsumerService = null;
@@ -169,8 +169,7 @@ public class FriendListFragment extends Fragment implements AdapterView.OnItemCl
     }
 
     /**
-     * Represents an asynchronous login task used to authenticate
-     * the user.
+     * Represents an asynchronous GetAccountTask used to get an user
      */
     public class GetAccountTask extends AsyncTask<String, Void, Boolean> {
 
@@ -190,6 +189,12 @@ public class FriendListFragment extends Fragment implements AdapterView.OnItemCl
         @Override
         protected void onPostExecute(final Boolean success) {
             mAccountTask = null;
+
+            //TODO Dummy data of DB...da Friendlist in Json nicht enthalten
+            friendListValues.add("salaxy");
+            friendListValues.add("kaain");
+            friendListValues.add("yserz");
+            friendListValues.add("wayne");
 
             if (success) {
                 Log.d("onPostExecute", "success");
