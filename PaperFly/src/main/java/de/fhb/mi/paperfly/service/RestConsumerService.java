@@ -22,15 +22,13 @@ import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.google.gson.Gson;
-
-import de.fhb.mi.paperfly.PaperFlyApp;
-import de.fhb.mi.paperfly.dto.AccountDTO;
-import de.fhb.mi.paperfly.dto.RegisterAccountDTO;
-import de.fhb.mi.paperfly.dto.RoomDTO;
-import de.fhb.mi.paperfly.dto.TokenDTO;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -43,7 +41,15 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Type;
+import java.util.Date;
 import java.util.List;
+
+import de.fhb.mi.paperfly.PaperFlyApp;
+import de.fhb.mi.paperfly.dto.AccountDTO;
+import de.fhb.mi.paperfly.dto.RegisterAccountDTO;
+import de.fhb.mi.paperfly.dto.RoomDTO;
+import de.fhb.mi.paperfly.dto.TokenDTO;
 
 /**
  * This Class implements the connection to the REST-Service of the PaperFly-Server
@@ -54,10 +60,15 @@ import java.util.List;
 public class RestConsumerService extends Service implements RestConsumer {
 
 
-    public static final String URL_LOGIN_BASIC = "http://46.137.173.175:8080/PaperFlyServer-web/secure/";
-    public static final String URL_LOGIN = "http://46.137.173.175:8080/PaperFlyServer-web/rest/v1/auth/login";
-    public static final String URL_GET_ACCOUNT = "http://46.137.173.175:8080/PaperFlyServer-web/rest/v1/account/";
-    public static final String URL_LOGOUT = "http://46.137.173.175:8080/PaperFlyServer-web/rest/v1/auth/logout";
+//    public static final String URL_LOGIN_BASIC = "http://46.137.173.175:8080/PaperFlyServer-web/secure/";
+//    public static final String URL_LOGIN = "http://46.137.173.175:8080/PaperFlyServer-web/rest/v1/auth/login";
+//    public static final String URL_GET_ACCOUNT = "http://46.137.173.175:8080/PaperFlyServer-web/rest/v1/account/";
+//    public static final String URL_LOGOUT = "http://46.137.173.175:8080/PaperFlyServer-web/rest/v1/auth/logout";
+
+    public static final String URL_LOGIN_BASIC = "http://10.0.2.2:8080/PaperFlyServer-web/secure/";
+    public static final String URL_LOGIN = "http://10.0.2.2:8080/PaperFlyServer-web/rest/v1/auth/login";
+    public static final String URL_GET_ACCOUNT = "http://10.0.2.2:8080/PaperFlyServer-web/rest/v1/account/";
+    public static final String URL_LOGOUT = "http://10.0.2.2:8080/PaperFlyServer-web/rest/v1/auth/logout";
 
 
     private static final String TAG = "RestConsumerService";
@@ -72,7 +83,6 @@ public class RestConsumerService extends Service implements RestConsumer {
 
     @Override
     public AccountDTO getAccount(String mail) {
-
         Log.d(TAG, "getAccount");
 
         return null;
@@ -83,6 +93,7 @@ public class RestConsumerService extends Service implements RestConsumer {
         Log.d(TAG, "getAccountByUsername");
 
         HttpUriRequest request = new HttpGet(URL_GET_ACCOUNT + username);
+//        request.setHeader(((PaperFlyApp) getApplication()).getToken());
 //        request.addHeader("user", mail);
 //        request.addHeader("pw", password);
         AccountDTO account = null;
@@ -118,7 +129,6 @@ public class RestConsumerService extends Service implements RestConsumer {
 //                }
             }
 
-
             InputStream is = response.getEntity().getContent();
             BufferedReader rd = new BufferedReader(new InputStreamReader(is));
             String line;
@@ -129,9 +139,10 @@ public class RestConsumerService extends Service implements RestConsumer {
             }
             rd.close();
 
-            Gson gson = new Gson();
+            Gson gson = new GsonBuilder().registerTypeAdapter(Date.class, new JsonDateDeserializer()).create();
+            Log.d("json", responseObj.toString());
             account = gson.fromJson(responseObj.toString(), AccountDTO.class);
-            ((PaperFlyApp) getApplication()).setAccount(account);
+//            ((PaperFlyApp) getApplication()).setAccount(account);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -210,6 +221,15 @@ public class RestConsumerService extends Service implements RestConsumer {
     public class RestConsumerBinder extends Binder {
         public RestConsumerService getServerInstance() {
             return RestConsumerService.this;
+        }
+    }
+
+    public class JsonDateDeserializer implements JsonDeserializer<Date> {
+        public Date deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+            String dateAsString = json.getAsJsonPrimitive().getAsString();
+            long dateAsLong = Long.parseLong(dateAsString.substring(6, dateAsString.length() - 2));
+            Date date = new Date(dateAsLong);
+            return date;
         }
     }
 }
