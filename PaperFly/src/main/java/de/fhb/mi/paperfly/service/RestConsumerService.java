@@ -55,24 +55,40 @@ import de.fhb.mi.paperfly.dto.TokenDTO;
  * This Class implements the connection to the REST-Service of the PaperFly-Server
  *
  * @author Christoph Ott
- * @author Andy Klay klay@fh-brandenburg.de
+ * @author Andy Klay (klay@fh-brandenburg.de)
  */
 public class RestConsumerService extends Service implements RestConsumer {
 
+    public static final String LOCAL_IP = "10.0.2.2";
+    public static final String AWS_IP = "46.137.173.175";
+    public static final boolean CONNECT_LOCAL = true;
+    public static final String PORT = "8080";
 
-//    public static final String URL_LOGIN_BASIC = "http://46.137.173.175:8080/PaperFlyServer-web/secure/";
-//    public static final String URL_LOGIN = "http://46.137.173.175:8080/PaperFlyServer-web/rest/v1/auth/login";
-//    public static final String URL_GET_ACCOUNT = "http://46.137.173.175:8080/PaperFlyServer-web/rest/v1/account/";
-//    public static final String URL_LOGOUT = "http://46.137.173.175:8080/PaperFlyServer-web/rest/v1/auth/logout";
-
-    public static final String URL_LOGIN_BASIC = "http://10.0.2.2:8080/PaperFlyServer-web/secure/";
-    public static final String URL_LOGIN = "http://10.0.2.2:8080/PaperFlyServer-web/rest/v1/auth/login";
-    public static final String URL_GET_ACCOUNT = "http://10.0.2.2:8080/PaperFlyServer-web/rest/v1/account/";
-    public static final String URL_LOGOUT = "http://10.0.2.2:8080/PaperFlyServer-web/rest/v1/auth/logout";
-
+    public static final String URL_LOGIN_BASIC = "PaperFlyServer-web/secure/";
+    public static final String URL_LOGIN = "PaperFlyServer-web/rest/v1/auth/login";
+    public static final String URL_GET_ACCOUNT = "PaperFlyServer-web/rest/v1/account/";
+    public static final String URL_LOGOUT = "PaperFlyServer-web/rest/v1/auth/logout";
 
     private static final String TAG = "RestConsumerService";
     IBinder mbinder = new RestConsumerBinder();
+
+
+    public String getConnectionURL(String restURL){
+
+        StringBuilder urlToBuild = new StringBuilder();
+        urlToBuild.append("http://");
+
+        if(CONNECT_LOCAL){
+            urlToBuild.append(LOCAL_IP);
+        }else{
+            urlToBuild.append(AWS_IP);
+        }
+
+        urlToBuild.append(":"+PORT + "/");
+        urlToBuild.append(restURL);
+
+        return urlToBuild.toString();
+    }
 
     @Override
     public AccountDTO editAccount(AccountDTO account) {
@@ -92,7 +108,7 @@ public class RestConsumerService extends Service implements RestConsumer {
     public AccountDTO getAccountByUsername(String username) {
         Log.d(TAG, "getAccountByUsername");
 
-        HttpUriRequest request = new HttpGet(URL_GET_ACCOUNT + username);
+        HttpUriRequest request = new HttpGet(getConnectionURL(URL_GET_ACCOUNT) + username);
 //        request.setHeader(((PaperFlyApp) getApplication()).getToken());
 //        request.addHeader("user", mail);
 //        request.addHeader("pw", password);
@@ -166,7 +182,7 @@ public class RestConsumerService extends Service implements RestConsumer {
     @Override
     public boolean login(String mail, String password) {
         Log.d(TAG, "login");
-        HttpUriRequest request = new HttpGet(URL_LOGIN); // Or HttpPost(), depends on your needs
+        HttpUriRequest request = new HttpGet(getConnectionURL(URL_LOGIN)); // Or HttpPost(), depends on your needs
         request.addHeader("user", mail);
         request.addHeader("pw", password);
 
