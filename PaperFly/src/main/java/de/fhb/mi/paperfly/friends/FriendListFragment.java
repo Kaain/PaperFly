@@ -56,7 +56,7 @@ public class FriendListFragment extends Fragment implements AdapterView.OnItemCl
     private List<String> friendListValues;
     private ArrayAdapter<String> listAdapter;
     private GetAccountTask mAccountTask = null;
-    AccountDTO account;
+    AccountDTO account = null;
 
     /**
      * Begin *************************************** Rest-Connection ****************************** *
@@ -67,7 +67,6 @@ public class FriendListFragment extends Fragment implements AdapterView.OnItemCl
 
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
-            // We've bound to LocalService, cast the IBinder and get LocalService instance
             RestConsumerService.RestConsumerBinder binder = (RestConsumerService.RestConsumerBinder) service;
             mRestConsumerService = binder.getServerInstance();
             mBound = true;
@@ -75,6 +74,7 @@ public class FriendListFragment extends Fragment implements AdapterView.OnItemCl
                     .show();
 
             mAccountTask = new GetAccountTask();
+            //TODO username is only template for actual user
             mAccountTask.execute("username");
         }
 
@@ -104,9 +104,7 @@ public class FriendListFragment extends Fragment implements AdapterView.OnItemCl
         initViewsById();
 
         friendListValues = new ArrayList<String>();
-        friendListValues.add("before ...");
-        friendListValues.add(Boolean.toString(mBound));
-
+        Log.d(TAG, "binding RestConsumerService " + Boolean.toString(mBound));
 
         listAdapter = new ArrayAdapter<String>(rootView.getContext(), android.R.layout.simple_list_item_1, friendListValues);
         friendListView.setAdapter(listAdapter);
@@ -180,12 +178,12 @@ public class FriendListFragment extends Fragment implements AdapterView.OnItemCl
         protected Boolean doInBackground(String... params) {
             String username = params[0];
 
-            account=mRestConsumerService.getAccountByUsername(username);
+            account = mRestConsumerService.getAccountByUsername(username);
 
-            if(account!=null){
-                return false;
-            }else{
+            if (account != null) {
                 return true;
+            } else {
+                return false;
             }
         }
 
@@ -198,7 +196,6 @@ public class FriendListFragment extends Fragment implements AdapterView.OnItemCl
 
                 if (mRestConsumerService != null) {
                     Log.d(TAG, "mRestConsumerService exists");
-                    friendListValues.add("mRestConsumerService exists");
 
                     if (account != null && account.getFriendList() != null) {
                         for (AccountDTO friendAccount : account.getFriendList()) {
