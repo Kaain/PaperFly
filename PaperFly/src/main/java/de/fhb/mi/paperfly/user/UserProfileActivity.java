@@ -47,6 +47,7 @@ import de.fhb.mi.paperfly.SettingsActivity;
 import de.fhb.mi.paperfly.dto.AccountDTO;
 import de.fhb.mi.paperfly.service.BackgroundLocationService;
 import de.fhb.mi.paperfly.service.BackgroundLocationService.LocationBinder;
+import de.fhb.mi.paperfly.service.RestConsumerException;
 import de.fhb.mi.paperfly.service.RestConsumerService;
 
 /**
@@ -314,7 +315,13 @@ public class UserProfileActivity extends Activity {
             protected Boolean doInBackground(String... params) {
                 String username = params[0];
 
-                account = mRestConsumerService.getAccountByUsername(username);
+                try {
+                    account = mRestConsumerService.getAccountByUsername(username);
+                } catch (RestConsumerException e) {
+                    e.printStackTrace();
+                    Toast.makeText(rootView.getContext(), e.getMessage(), Toast.LENGTH_SHORT)
+                            .show();
+                }
 
                 if (account != null) {
                     return true;
