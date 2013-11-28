@@ -49,6 +49,7 @@ import java.util.Date;
 import java.util.List;
 
 import de.fhb.mi.paperfly.PaperFlyApp;
+import de.fhb.mi.paperfly.auth.AuthStatus;
 import de.fhb.mi.paperfly.dto.AccountDTO;
 import de.fhb.mi.paperfly.dto.RegisterAccountDTO;
 import de.fhb.mi.paperfly.dto.RoomDTO;
@@ -113,7 +114,7 @@ public class RestConsumerService extends Service implements RestConsumer {
     }
 
     @Override
-    public AccountDTO getAccountByUsername(String username) {
+    public AccountDTO getAccountByUsername(String username) throws RestConsumerException {
         Log.d(TAG, "getAccountByUsername");
 
         HttpUriRequest request = new HttpGet(getConnectionURL(URL_GET_ACCOUNT) + username);
@@ -128,8 +129,12 @@ public class RestConsumerService extends Service implements RestConsumer {
 
             if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
                 Log.d(TAG, "getAccountByUsername: " + response.getStatusLine().getStatusCode());
-                return null;
-                // TODO switch mit status code
+                switch (response.getStatusLine().getStatusCode()) {
+                    case 500:
+                        throw new RestConsumerException(RestConsumerException.INTERNAL_SERVER_MESSAGE);
+                    default:
+                        return null;
+                }
             }
 
             String responseObjAsString = readInEntity(response);
@@ -161,7 +166,7 @@ public class RestConsumerService extends Service implements RestConsumer {
     }
 
     @Override
-    public boolean login(String mail, String password) {
+    public boolean login(String mail, String password) throws RestConsumerException {
         Log.d(TAG, "login");
         HttpUriRequest request = new HttpGet(getConnectionURL(URL_LOGIN)); // Or HttpPost(), depends on your needs
         request.addHeader("user", mail);
@@ -174,11 +179,14 @@ public class RestConsumerService extends Service implements RestConsumer {
         try {
             response = httpclient.execute(request);
 
-
             if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
                 Log.d(TAG, "loginUser: " + response.getStatusLine().getStatusCode());
-                return false;
-                // TODO switch mit status code
+                switch (response.getStatusLine().getStatusCode()) {
+                    case 500:
+                        throw new RestConsumerException(RestConsumerException.INTERNAL_SERVER_MESSAGE);
+                    default:
+                        return false;
+                }
             }
 
             String responseObjAsString = readInEntity(response);
@@ -197,8 +205,16 @@ public class RestConsumerService extends Service implements RestConsumer {
         return mbinder;
     }
 
+    /**
+     * Registers an user.
+     *
+     * @param registerAccount new users data
+     * @return
+     * @throws UnsupportedEncodingException
+     * @throws RestConsumerException
+     */
     @Override
-    public TokenDTO register(RegisterAccountDTO registerAccount) throws UnsupportedEncodingException {
+    public TokenDTO register(RegisterAccountDTO registerAccount) throws UnsupportedEncodingException, RestConsumerException {
 
         TokenDTO requestToken = null;
         HttpUriRequest request = new HttpPut(getConnectionURL(URL_REGISTER_ACCOUNT));
@@ -216,26 +232,12 @@ public class RestConsumerService extends Service implements RestConsumer {
 
             if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
                 Log.d(TAG, "getAccountByUsername: " + response.getStatusLine().getStatusCode());
-                return null;
-                // TODO switch mit status code
-//                switch (response.getStatusLine().getStatusCode()) {
-//                    case HttpStatus.SC_BAD_GATEWAY:
-//                        ;
-//                        break;
-//                    case HttpStatus.SC_ACCEPTED:
-//                        ;
-//                        break;
-//                    case HttpStatus.SC_BAD_REQUEST:
-//                        ;
-//                        break;
-//                    case HttpStatus.SC_CONTINUE:
-//                        ;
-//                        break;
-//                    case HttpStatus.SC_CONFLICT:
-//                        ;
-//                        break;
-//                    //...
-//                }
+                switch (response.getStatusLine().getStatusCode()) {
+                    case 412:
+                        throw new RestConsumerException(RestConsumerException.INVALID_INPUT_MESSAGE);
+                    case 500:
+                        throw new RestConsumerException(RestConsumerException.INTERNAL_SERVER_MESSAGE);
+                }
             }
 
             String responseObjAsString = readInEntity(response);
@@ -269,7 +271,6 @@ public class RestConsumerService extends Service implements RestConsumer {
             return date;
         }
     }
-
 
     private String readInEntity(HttpResponse response) throws IOException {
         InputStream is = response.getEntity().getContent();

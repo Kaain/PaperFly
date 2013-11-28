@@ -18,15 +18,15 @@ public interface RestConsumer {
 
     AccountDTO getAccount(String mail);
 
-    AccountDTO getAccountByUsername(String username);
+    AccountDTO getAccountByUsername(String username) throws RestConsumerException;
 
     List<AccountDTO> getAccountsInRoom(long roomID);
 
     RoomDTO locateAccount(String username);
 
-    boolean login(String mail, String password);
+    boolean login(String mail, String password) throws RestConsumerException;
 
-    TokenDTO register(RegisterAccountDTO account) throws UnsupportedEncodingException;
+    TokenDTO register(RegisterAccountDTO account) throws UnsupportedEncodingException, RestConsumerException;
 
     List<AccountDTO> searchAccount(String query);
 }

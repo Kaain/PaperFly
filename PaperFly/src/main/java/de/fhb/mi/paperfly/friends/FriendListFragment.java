@@ -40,6 +40,7 @@ import java.util.List;
 
 import de.fhb.mi.paperfly.R;
 import de.fhb.mi.paperfly.dto.AccountDTO;
+import de.fhb.mi.paperfly.service.RestConsumerException;
 import de.fhb.mi.paperfly.service.RestConsumerService;
 import de.fhb.mi.paperfly.user.UserProfileActivity;
 
@@ -177,7 +178,13 @@ public class FriendListFragment extends Fragment implements AdapterView.OnItemCl
         protected Boolean doInBackground(String... params) {
             String username = params[0];
 
-            account = mRestConsumerService.getAccountByUsername(username);
+            try {
+                account = mRestConsumerService.getAccountByUsername(username);
+            } catch (RestConsumerException e) {
+                e.printStackTrace();
+                Toast.makeText(rootView.getContext(), e.getMessage(), Toast.LENGTH_SHORT)
+                        .show();
+            }
 
             if (account != null) {
                 return true;

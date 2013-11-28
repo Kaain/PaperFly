@@ -20,8 +20,13 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.io.UnsupportedEncodingException;
+
 import de.fhb.mi.paperfly.MainActivity;
 import de.fhb.mi.paperfly.R;
+import de.fhb.mi.paperfly.dto.RegisterAccountDTO;
+import de.fhb.mi.paperfly.service.RestConsumerException;
 import de.fhb.mi.paperfly.service.RestConsumerService;
 import de.fhb.mi.paperfly.service.RestConsumerService.RestConsumerBinder;
 
@@ -240,7 +245,14 @@ public class LoginActivity extends Activity {
             String mail = params[0];
             String pw = params[1];
 
-            return mRestConsumerService.login(mail, pw);
+            boolean success=false;
+
+            try {
+                success= mRestConsumerService.login(mail, pw);
+            } catch (RestConsumerException e) {
+                e.printStackTrace();
+            }
+            return success;
         }
 
         @Override
@@ -275,7 +287,21 @@ public class LoginActivity extends Activity {
             String mail = params[0];
             String pw = params[1];
 
-            return AuthHelper.register(mail, pw);
+            RegisterAccountDTO nextUser= new RegisterAccountDTO();
+            nextUser.setEmail(mail);
+            nextUser.setPassword(pw);
+
+            try {
+                mRestConsumerService.register(nextUser);
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            } catch (RestConsumerException e) {
+                e.printStackTrace();
+                //TODO kann man nicht immer sagen an der Stelle
+                return AuthStatus.REGISTER_EMAIL_ALREADY_REGISTERED;
+            }
+
+            return AuthStatus.REGISTER_SUCCESSFUL;
         }
 
         @Override

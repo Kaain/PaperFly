@@ -151,21 +151,4 @@ public class AuthHelper {
         return false;
     }
 
-    /**
-     * Registers an user.
-     *
-     * @param mail the users email address
-     * @param pw   the password
-     * @return true if registration was successful, false otherwise.
-     */
-    public static AuthStatus register(String mail, String pw) {
-        // TODO implement register
-
-        boolean valid = false;
-        if (valid) {
-            return AuthStatus.REGISTER_SUCCESSFUL;
-        } else {
-            return AuthStatus.REGISTER_EMAIL_ALREADY_REGISTERED;
-        }
-    }
 }
