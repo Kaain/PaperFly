@@ -34,13 +34,16 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Type;
 import java.util.Date;
 import java.util.List;
@@ -68,6 +71,11 @@ public class RestConsumerService extends Service implements RestConsumer {
     public static final String URL_LOGIN = "PaperFlyServer-web/rest/v1/auth/login";
     public static final String URL_GET_ACCOUNT = "PaperFlyServer-web/rest/v1/account/";
     public static final String URL_LOGOUT = "PaperFlyServer-web/rest/v1/auth/logout";
+
+    public static final String URL_REGISTER_ACCOUNT = "PaperFlyServer-web/rest/v1/account/register";
+    public static final String URL_SEARCH_ACCOUNT = "PaperFlyServer-web/rest/v1/account/search/";
+    public static final String URL_EDIT_ACCOUNT = "PaperFlyServer-web/rest/v1/myaccount/edit";
+    public static final String URL_ADD_FRIEND = "PaperFlyServer-web/rest/v1/myaccount/friend/";
 
     private static final String TAG = "RestConsumerService";
     IBinder mbinder = new RestConsumerBinder();
@@ -225,8 +233,64 @@ public class RestConsumerService extends Service implements RestConsumer {
     }
 
     @Override
-    public AccountDTO register(RegisterAccountDTO account) {
-        return null;
+    public TokenDTO register(RegisterAccountDTO registerAccount) throws UnsupportedEncodingException {
+
+        TokenDTO requestToken = null;
+        HttpUriRequest request = new HttpPut(getConnectionURL(URL_REGISTER_ACCOUNT));
+
+        String jsonToSend = new Gson().toJson(registerAccount);
+        StringEntity entityToSend = new StringEntity(jsonToSend);
+        ((HttpPut) request).setEntity(entityToSend);
+
+        Log.d(TAG, request.getRequestLine().toString());
+
+        HttpClient httpclient = new DefaultHttpClient();
+        HttpResponse response;
+        try {
+            response = httpclient.execute(request);
+
+            if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
+                Log.d(TAG, "getAccountByUsername: " + response.getStatusLine().getStatusCode());
+                return null;
+                // TODO switch mit status code
+//                switch (response.getStatusLine().getStatusCode()) {
+//                    case HttpStatus.SC_BAD_GATEWAY:
+//                        ;
+//                        break;
+//                    case HttpStatus.SC_ACCEPTED:
+//                        ;
+//                        break;
+//                    case HttpStatus.SC_BAD_REQUEST:
+//                        ;
+//                        break;
+//                    case HttpStatus.SC_CONTINUE:
+//                        ;
+//                        break;
+//                    case HttpStatus.SC_CONFLICT:
+//                        ;
+//                        break;
+//                    //...
+//                }
+            }
+
+            InputStream is = response.getEntity().getContent();
+            BufferedReader rd = new BufferedReader(new InputStreamReader(is));
+            String line;
+            StringBuilder responseObj = new StringBuilder();
+            while ((line = rd.readLine()) != null) {
+                responseObj.append(line);
+                responseObj.append('\r');
+            }
+            rd.close();
+
+            Log.d("json", responseObj.toString());
+            Gson gson = new GsonBuilder().registerTypeAdapter(Date.class, new JsonDateDeserializer()).create();
+            requestToken = gson.fromJson(responseObj.toString(), TokenDTO.class);
+            ((PaperFlyApp) getApplication()).setToken(requestToken);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return requestToken;
     }
 
     @Override
