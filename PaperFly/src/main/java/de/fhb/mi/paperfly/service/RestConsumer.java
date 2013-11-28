@@ -10,6 +10,7 @@ import java.util.List;
 
 /**
  * @author Christoph Ott
+ * @author Andy Klay (klay@fh-brandenburg.de)
  */
 public interface RestConsumer {
 

@@ -117,9 +117,6 @@ public class RestConsumerService extends Service implements RestConsumer {
         Log.d(TAG, "getAccountByUsername");
 
         HttpUriRequest request = new HttpGet(getConnectionURL(URL_GET_ACCOUNT) + username);
-//        request.setHeader(((PaperFlyApp) getApplication()).getToken());
-//        request.addHeader("user", mail);
-//        request.addHeader("pw", password);
         AccountDTO account = null;
 
         Log.d(TAG, request.getRequestLine().toString());
@@ -133,45 +130,21 @@ public class RestConsumerService extends Service implements RestConsumer {
                 Log.d(TAG, "getAccountByUsername: " + response.getStatusLine().getStatusCode());
                 return null;
                 // TODO switch mit status code
-//                switch (response.getStatusLine().getStatusCode()) {
-//                    case HttpStatus.SC_BAD_GATEWAY:
-//                        ;
-//                        break;
-//                    case HttpStatus.SC_ACCEPTED:
-//                        ;
-//                        break;
-//                    case HttpStatus.SC_BAD_REQUEST:
-//                        ;
-//                        break;
-//                    case HttpStatus.SC_CONTINUE:
-//                        ;
-//                        break;
-//                    case HttpStatus.SC_CONFLICT:
-//                        ;
-//                        break;
-//                    //...
-//                }
             }
 
-            InputStream is = response.getEntity().getContent();
-            BufferedReader rd = new BufferedReader(new InputStreamReader(is));
-            String line;
-            StringBuilder responseObj = new StringBuilder();
-            while ((line = rd.readLine()) != null) {
-                responseObj.append(line);
-                responseObj.append('\r');
-            }
-            rd.close();
+            String responseObjAsString = readInEntity(response);
 
             Gson gson = new GsonBuilder().registerTypeAdapter(Date.class, new JsonDateDeserializer()).create();
-            Log.d("json", responseObj.toString());
-            account = gson.fromJson(responseObj.toString(), AccountDTO.class);
+            Log.d("json", responseObjAsString);
+
+            account = gson.fromJson(responseObjAsString, AccountDTO.class);
 //            ((PaperFlyApp) getApplication()).setAccount(account);
         } catch (IOException e) {
             e.printStackTrace();
         }
         return account;
     }
+
 
     @Override
     public List<AccountDTO> getAccountsInRoom(long roomID) {
@@ -208,18 +181,10 @@ public class RestConsumerService extends Service implements RestConsumer {
                 // TODO switch mit status code
             }
 
-            InputStream is = response.getEntity().getContent();
-            BufferedReader rd = new BufferedReader(new InputStreamReader(is));
-            String line;
-            StringBuilder responseObj = new StringBuilder();
-            while ((line = rd.readLine()) != null) {
-                responseObj.append(line);
-                responseObj.append('\r');
-            }
-            rd.close();
+            String responseObjAsString = readInEntity(response);
 
             Gson gson = new Gson();
-            TokenDTO tokendto = gson.fromJson(responseObj.toString(), TokenDTO.class);
+            TokenDTO tokendto = gson.fromJson(responseObjAsString, TokenDTO.class);
             ((PaperFlyApp) getApplication()).setToken(tokendto);
         } catch (IOException e) {
             e.printStackTrace();
@@ -273,19 +238,11 @@ public class RestConsumerService extends Service implements RestConsumer {
 //                }
             }
 
-            InputStream is = response.getEntity().getContent();
-            BufferedReader rd = new BufferedReader(new InputStreamReader(is));
-            String line;
-            StringBuilder responseObj = new StringBuilder();
-            while ((line = rd.readLine()) != null) {
-                responseObj.append(line);
-                responseObj.append('\r');
-            }
-            rd.close();
+            String responseObjAsString = readInEntity(response);
 
-            Log.d("json", responseObj.toString());
+            Log.d("json", responseObjAsString);
             Gson gson = new GsonBuilder().registerTypeAdapter(Date.class, new JsonDateDeserializer()).create();
-            requestToken = gson.fromJson(responseObj.toString(), TokenDTO.class);
+            requestToken = gson.fromJson(responseObjAsString, TokenDTO.class);
             ((PaperFlyApp) getApplication()).setToken(requestToken);
         } catch (IOException e) {
             e.printStackTrace();
@@ -311,5 +268,19 @@ public class RestConsumerService extends Service implements RestConsumer {
             Date date = new Date(dateAsLong);
             return date;
         }
+    }
+
+
+    private String readInEntity(HttpResponse response) throws IOException {
+        InputStream is = response.getEntity().getContent();
+        BufferedReader rd = new BufferedReader(new InputStreamReader(is));
+        String line;
+        StringBuilder responseObj = new StringBuilder();
+        while ((line = rd.readLine()) != null) {
+            responseObj.append(line);
+            responseObj.append('\r');
+        }
+        rd.close();
+        return responseObj.toString();
     }
 }
