@@ -38,6 +38,8 @@ import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicHeader;
+import org.apache.http.protocol.HTTP;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -49,7 +51,6 @@ import java.util.Date;
 import java.util.List;
 
 import de.fhb.mi.paperfly.PaperFlyApp;
-import de.fhb.mi.paperfly.auth.AuthStatus;
 import de.fhb.mi.paperfly.dto.AccountDTO;
 import de.fhb.mi.paperfly.dto.RegisterAccountDTO;
 import de.fhb.mi.paperfly.dto.RoomDTO;
@@ -221,7 +222,13 @@ public class RestConsumerService extends Service implements RestConsumer {
 
         String jsonToSend = new Gson().toJson(registerAccount);
         StringEntity entityToSend = new StringEntity(jsonToSend);
+        Log.d(TAG, jsonToSend);
+
+        entityToSend.setContentEncoding("UTF-8");
+        entityToSend.setContentType(new BasicHeader(HTTP.CONTENT_TYPE,"application/json"));
+
         ((HttpPut) request).setEntity(entityToSend);
+        request.addHeader("accept", "application/json");
 
         Log.d(TAG, request.getRequestLine().toString());
 
