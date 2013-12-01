@@ -51,7 +51,7 @@ import de.fhb.mi.paperfly.service.RestConsumerException;
 import de.fhb.mi.paperfly.service.RestConsumerService;
 
 /**
- * This activity show detail information of a user
+ * This activity shows detail information of a user.
  *
  * @author Christoph Ott
  * @author Andy Klay (klay@fh-brandenburg.de)

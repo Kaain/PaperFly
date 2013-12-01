@@ -8,6 +8,7 @@ import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
+
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -16,7 +17,10 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 
 /**
+ * A background service which gets the actual location of the user.
+ *
  * @author Christoph Ott
+ * @see android.app.Service
  */
 public class BackgroundLocationService extends Service implements GooglePlayServicesClient.ConnectionCallbacks,
         GooglePlayServicesClient.OnConnectionFailedListener,
@@ -130,6 +134,8 @@ public class BackgroundLocationService extends Service implements GooglePlayServ
     /**
      * Checks if the GooglePlayServices are available.
      *
+     * @param context the application context
+     *
      * @return true if the service is available, false if not
      */
     public static boolean servicesAvailable(Context context) {
@@ -162,6 +168,11 @@ public class BackgroundLocationService extends Service implements GooglePlayServ
         return mLocationClient.getLastLocation();
     }
 
+    /**
+     * A Binder for the BackgroundLocationService
+     *
+     * @see android.os.Binder
+     */
     public class LocationBinder extends Binder {
         public BackgroundLocationService getServerInstance() {
             return BackgroundLocationService.this;

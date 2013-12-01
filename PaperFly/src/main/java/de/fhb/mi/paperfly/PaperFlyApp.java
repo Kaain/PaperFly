@@ -7,6 +7,9 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import de.fhb.mi.paperfly.dto.AccountDTO;
 import de.fhb.mi.paperfly.dto.TokenDTO;
 import de.fhb.mi.paperfly.service.BackgroundLocationService;
@@ -14,24 +17,25 @@ import de.fhb.mi.paperfly.service.RestConsumerService;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
+ * The application for PaperFly.
+ *
  * @author Christoph Ott
+ * @see android.app.Application
  */
-
+@Getter
+@Setter
 public class PaperFlyApp extends Application {
-    @Getter
-    @Setter
     private List<String> chatGlobal;
-    @Getter
-    @Setter
     private List<String> chatRoom;
-    @Getter
-    @Setter
     private TokenDTO token;
 
+    /**
+     * Checks if the given Service is running.
+     *
+     * @param serviceToCheck the service to check
+     * @return true if the service is running, false if not
+     */
     public boolean isMyServiceRunning(Service serviceToCheck) {
         ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
         for (RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
@@ -56,6 +60,6 @@ public class PaperFlyApp extends Application {
     }
 
     public void setAccount(AccountDTO account) {
-       //TODO
+        //TODO with lombock
     }
 }

@@ -45,6 +45,8 @@ import de.fhb.mi.paperfly.navigation.NavListAdapter;
 import de.fhb.mi.paperfly.navigation.NavListAdapter.ViewHolder;
 
 /**
+ * The Activity with the navigation and some Fragments.
+ *
  * @author Christoph Ott
  * @author Andy Klay   klay@fh-brandenburg.de
  */
@@ -137,6 +139,8 @@ public class MainActivity extends Activity {
 
     /**
      * Shows the progress UI and hides the login form.
+     *
+     * @param show true if the progress UI should be shown, false if not
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
     private void showProgress(final boolean show) {
@@ -176,7 +180,7 @@ public class MainActivity extends Activity {
     }
 
     /**
-     * generates NavigationList
+     * Generates the NavigationList on the left side.
      */
     private void generateNavigation() {
         //TODO muesste es nicht heißen generateNavigationLeft?
@@ -239,7 +243,7 @@ public class MainActivity extends Activity {
     }
 
     /**
-     * Creates a {@link android.support.v4.app.ActionBarDrawerToggle}.
+     * Creates a {@link android.support.v4.app.ActionBarDrawerToggle} which can show the navigation.
      *
      * @return the ActionBarDrawerToggle
      */
@@ -372,7 +376,7 @@ public class MainActivity extends Activity {
     }
 
     /**
-     * Creates a new Intent for QR scan.
+     * Opens a new Intent for QR scan.
      *
      * @return true if the scan was successful, false if not
      */
@@ -386,14 +390,16 @@ public class MainActivity extends Activity {
             return true;
         } else {
             // TODO only for mockup test
-            switchToChatRoom("INFZ_305", "");
-            Toast.makeText(this, "Keine Kamera da.(Für Mockup) INFZ_305 als Raum", Toast.LENGTH_SHORT).show();
+            switchToChatRoom("INFZ_305");
+            Toast.makeText(this, "There is no camera for this device.", Toast.LENGTH_SHORT).show();
             return false;
         }
     }
 
     /**
-     * Creates a new Fragment for Friendslist
+     * Creates a new Fragment for FriendList.
+     *
+     * @return true if the fragment is shown
      */
     private boolean openFriendList() {
         Log.d(TAG, "openFriendList");
@@ -414,19 +420,24 @@ public class MainActivity extends Activity {
             if (resultCode == RESULT_OK) {
                 String room = intent.getStringExtra("SCAN_RESULT");
                 String format = intent.getStringExtra("SCAN_RESULT_FORMAT");
-                switchToChatRoom(room, format);
+                switchToChatRoom(room);
                 Toast.makeText(this, room, Toast.LENGTH_SHORT).show();
             } else if (resultCode == RESULT_CANCELED) {
                 // TODO only for mockup test
                 String testRoom = "INFZ 305";
                 Toast.makeText(this, "Cancel", Toast.LENGTH_SHORT).show();
-                switchToChatRoom(testRoom, "");
+                switchToChatRoom(testRoom);
             }
 
         }
     }
 
-    private void switchToChatRoom(String room, String format) {
+    /**
+     * Opens a new fragment for the given chat.
+     *
+     * @param room the room to open
+     */
+    private void switchToChatRoom(String room) {
         Fragment fragment = new ChatFragment();
         Bundle args = new Bundle();
         args.putString(ChatFragment.ARG_CHAT_ROOM, room);
@@ -444,6 +455,9 @@ public class MainActivity extends Activity {
         ((BaseAdapter) drawerLeftList.getAdapter()).notifyDataSetChanged();
     }
 
+    /**
+     * Opens the global chat in a new fragment.
+     */
     private void switchToGlobalChat() {
         Fragment fragment = new ChatFragment();
         Bundle args = new Bundle();
@@ -458,13 +472,12 @@ public class MainActivity extends Activity {
     }
 
     /**
-     * Swaps fragments in the main content view
+     * Swaps fragments in the main content view.
      *
-     * @param navkey
+     * @param navkey the navigation key
      */
     private void navigateTo(NavKey navkey) {
         Log.d(TAG, "navigateTo: " + navkey);
-        // Create a new fragment and specify the planet to show based on position
         switch (navkey) {
             case ENTER_ROOM:
                 doQRScan();
@@ -488,6 +501,9 @@ public class MainActivity extends Activity {
         getActionBar().setTitle(mTitle);
     }
 
+    /**
+     * The OnItemClickListener for the navigation.
+     */
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
 
         @Override
@@ -500,14 +516,13 @@ public class MainActivity extends Activity {
         }
     }
 
+    /**
+     * The LoginTask which checks if a token is available.
+     */
     private class UserLoginTask extends AsyncTask<String, Void, Boolean> {
         @Override
         protected Boolean doInBackground(String... params) {
-            if (((PaperFlyApp) getApplication()).getToken() != null) {
-                return true;
-            } else {
-                return false;
-            }
+            return ((PaperFlyApp) getApplication()).getToken() != null;
         }
 
         @Override
@@ -527,6 +542,9 @@ public class MainActivity extends Activity {
         }
     }
 
+    /**
+     * The task to logout and delete the saved token.
+     */
     private class UserLogoutTask extends AsyncTask<Void, Void, Boolean> {
 
         @Override

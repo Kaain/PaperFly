@@ -57,7 +57,7 @@ import de.fhb.mi.paperfly.dto.RoomDTO;
 import de.fhb.mi.paperfly.dto.TokenDTO;
 
 /**
- * This Class implements the connection to the REST-Service of the PaperFly-Server
+ * This Class implements the connection to the REST-Service of the PaperFly-Server.
  *
  * @author Christoph Ott
  * @author Andy Klay (klay@fh-brandenburg.de)
@@ -206,14 +206,6 @@ public class RestConsumerService extends Service implements RestConsumer {
         return mbinder;
     }
 
-    /**
-     * Registers an user.
-     *
-     * @param registerAccount new users data
-     * @return
-     * @throws UnsupportedEncodingException
-     * @throws RestConsumerException
-     */
     @Override
     public TokenDTO register(RegisterAccountDTO registerAccount) throws UnsupportedEncodingException, RestConsumerException {
 
