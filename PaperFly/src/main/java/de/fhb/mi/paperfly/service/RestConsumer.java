@@ -22,7 +22,7 @@ public interface RestConsumer {
      * @param account the account to edit
      * @return the edited account
      */
-    AccountDTO editAccount(AccountDTO account);
+    AccountDTO editAccount(AccountDTO editedAccount) throws RestConsumerException, UnsupportedEncodingException;
 
     /**
      * Gets the account by the given mail address.
@@ -30,7 +30,7 @@ public interface RestConsumer {
      * @param mail the mail address of the account
      * @return the account
      */
-    AccountDTO getAccount(String mail);
+    AccountDTO getAccountByMail(String mail) throws RestConsumerException;
 
     /**
      * Gets the account by the given username.

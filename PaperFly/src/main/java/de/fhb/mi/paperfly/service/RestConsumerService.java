@@ -38,6 +38,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.entity.StringEntity;
@@ -107,17 +108,87 @@ public class RestConsumerService extends Service implements RestConsumer {
     }
 
     @Override
-    public AccountDTO editAccount(AccountDTO account) {
-        Log.d(TAG, "getAccount");
+    public AccountDTO editAccount(AccountDTO editedAccount) throws RestConsumerException, UnsupportedEncodingException {
+        Log.d(TAG, "getAccountByMail");
 
-        return null;
+        AccountDTO responseAccount = null;
+        HttpUriRequest request = new HttpPost(getConnectionURL(URL_EDIT_ACCOUNT));
+
+        Gson sendMapper = new GsonBuilder().registerTypeAdapter(Date.class, new JsonDateSerializer()).create();
+
+        String jsonToSend = sendMapper.toJson(editedAccount);
+        StringEntity entityToSend = new StringEntity(jsonToSend);
+        Log.d(TAG, jsonToSend);
+
+        entityToSend.setContentEncoding("UTF-8");
+        entityToSend.setContentType(new BasicHeader(HTTP.CONTENT_TYPE, "application/json"));
+
+        ((HttpPut) request).setEntity(entityToSend);
+        request.addHeader("accept", "application/json");
+
+        Log.d(TAG, request.getRequestLine().toString());
+
+        HttpClient httpclient = new DefaultHttpClient();
+        HttpResponse response;
+        try {
+            response = httpclient.execute(request);
+
+            if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
+                Log.d(TAG, "getAccountByUsername: " + response.getStatusLine().getStatusCode());
+                switch (response.getStatusLine().getStatusCode()) {
+                    case 412:
+                        throw new RestConsumerException(RestConsumerException.INVALID_INPUT_MESSAGE);
+                    case 500:
+                        throw new RestConsumerException(RestConsumerException.INTERNAL_SERVER_MESSAGE);
+                    default:
+                        throw new RestConsumerException("Response:" + response.getStatusLine().getStatusCode());
+                }
+            }
+
+            String responseObjAsString = readInEntity(response);
+            Log.d("json", responseObjAsString);
+            Gson gson = new GsonBuilder().registerTypeAdapter(Date.class, new JsonDateDeserializer()).create();
+            responseAccount = gson.fromJson(responseObjAsString, AccountDTO.class);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return responseAccount;
     }
 
     @Override
-    public AccountDTO getAccount(String mail) {
-        Log.d(TAG, "getAccount");
+    public AccountDTO getAccountByMail(String mail) throws RestConsumerException {
+        Log.d(TAG, "getAccountByMail");
 
-        return null;
+        //TODO not yet implemented
+        HttpUriRequest request = new HttpGet(getConnectionURL(URL_SEARCH_ACCOUNT) + mail);
+        AccountDTO account = null;
+
+        Log.d(TAG, request.getRequestLine().toString());
+
+        HttpClient httpclient = new DefaultHttpClient();
+        HttpResponse response;
+        try {
+            response = httpclient.execute(request);
+
+            if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
+                Log.d(TAG, "getAccountByMail: " + response.getStatusLine().getStatusCode());
+                switch (response.getStatusLine().getStatusCode()) {
+                    case 500:
+                        throw new RestConsumerException(RestConsumerException.INTERNAL_SERVER_MESSAGE);
+                    default:
+                        return null;
+                }
+            }
+
+            String responseObjAsString = readInEntity(response);
+            Gson gson = new GsonBuilder().registerTypeAdapter(Date.class, new JsonDateDeserializer()).create();
+            Log.d(TAG, "json: " + responseObjAsString);
+
+            account = gson.fromJson(responseObjAsString, AccountDTO.class);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return account;
     }
 
     @Override
@@ -140,16 +211,15 @@ public class RestConsumerService extends Service implements RestConsumer {
                     case 500:
                         throw new RestConsumerException(RestConsumerException.INTERNAL_SERVER_MESSAGE);
                     default:
-                        return null;
+                        throw new RestConsumerException("Response:" + response.getStatusLine().getStatusCode());
                 }
             }
 
             String responseObjAsString = readInEntity(response);
             Gson gson = new GsonBuilder().registerTypeAdapter(Date.class, new JsonDateDeserializer()).create();
-            Log.d("json", responseObjAsString);
+            Log.d(TAG, "json: " + responseObjAsString);
 
             account = gson.fromJson(responseObjAsString, AccountDTO.class);
-//            ((PaperFlyApp) getApplication()).setAccount(account);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -173,7 +243,7 @@ public class RestConsumerService extends Service implements RestConsumer {
             response = httpclient.execute(request);
 
             if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-                Log.d(TAG, "getAccountByUsername: " + response.getStatusLine().getStatusCode());
+                Log.d(TAG, "getAccountsInRoom: " + response.getStatusLine().getStatusCode());
                 switch (response.getStatusLine().getStatusCode()) {
                     case 500:
                         throw new RestConsumerException(RestConsumerException.INTERNAL_SERVER_MESSAGE);
@@ -184,7 +254,7 @@ public class RestConsumerService extends Service implements RestConsumer {
 
             String responseObjAsString = readInEntity(response);
             Gson gson = new GsonBuilder().registerTypeAdapter(Date.class, new JsonDateDeserializer()).create();
-            Log.d("json", responseObjAsString);
+            Log.d(TAG, "json: " + responseObjAsString);
 
             accountsInRoom = gson.fromJson(responseObjAsString, collectionType);
 
