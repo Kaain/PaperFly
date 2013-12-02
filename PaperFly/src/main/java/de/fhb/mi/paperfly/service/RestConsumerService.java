@@ -29,6 +29,9 @@ import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -47,6 +50,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Type;
+import java.text.DateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -212,7 +216,9 @@ public class RestConsumerService extends Service implements RestConsumer {
         TokenDTO requestToken = null;
         HttpUriRequest request = new HttpPut(getConnectionURL(URL_REGISTER_ACCOUNT));
 
-        String jsonToSend = new Gson().toJson(registerAccount);
+        Gson sendMapper = new GsonBuilder().registerTypeAdapter(Date.class, new JsonDateSerializer()).create();
+
+        String jsonToSend = sendMapper.toJson(registerAccount);
         StringEntity entityToSend = new StringEntity(jsonToSend);
         Log.d(TAG, jsonToSend);
 
@@ -270,6 +276,12 @@ public class RestConsumerService extends Service implements RestConsumer {
             return date;
         }
     }
+
+    public class JsonDateSerializer implements JsonSerializer<Date>{
+        public JsonElement serialize(Date src, Type typeOfSrc, JsonSerializationContext context){
+            return src == null ? null : new JsonPrimitive(src.getTime());
+        }
+    };
 
     private String readInEntity(HttpResponse response) throws IOException {
         InputStream is = response.getEntity().getContent();
