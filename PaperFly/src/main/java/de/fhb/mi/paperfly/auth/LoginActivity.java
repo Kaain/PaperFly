@@ -290,6 +290,7 @@ public class LoginActivity extends Activity {
 
             RegisterAccountDTO nextUser= new RegisterAccountDTO();
             nextUser.setLastName("Mustermann");
+            nextUser.setFirstName("Max");
             nextUser.setUsername("neuerUser");
             nextUser.setLastModified(new Date(System.currentTimeMillis()));
             nextUser.setCreated(new Date(System.currentTimeMillis()));
