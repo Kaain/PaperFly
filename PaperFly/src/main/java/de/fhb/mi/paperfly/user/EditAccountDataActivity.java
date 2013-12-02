@@ -19,6 +19,8 @@ package de.fhb.mi.paperfly.user;
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -120,6 +122,39 @@ public class EditAccountDataActivity extends Activity {
          * End *************************************** Rest-Connection ****************************** *
          */
 
+        /**
+         * Begin *************************************** Rest-Connection ****************************** *
+         */
+        private AccountEditTask mMyAccountEditTask = null;
+        private boolean mBoundEdit = false;
+        private RestConsumerService mRestConsumerServiceEdit;
+        private ServiceConnection mConnectionRestServiceEdit= new ServiceConnection() {
+
+            @Override
+            public void onServiceConnected(ComponentName className, IBinder service) {
+                RestConsumerService.RestConsumerBinder binder = (RestConsumerService.RestConsumerBinder) service;
+                mRestConsumerServiceEdit = binder.getServerInstance();
+                mBoundEdit = true;
+                Toast.makeText(rootView.getContext(), "RestConsumerService Connected", Toast.LENGTH_SHORT)
+                        .show();
+
+                mMyAccountEditTask = new AccountEditTask();
+                mMyAccountEditTask.execute();
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName arg0) {
+                Toast.makeText(rootView.getContext(), "RestConsumerService Disconnected", Toast.LENGTH_SHORT)
+                        .show();
+                mBoundEdit = false;
+                mRestConsumerServiceEdit = null;
+            }
+        };
+
+        /**
+         * End *************************************** Rest-Connection ****************************** *
+         */
+
         public PlaceholderFragment() {
 
         }
@@ -139,22 +174,47 @@ public class EditAccountDataActivity extends Activity {
             return rootView;
         }
 
+        private void pressUpdate(){
+            Log.d(TAG, "pressUpdate");
+            Intent serviceIntent = new Intent(rootView.getContext(), RestConsumerService.class);
+            mBound = rootView.getContext().bindService(serviceIntent, mConnectionRestService, Context.BIND_IMPORTANT);
+        }
+
+        @Override
+        public void onStop() {
+            super.onStop();
+            Log.d(TAG, "onStop");
+
+            super.onStop();
+            if (mBound) {
+                rootView.getContext().unbindService(mConnectionRestService);
+                mBound = false;
+            }
+        }
+
+        @Override
+        public void onAttach(Activity activity) {
+            super.onAttach(activity);
+            Log.d(TAG, "onAttach");
+            Intent serviceIntent = new Intent(activity.getBaseContext(), RestConsumerService.class);
+            mBound = activity.getBaseContext().bindService(serviceIntent, mConnectionRestService, Context.BIND_IMPORTANT);
+        }
+
 
         /**
-         * Represents an asynchronous GetMyAccountTask used to get an user
+         * Represents an asynchronous GetMyAccountTask used to get the account data
          */
         public class GetMyAccountTask extends AsyncTask<String, Void, Boolean> {
 
             @Override
             protected Boolean doInBackground(String... params) {
-                String username = params[0];
 
                 try {
                     account = mRestConsumerService.getMyAccount();
                 } catch (RestConsumerException e) {
                     e.printStackTrace();
-                    Toast.makeText(rootView.getContext(), e.getMessage(), Toast.LENGTH_SHORT)
-                            .show();
+//                    Toast.makeText(rootView.getContext(), e.getMessage(), Toast.LENGTH_SHORT)
+//                            .show();
                 }
 
                 if (account != null) {
@@ -180,6 +240,54 @@ public class EditAccountDataActivity extends Activity {
                             accountLastname.setText(account.getLastName());
                             accountMail.setText(account.getEmail());
                         }
+                    }
+
+                } else {
+                    Log.d("onPostExecute", "no success");
+                }
+            }
+        }
+
+
+        /**
+         * Represents an asynchronous AccountEditTask used to set the account data
+         */
+        public class AccountEditTask extends AsyncTask<String, Void, Boolean> {
+
+            @Override
+            protected Boolean doInBackground(String... params) {
+
+                try {
+                    account = mRestConsumerServiceEdit.getMyAccount();
+                } catch (RestConsumerException e) {
+                    e.printStackTrace();
+                    Toast.makeText(rootView.getContext(), e.getMessage(), Toast.LENGTH_SHORT)
+                            .show();
+                }
+
+                if (account != null) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+
+            @Override
+            protected void onPostExecute(final Boolean success) {
+                mMyAccountEditTask = null;
+
+                if (success) {
+                    Log.d("onPostExecute", "success");
+
+                    if (mRestConsumerServiceEdit != null) {
+                        Log.d(TAG, "mRestConsumerService exists");
+//
+//                        if (account != null) {
+//                            accountUsername.setText(account.getUsername());
+//                            accountFirstname.setText(account.getFirstName());
+//                            accountLastname.setText(account.getLastName());
+//                            accountMail.setText(account.getEmail());
+//                        }
                     }
 
                 } else {
