@@ -55,7 +55,7 @@ public interface RestConsumer {
      * @param username the username of the account
      * @return the room where the user is located
      */
-    RoomDTO locateAccount(String username);
+    RoomDTO locateAccount(String username) throws RestConsumerException;
 
     /**
      * Tries to login.

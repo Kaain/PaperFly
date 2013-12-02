@@ -23,6 +23,7 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
+import com.google.android.gms.games.multiplayer.realtime.Room;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializationContext;
@@ -85,12 +86,10 @@ public class RestConsumerService extends Service implements RestConsumer {
     public static final String URL_EDIT_ACCOUNT = "PaperFlyServer-web/rest/v1/myaccount/edit";
     public static final String URL_ADD_FRIEND = "PaperFlyServer-web/rest/v1/myaccount/friend/";
     public static final String URL_ACCOUNTS_IN_ROOM = "PaperFlyServer-web/rest/v1/room/accounts/";
+    public static final String URL_LOCATE_ACCOUNT = "PaperFlyServer-web/rest/v1/room/locateAccount/";
 
     private static final String TAG = "RestConsumerService";
     IBinder mbinder = new RestConsumerBinder();
-
-
-
 
     @Override
     public AccountDTO editAccount(AccountDTO editedAccount) throws RestConsumerException, UnsupportedEncodingException {
@@ -211,7 +210,6 @@ public class RestConsumerService extends Service implements RestConsumer {
         return account;
     }
 
-
     @Override
     public List<AccountDTO> getAccountsInRoom(long roomID) throws RestConsumerException {
         Log.d(TAG, "getAccountsInRoom");
@@ -250,10 +248,39 @@ public class RestConsumerService extends Service implements RestConsumer {
     }
 
     @Override
-    public RoomDTO locateAccount(String username) {
+    public RoomDTO locateAccount(String username) throws RestConsumerException {
         Log.d(TAG, "locateAccount");
 
-        return null;
+        HttpUriRequest request = new HttpGet(getConnectionURL(URL_LOCATE_ACCOUNT) + username);
+        RoomDTO room = null;
+
+        Log.d(TAG, request.getRequestLine().toString());
+
+        HttpClient httpclient = new DefaultHttpClient();
+        HttpResponse response;
+        try {
+            response = httpclient.execute(request);
+
+            if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
+                Log.d(TAG, "locateAccount: " + response.getStatusLine().getStatusCode());
+                switch (response.getStatusLine().getStatusCode()) {
+                    case 500:
+                        throw new RestConsumerException(RestConsumerException.INTERNAL_SERVER_MESSAGE);
+                    default:
+                        throw new RestConsumerException("Response:" + response.getStatusLine().getStatusCode());
+                }
+            }
+
+            String responseObjAsString = readInEntity(response);
+            Gson gson = new GsonBuilder().registerTypeAdapter(Date.class, new JsonDateDeserializer()).create();
+            Log.d(TAG, "json: " + responseObjAsString);
+
+            room = gson.fromJson(responseObjAsString, RoomDTO.class);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return room;
+
     }
 
     @Override
