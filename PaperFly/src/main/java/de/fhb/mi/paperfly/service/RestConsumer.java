@@ -47,7 +47,7 @@ public interface RestConsumer {
      * @param roomID the room
      * @return a list of accounts in the given room
      */
-    List<AccountDTO> getAccountsInRoom(long roomID);
+    List<AccountDTO> getAccountsInRoom(long roomID) throws RestConsumerException;
 
     /**
      * Locates an account.

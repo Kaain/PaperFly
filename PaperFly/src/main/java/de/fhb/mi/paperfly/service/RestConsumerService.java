@@ -32,6 +32,7 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
+import com.google.gson.reflect.TypeToken;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -50,7 +51,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Type;
-import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -82,23 +83,24 @@ public class RestConsumerService extends Service implements RestConsumer {
     public static final String URL_SEARCH_ACCOUNT = "PaperFlyServer-web/rest/v1/account/search/";
     public static final String URL_EDIT_ACCOUNT = "PaperFlyServer-web/rest/v1/myaccount/edit";
     public static final String URL_ADD_FRIEND = "PaperFlyServer-web/rest/v1/myaccount/friend/";
+    public static final String URL_ACCOUNTS_IN_ROOM = "PaperFlyServer-web/rest/v1/room/accounts/";
 
     private static final String TAG = "RestConsumerService";
     IBinder mbinder = new RestConsumerBinder();
 
 
-    public String getConnectionURL(String restURL){
+    public String getConnectionURL(String restURL) {
 
         StringBuilder urlToBuild = new StringBuilder();
         urlToBuild.append("http://");
 
-        if(CONNECT_LOCAL){
+        if (CONNECT_LOCAL) {
             urlToBuild.append(LOCAL_IP);
-        }else{
+        } else {
             urlToBuild.append(AWS_IP);
         }
 
-        urlToBuild.append(":"+PORT + "/");
+        urlToBuild.append(":" + PORT + "/");
         urlToBuild.append(restURL);
 
         return urlToBuild.toString();
@@ -143,7 +145,6 @@ public class RestConsumerService extends Service implements RestConsumer {
             }
 
             String responseObjAsString = readInEntity(response);
-
             Gson gson = new GsonBuilder().registerTypeAdapter(Date.class, new JsonDateDeserializer()).create();
             Log.d("json", responseObjAsString);
 
@@ -157,10 +158,40 @@ public class RestConsumerService extends Service implements RestConsumer {
 
 
     @Override
-    public List<AccountDTO> getAccountsInRoom(long roomID) {
+    public List<AccountDTO> getAccountsInRoom(long roomID) throws RestConsumerException {
         Log.d(TAG, "getAccountsInRoom");
 
-        return null;
+        HttpUriRequest request = new HttpGet(getConnectionURL(URL_ACCOUNTS_IN_ROOM) + roomID);
+        List<AccountDTO> accountsInRoom = new ArrayList<AccountDTO>();
+        Type collectionType = new TypeToken<ArrayList<AccountDTO>>(){}.getType();
+
+        Log.d(TAG, request.getRequestLine().toString());
+
+        HttpClient httpclient = new DefaultHttpClient();
+        HttpResponse response;
+        try {
+            response = httpclient.execute(request);
+
+            if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
+                Log.d(TAG, "getAccountByUsername: " + response.getStatusLine().getStatusCode());
+                switch (response.getStatusLine().getStatusCode()) {
+                    case 500:
+                        throw new RestConsumerException(RestConsumerException.INTERNAL_SERVER_MESSAGE);
+                    default:
+                        throw new RestConsumerException("Response:" + response.getStatusLine().getStatusCode());
+                }
+            }
+
+            String responseObjAsString = readInEntity(response);
+            Gson gson = new GsonBuilder().registerTypeAdapter(Date.class, new JsonDateDeserializer()).create();
+            Log.d("json", responseObjAsString);
+
+            accountsInRoom = gson.fromJson(responseObjAsString, collectionType);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return accountsInRoom;
     }
 
     @Override
@@ -195,9 +226,9 @@ public class RestConsumerService extends Service implements RestConsumer {
             }
 
             String responseObjAsString = readInEntity(response);
-
             Gson gson = new Gson();
             TokenDTO tokendto = gson.fromJson(responseObjAsString, TokenDTO.class);
+
             ((PaperFlyApp) getApplication()).setToken(tokendto);
         } catch (IOException e) {
             e.printStackTrace();
@@ -223,7 +254,7 @@ public class RestConsumerService extends Service implements RestConsumer {
         Log.d(TAG, jsonToSend);
 
         entityToSend.setContentEncoding("UTF-8");
-        entityToSend.setContentType(new BasicHeader(HTTP.CONTENT_TYPE,"application/json"));
+        entityToSend.setContentType(new BasicHeader(HTTP.CONTENT_TYPE, "application/json"));
 
         ((HttpPut) request).setEntity(entityToSend);
         request.addHeader("accept", "application/json");
@@ -242,14 +273,16 @@ public class RestConsumerService extends Service implements RestConsumer {
                         throw new RestConsumerException(RestConsumerException.INVALID_INPUT_MESSAGE);
                     case 500:
                         throw new RestConsumerException(RestConsumerException.INTERNAL_SERVER_MESSAGE);
+                    default:
+                        throw new RestConsumerException("Response:" + response.getStatusLine().getStatusCode());
                 }
             }
 
             String responseObjAsString = readInEntity(response);
-
             Log.d("json", responseObjAsString);
             Gson gson = new GsonBuilder().registerTypeAdapter(Date.class, new JsonDateDeserializer()).create();
             requestToken = gson.fromJson(responseObjAsString, TokenDTO.class);
+
             ((PaperFlyApp) getApplication()).setToken(requestToken);
         } catch (IOException e) {
             e.printStackTrace();
@@ -277,11 +310,13 @@ public class RestConsumerService extends Service implements RestConsumer {
         }
     }
 
-    public class JsonDateSerializer implements JsonSerializer<Date>{
-        public JsonElement serialize(Date src, Type typeOfSrc, JsonSerializationContext context){
+    public class JsonDateSerializer implements JsonSerializer<Date> {
+        public JsonElement serialize(Date src, Type typeOfSrc, JsonSerializationContext context) {
             return src == null ? null : new JsonPrimitive(src.getTime());
         }
-    };
+    }
+
+    ;
 
     private String readInEntity(HttpResponse response) throws IOException {
         InputStream is = response.getEntity().getContent();
