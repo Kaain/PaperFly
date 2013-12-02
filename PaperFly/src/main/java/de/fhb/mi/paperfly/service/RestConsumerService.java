@@ -353,6 +353,12 @@ public class RestConsumerService extends Service implements RestConsumer {
         }
     }
 
+    /**
+     * reads in the response String
+     * @param response
+     * @return
+     * @throws IOException
+     */
     private String readInEntity(HttpResponse response) throws IOException {
         InputStream is = response.getEntity().getContent();
         BufferedReader rd = new BufferedReader(new InputStreamReader(is));
@@ -366,6 +372,11 @@ public class RestConsumerService extends Service implements RestConsumer {
         return responseObj.toString();
     }
 
+    /**
+     * builds the connection-url depency of local-setting-value CONNECT_LOCAL
+     * @param restURL
+     * @return
+     */
     public String getConnectionURL(String restURL) {
 
         StringBuilder urlToBuild = new StringBuilder();
@@ -389,6 +400,9 @@ public class RestConsumerService extends Service implements RestConsumer {
         }
     }
 
+    /**
+     * Deserializer for Gson with long date format
+     */
     public class JsonDateDeserializer implements JsonDeserializer<Date> {
         public Date deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
             String dateAsString = json.getAsJsonPrimitive().getAsString();
@@ -398,6 +412,9 @@ public class RestConsumerService extends Service implements RestConsumer {
         }
     }
 
+    /**
+     * Serializer for Gson with long date format
+     */
     public class JsonDateSerializer implements JsonSerializer<Date> {
         public JsonElement serialize(Date src, Type typeOfSrc, JsonSerializationContext context) {
             return src == null ? null : new JsonPrimitive(src.getTime());
