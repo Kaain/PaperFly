@@ -34,6 +34,10 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.google.android.gms.internal.ed;
+
+import java.io.UnsupportedEncodingException;
+
 import de.fhb.mi.paperfly.R;
 import de.fhb.mi.paperfly.dto.AccountDTO;
 import de.fhb.mi.paperfly.service.RestConsumerException;
@@ -128,7 +132,7 @@ public class EditAccountDataActivity extends Activity {
         private AccountEditTask mMyAccountEditTask = null;
         private boolean mBoundEdit = false;
         private RestConsumerService mRestConsumerServiceEdit;
-        private ServiceConnection mConnectionRestServiceEdit= new ServiceConnection() {
+        private ServiceConnection mConnectionRestServiceEdit = new ServiceConnection() {
 
             @Override
             public void onServiceConnected(ComponentName className, IBinder service) {
@@ -174,10 +178,10 @@ public class EditAccountDataActivity extends Activity {
             return rootView;
         }
 
-        private void pressUpdate(){
+        private void pressUpdate() {
             Log.d(TAG, "pressUpdate");
             Intent serviceIntent = new Intent(rootView.getContext(), RestConsumerService.class);
-            mBound = rootView.getContext().bindService(serviceIntent, mConnectionRestService, Context.BIND_IMPORTANT);
+            mBoundEdit = rootView.getContext().bindService(serviceIntent, mConnectionRestServiceEdit, Context.BIND_IMPORTANT);
         }
 
         @Override
@@ -188,6 +192,7 @@ public class EditAccountDataActivity extends Activity {
             super.onStop();
             if (mBound) {
                 rootView.getContext().unbindService(mConnectionRestService);
+                rootView.getContext().unbindService(mConnectionRestServiceEdit);
                 mBound = false;
             }
         }
@@ -258,12 +263,23 @@ public class EditAccountDataActivity extends Activity {
             protected Boolean doInBackground(String... params) {
 
                 try {
-                    account = mRestConsumerServiceEdit.getMyAccount();
+
+                    AccountDTO editedAccount = new AccountDTO();
+//                    editedAccount.setEmail(accountMail.getText());
+//                    editedAccount.setFirstName();
+//                    editedAccount.setLastName();
+//                    editedAccount.setUsername(accountUsername.getText());
+
+                    account = mRestConsumerServiceEdit.editAccount(editedAccount);
                 } catch (RestConsumerException e) {
                     e.printStackTrace();
                     Toast.makeText(rootView.getContext(), e.getMessage(), Toast.LENGTH_SHORT)
                             .show();
+
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
                 }
+
 
                 if (account != null) {
                     return true;

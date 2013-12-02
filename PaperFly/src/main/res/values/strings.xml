@@ -32,6 +32,6 @@
     <string name="firstName">firstName</string>
     <string name="lastName">lastName</string>
     <string name="userName">userName</string>
-    <string name="email">email</string>
+    <string name="email">mail</string>
 
 </resources>
