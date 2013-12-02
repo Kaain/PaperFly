@@ -24,13 +24,7 @@ public interface RestConsumer {
      */
     AccountDTO editAccount(AccountDTO editedAccount) throws RestConsumerException, UnsupportedEncodingException;
 
-    /**
-     * Gets the account by the given mail address.
-     *
-     * @param mail the mail address of the account
-     * @return the account
-     */
-    AccountDTO getAccountByMail(String mail) throws RestConsumerException;
+
 
     /**
      * Gets the account by the given username.

@@ -89,7 +89,7 @@ public class RestConsumerService extends Service implements RestConsumer {
     public static final String URL_LOCATE_ACCOUNT = "PaperFlyServer-web/rest/v1/room/locateAccount/";
 
     private static final String TAG = "RestConsumerService";
-    IBinder mbinder = new RestConsumerBinder();
+    private IBinder mbinder = new RestConsumerBinder();
 
     @Override
     public AccountDTO editAccount(AccountDTO editedAccount) throws RestConsumerException, UnsupportedEncodingException {
@@ -128,32 +128,7 @@ public class RestConsumerService extends Service implements RestConsumer {
         return responseAccount;
     }
 
-    @Override
-    public AccountDTO getAccountByMail(String mail) throws RestConsumerException {
-        Log.d(TAG, "getAccountByMail");
 
-        //TODO not yet implemented
-        HttpUriRequest request = new HttpGet(getConnectionURL(URL_SEARCH_ACCOUNT) + mail);
-        AccountDTO account = null;
-
-        Log.d(TAG, request.getRequestLine().toString());
-
-        HttpClient httpclient = new DefaultHttpClient();
-        HttpResponse response;
-        try {
-            response = httpclient.execute(request);
-            analyzeHttpStatus(response);
-
-            String responseObjAsString = readInEntity(response);
-            Gson gson = new GsonBuilder().registerTypeAdapter(Date.class, new JsonDateDeserializer()).create();
-            Log.d(TAG, "json: " + responseObjAsString);
-
-            account = gson.fromJson(responseObjAsString, AccountDTO.class);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return account;
-    }
 
     @Override
     public AccountDTO getAccountByUsername(String username) throws RestConsumerException {
