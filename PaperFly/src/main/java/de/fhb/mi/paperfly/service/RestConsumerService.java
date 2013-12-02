@@ -116,18 +116,7 @@ public class RestConsumerService extends Service implements RestConsumer {
         HttpResponse response;
         try {
             response = httpclient.execute(request);
-
-            if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-                Log.d(TAG, "getAccountByUsername: " + response.getStatusLine().getStatusCode());
-                switch (response.getStatusLine().getStatusCode()) {
-                    case 412:
-                        throw new RestConsumerException(RestConsumerException.INVALID_INPUT_MESSAGE);
-                    case 500:
-                        throw new RestConsumerException(RestConsumerException.INTERNAL_SERVER_MESSAGE);
-                    default:
-                        throw new RestConsumerException("Response:" + response.getStatusLine().getStatusCode());
-                }
-            }
+            analyzeHttpStatus(response);
 
             String responseObjAsString = readInEntity(response);
             Log.d("json", responseObjAsString);
@@ -153,16 +142,7 @@ public class RestConsumerService extends Service implements RestConsumer {
         HttpResponse response;
         try {
             response = httpclient.execute(request);
-
-            if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-                Log.d(TAG, "getAccountByMail: " + response.getStatusLine().getStatusCode());
-                switch (response.getStatusLine().getStatusCode()) {
-                    case 500:
-                        throw new RestConsumerException(RestConsumerException.INTERNAL_SERVER_MESSAGE);
-                    default:
-                        return null;
-                }
-            }
+            analyzeHttpStatus(response);
 
             String responseObjAsString = readInEntity(response);
             Gson gson = new GsonBuilder().registerTypeAdapter(Date.class, new JsonDateDeserializer()).create();
@@ -188,16 +168,7 @@ public class RestConsumerService extends Service implements RestConsumer {
         HttpResponse response;
         try {
             response = httpclient.execute(request);
-
-            if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-                Log.d(TAG, "getAccountByUsername: " + response.getStatusLine().getStatusCode());
-                switch (response.getStatusLine().getStatusCode()) {
-                    case 500:
-                        throw new RestConsumerException(RestConsumerException.INTERNAL_SERVER_MESSAGE);
-                    default:
-                        throw new RestConsumerException("Response:" + response.getStatusLine().getStatusCode());
-                }
-            }
+            analyzeHttpStatus(response);
 
             String responseObjAsString = readInEntity(response);
             Gson gson = new GsonBuilder().registerTypeAdapter(Date.class, new JsonDateDeserializer()).create();
@@ -224,16 +195,7 @@ public class RestConsumerService extends Service implements RestConsumer {
         HttpResponse response;
         try {
             response = httpclient.execute(request);
-
-            if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-                Log.d(TAG, "getAccountsInRoom: " + response.getStatusLine().getStatusCode());
-                switch (response.getStatusLine().getStatusCode()) {
-                    case 500:
-                        throw new RestConsumerException(RestConsumerException.INTERNAL_SERVER_MESSAGE);
-                    default:
-                        throw new RestConsumerException("Response:" + response.getStatusLine().getStatusCode());
-                }
-            }
+            analyzeHttpStatus(response);
 
             String responseObjAsString = readInEntity(response);
             Gson gson = new GsonBuilder().registerTypeAdapter(Date.class, new JsonDateDeserializer()).create();
@@ -260,16 +222,7 @@ public class RestConsumerService extends Service implements RestConsumer {
         HttpResponse response;
         try {
             response = httpclient.execute(request);
-
-            if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-                Log.d(TAG, "locateAccount: " + response.getStatusLine().getStatusCode());
-                switch (response.getStatusLine().getStatusCode()) {
-                    case 500:
-                        throw new RestConsumerException(RestConsumerException.INTERNAL_SERVER_MESSAGE);
-                    default:
-                        throw new RestConsumerException("Response:" + response.getStatusLine().getStatusCode());
-                }
-            }
+            analyzeHttpStatus(response);
 
             String responseObjAsString = readInEntity(response);
             Gson gson = new GsonBuilder().registerTypeAdapter(Date.class, new JsonDateDeserializer()).create();
@@ -296,16 +249,7 @@ public class RestConsumerService extends Service implements RestConsumer {
         HttpResponse response;
         try {
             response = httpclient.execute(request);
-
-            if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-                Log.d(TAG, "loginUser: " + response.getStatusLine().getStatusCode());
-                switch (response.getStatusLine().getStatusCode()) {
-                    case 500:
-                        throw new RestConsumerException(RestConsumerException.INTERNAL_SERVER_MESSAGE);
-                    default:
-                        return false;
-                }
-            }
+            analyzeHttpStatus(response);
 
             String responseObjAsString = readInEntity(response);
             Gson gson = new Gson();
@@ -347,18 +291,7 @@ public class RestConsumerService extends Service implements RestConsumer {
         HttpResponse response;
         try {
             response = httpclient.execute(request);
-
-            if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-                Log.d(TAG, "getAccountByUsername: " + response.getStatusLine().getStatusCode());
-                switch (response.getStatusLine().getStatusCode()) {
-                    case 412:
-                        throw new RestConsumerException(RestConsumerException.INVALID_INPUT_MESSAGE);
-                    case 500:
-                        throw new RestConsumerException(RestConsumerException.INTERNAL_SERVER_MESSAGE);
-                    default:
-                        throw new RestConsumerException("Response:" + response.getStatusLine().getStatusCode());
-                }
-            }
+            analyzeHttpStatus(response);
 
             String responseObjAsString = readInEntity(response);
             Log.d("json", responseObjAsString);
@@ -387,16 +320,7 @@ public class RestConsumerService extends Service implements RestConsumer {
         HttpResponse response;
         try {
             response = httpclient.execute(request);
-
-            if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-                Log.d(TAG, "searchAccount: " + response.getStatusLine().getStatusCode());
-                switch (response.getStatusLine().getStatusCode()) {
-                    case 500:
-                        throw new RestConsumerException(RestConsumerException.INTERNAL_SERVER_MESSAGE);
-                    default:
-                        throw new RestConsumerException("Response:" + response.getStatusLine().getStatusCode());
-                }
-            }
+            analyzeHttpStatus(response);
 
             String responseObjAsString = readInEntity(response);
             Gson gson = new GsonBuilder().registerTypeAdapter(Date.class, new JsonDateDeserializer()).create();
@@ -408,6 +332,25 @@ public class RestConsumerService extends Service implements RestConsumer {
             e.printStackTrace();
         }
         return searchResultList;
+    }
+
+    /**
+     * evaluates the httpStatus aof a Request
+     * @param response
+     * @throws RestConsumerException
+     */
+    private void analyzeHttpStatus(HttpResponse response) throws RestConsumerException {
+        if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
+            Log.d(TAG, ""+response.getStatusLine().getStatusCode());
+            switch (response.getStatusLine().getStatusCode()) {
+                case 412:
+                    throw new RestConsumerException(RestConsumerException.INVALID_INPUT_MESSAGE);
+                case 500:
+                    throw new RestConsumerException(RestConsumerException.INTERNAL_SERVER_MESSAGE);
+                default:
+                    throw new RestConsumerException("Response:" + response.getStatusLine().getStatusCode());
+            }
+        }
     }
 
     private String readInEntity(HttpResponse response) throws IOException {
@@ -439,7 +382,6 @@ public class RestConsumerService extends Service implements RestConsumer {
 
         return urlToBuild.toString();
     }
-
 
     public class RestConsumerBinder extends Binder {
         public RestConsumerService getServerInstance() {
