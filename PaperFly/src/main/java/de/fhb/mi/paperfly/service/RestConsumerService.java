@@ -87,13 +87,16 @@ public class RestConsumerService extends Service implements RestConsumer {
     public static final String URL_ADD_FRIEND = "PaperFlyServer-web/rest/v1/myaccount/friend/";
     public static final String URL_ACCOUNTS_IN_ROOM = "PaperFlyServer-web/rest/v1/room/accounts/";
     public static final String URL_LOCATE_ACCOUNT = "PaperFlyServer-web/rest/v1/room/locateAccount/";
+    public static final String URL_CHANGE_ACCOUNT_STATUS = "PaperFlyServer-web//rest/v1/myaccount/status/";
+
 
     private static final String TAG = "RestConsumerService";
     private IBinder mbinder = new RestConsumerBinder();
 
+
     @Override
     public AccountDTO editAccount(AccountDTO editedAccount) throws RestConsumerException, UnsupportedEncodingException {
-        Log.d(TAG, "getAccountByMail");
+        Log.d(TAG, "getMyAccount");
 
         AccountDTO responseAccount = null;
         HttpUriRequest request = new HttpPost(getConnectionURL(URL_EDIT_ACCOUNT));
@@ -128,7 +131,36 @@ public class RestConsumerService extends Service implements RestConsumer {
         return responseAccount;
     }
 
+    @Override
+    public AccountDTO setMyAccountStatus(String status) throws RestConsumerException {
+        return getMyAccount(status);
+    }
 
+    @Override
+    public AccountDTO getMyAccount(String status) throws RestConsumerException {
+        Log.d(TAG, "getMyAccount");
+
+        HttpUriRequest request = new HttpGet(getConnectionURL(URL_CHANGE_ACCOUNT_STATUS) + status);
+        AccountDTO account = null;
+
+        Log.d(TAG, request.getRequestLine().toString());
+
+        HttpClient httpclient = new DefaultHttpClient();
+        HttpResponse response;
+        try {
+            response = httpclient.execute(request);
+            analyzeHttpStatus(response);
+
+            String responseObjAsString = readInEntity(response);
+            Gson gson = new GsonBuilder().registerTypeAdapter(Date.class, new JsonDateDeserializer()).create();
+            Log.d(TAG, "json: " + responseObjAsString);
+
+            account = gson.fromJson(responseObjAsString, AccountDTO.class);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return account;
+    }
 
     @Override
     public AccountDTO getAccountByUsername(String username) throws RestConsumerException {

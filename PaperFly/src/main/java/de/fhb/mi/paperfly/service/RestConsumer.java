@@ -19,12 +19,26 @@ public interface RestConsumer {
     /**
      * Edits an account
      *
-     * @param account the account to edit
+     * @param editedAccount the account to edit
      * @return the edited account
      */
     AccountDTO editAccount(AccountDTO editedAccount) throws RestConsumerException, UnsupportedEncodingException;
 
+    /**
+     * Gets the connected account, could used also instead of setMyAccountStatus
+     *
+     * @param status of the account
+     * @return the account
+     */
+    AccountDTO getMyAccount(String status) throws RestConsumerException;
 
+    /**
+     * sets the Account status
+     * @param status
+     * @return
+     * @throws RestConsumerException
+     */
+    AccountDTO setMyAccountStatus(String status) throws RestConsumerException;
 
     /**
      * Gets the account by the given username.
