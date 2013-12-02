@@ -22,6 +22,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Date;
 
 import de.fhb.mi.paperfly.MainActivity;
 import de.fhb.mi.paperfly.R;
@@ -288,8 +289,15 @@ public class LoginActivity extends Activity {
             String pw = params[1];
 
             RegisterAccountDTO nextUser= new RegisterAccountDTO();
+            nextUser.setLastName("Mustermann");
+            nextUser.setUsername("neuerUser");
+            nextUser.setLastModified(new Date(System.currentTimeMillis()));
+            nextUser.setCreated(new Date(System.currentTimeMillis()));
             nextUser.setEmail(mail);
             nextUser.setPassword(pw);
+            nextUser.setPasswordRpt(pw);
+            nextUser.setEnabled(true);
+
 
             try {
                 mRestConsumerService.register(nextUser);
