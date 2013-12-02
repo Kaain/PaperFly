@@ -226,14 +226,14 @@ public class UserProfileActivity extends Activity {
      */
     public class PlaceholderFragment extends Fragment {
 
-        View rootView;
+        private View rootView;
         private TextView profileUsername;
         private TextView profileFirstname;
         private TextView profileLastname;
 
         private GetAccountTask mAccountTask = null;
-        AccountDTO account = null;
-        String username = null;
+        private AccountDTO account = null;
+        private String username = null;
 
         /**
          * Begin *************************************** Rest-Connection ****************************** *
@@ -307,7 +307,7 @@ public class UserProfileActivity extends Activity {
         }
 
         /**
-         * Represents an asynchronous GetAccountTask used to get an user
+         * Represents an asynchronous GetMyAccountTask used to get an user
          */
         public class GetAccountTask extends AsyncTask<String, Void, Boolean> {
 

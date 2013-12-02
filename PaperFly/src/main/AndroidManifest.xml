@@ -82,7 +82,7 @@
         <service android:name="de.fhb.mi.paperfly.service.RestConsumerService" />
 
         <activity
-            android:name="de.fhb.mi.paperfly.EditAccountDataActivity"
+            android:name="de.fhb.mi.paperfly.user.EditAccountDataActivity"
             android:label="@string/title_activity_edit_account_data" >
         </activity>
     </application>

@@ -133,12 +133,12 @@ public class RestConsumerService extends Service implements RestConsumer {
     }
 
     @Override
-    public AccountDTO setMyAccountStatus(Status status) throws RestConsumerException {
-        return getMyAccount(status);
+    public AccountDTO getMyAccount() throws RestConsumerException {
+        return setMyAccountStatus(Status.ONLINE);
     }
 
     @Override
-    public AccountDTO getMyAccount(Status status) throws RestConsumerException {
+    public AccountDTO setMyAccountStatus(Status status) throws RestConsumerException {
         Log.d(TAG, "getMyAccount");
 
         HttpUriRequest request = new HttpGet(getConnectionURL(URL_CHANGE_ACCOUNT_STATUS) + status);

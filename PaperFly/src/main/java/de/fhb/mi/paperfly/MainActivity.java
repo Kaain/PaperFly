@@ -43,6 +43,7 @@ import de.fhb.mi.paperfly.navigation.NavItemModel;
 import de.fhb.mi.paperfly.navigation.NavKey;
 import de.fhb.mi.paperfly.navigation.NavListAdapter;
 import de.fhb.mi.paperfly.navigation.NavListAdapter.ViewHolder;
+import de.fhb.mi.paperfly.user.EditAccountDataActivity;
 
 /**
  * The Activity with the navigation and some Fragments.
@@ -189,6 +190,7 @@ public class MainActivity extends Activity {
         mAdapter.addHeader(this.getResources().getString(R.string.nav_header_general));
         mAdapter.addItem(NavKey.CHECK_PRESENCE, this.getResources().getString(R.string.nav_item_check_presence), -1);
         mAdapter.addItem(NavKey.FRIENDLIST, this.getResources().getString(R.string.nav_item_open_friendlist), android.R.drawable.ic_menu_share);
+        mAdapter.addItem(NavKey.EDIT_ACCOUNT, this.getResources().getString(R.string.nav_item_open_edit_account_data), android.R.drawable.ic_menu_edit);
 
         mAdapter.addHeader(this.getResources().getString(R.string.nav_header_chats));
         mAdapter.addItem(NavKey.GLOBAL, this.getResources().getString(R.string.nav_item_global), -1);
@@ -491,8 +493,19 @@ public class MainActivity extends Activity {
             case FRIENDLIST:
                 openFriendList();
                 break;
+            case EDIT_ACCOUNT:
+                openEditAccount();
+                break;
         }
         drawerLayout.closeDrawer(Gravity.LEFT);
+    }
+
+    private void openEditAccount() {
+
+        Intent intent = new Intent(MainActivity.this, EditAccountDataActivity.class);
+        startActivity(intent);
+        finish();
+
     }
 
     @Override

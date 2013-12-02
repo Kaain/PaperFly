@@ -27,11 +27,10 @@ public interface RestConsumer {
 
     /**
      * Gets the connected account, could used also instead of setMyAccountStatus
-     *
-     * @param status of the account
+     * Set the Status of the account to Status.ONLINE
      * @return the account
      */
-    AccountDTO getMyAccount(Status status) throws RestConsumerException;
+    AccountDTO getMyAccount() throws RestConsumerException;
 
     /**
      * sets the Account status

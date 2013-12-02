@@ -170,7 +170,7 @@ public class FriendListFragment extends Fragment implements AdapterView.OnItemCl
     }
 
     /**
-     * Represents an asynchronous GetAccountTask used to get an user
+     * Represents an asynchronous GetMyAccountTask used to get an user
      */
     public class GetAccountTask extends AsyncTask<String, Void, Boolean> {
 
