@@ -83,5 +83,5 @@ public interface RestConsumer {
      * @param query the string to search for
      * @return a list of accounts
      */
-    List<AccountDTO> searchAccount(String query);
+    List<AccountDTO> searchAccount(String query) throws RestConsumerException;
 }

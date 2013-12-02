@@ -90,22 +90,7 @@ public class RestConsumerService extends Service implements RestConsumer {
     IBinder mbinder = new RestConsumerBinder();
 
 
-    public String getConnectionURL(String restURL) {
 
-        StringBuilder urlToBuild = new StringBuilder();
-        urlToBuild.append("http://");
-
-        if (CONNECT_LOCAL) {
-            urlToBuild.append(LOCAL_IP);
-        } else {
-            urlToBuild.append(AWS_IP);
-        }
-
-        urlToBuild.append(":" + PORT + "/");
-        urlToBuild.append(restURL);
-
-        return urlToBuild.toString();
-    }
 
     @Override
     public AccountDTO editAccount(AccountDTO editedAccount) throws RestConsumerException, UnsupportedEncodingException {
@@ -361,9 +346,73 @@ public class RestConsumerService extends Service implements RestConsumer {
     }
 
     @Override
-    public List<AccountDTO> searchAccount(String query) {
-        return null;
+    public List<AccountDTO> searchAccount(String query)throws RestConsumerException{
+
+        Log.d(TAG, "searchAccount");
+
+        HttpUriRequest request = new HttpGet(getConnectionURL(URL_SEARCH_ACCOUNT) + query);
+        List<AccountDTO> searchResultList = new ArrayList<AccountDTO>();
+        Type collectionType = new TypeToken<ArrayList<AccountDTO>>(){}.getType();
+
+        Log.d(TAG, request.getRequestLine().toString());
+
+        HttpClient httpclient = new DefaultHttpClient();
+        HttpResponse response;
+        try {
+            response = httpclient.execute(request);
+
+            if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
+                Log.d(TAG, "searchAccount: " + response.getStatusLine().getStatusCode());
+                switch (response.getStatusLine().getStatusCode()) {
+                    case 500:
+                        throw new RestConsumerException(RestConsumerException.INTERNAL_SERVER_MESSAGE);
+                    default:
+                        throw new RestConsumerException("Response:" + response.getStatusLine().getStatusCode());
+                }
+            }
+
+            String responseObjAsString = readInEntity(response);
+            Gson gson = new GsonBuilder().registerTypeAdapter(Date.class, new JsonDateDeserializer()).create();
+            Log.d(TAG, "json: " + responseObjAsString);
+
+            searchResultList = gson.fromJson(responseObjAsString, collectionType);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return searchResultList;
     }
+
+    private String readInEntity(HttpResponse response) throws IOException {
+        InputStream is = response.getEntity().getContent();
+        BufferedReader rd = new BufferedReader(new InputStreamReader(is));
+        String line;
+        StringBuilder responseObj = new StringBuilder();
+        while ((line = rd.readLine()) != null) {
+            responseObj.append(line);
+            responseObj.append('\r');
+        }
+        rd.close();
+        return responseObj.toString();
+    }
+
+    public String getConnectionURL(String restURL) {
+
+        StringBuilder urlToBuild = new StringBuilder();
+        urlToBuild.append("http://");
+
+        if (CONNECT_LOCAL) {
+            urlToBuild.append(LOCAL_IP);
+        } else {
+            urlToBuild.append(AWS_IP);
+        }
+
+        urlToBuild.append(":" + PORT + "/");
+        urlToBuild.append(restURL);
+
+        return urlToBuild.toString();
+    }
+
 
     public class RestConsumerBinder extends Binder {
         public RestConsumerService getServerInstance() {
@@ -384,20 +433,5 @@ public class RestConsumerService extends Service implements RestConsumer {
         public JsonElement serialize(Date src, Type typeOfSrc, JsonSerializationContext context) {
             return src == null ? null : new JsonPrimitive(src.getTime());
         }
-    }
-
-    ;
-
-    private String readInEntity(HttpResponse response) throws IOException {
-        InputStream is = response.getEntity().getContent();
-        BufferedReader rd = new BufferedReader(new InputStreamReader(is));
-        String line;
-        StringBuilder responseObj = new StringBuilder();
-        while ((line = rd.readLine()) != null) {
-            responseObj.append(line);
-            responseObj.append('\r');
-        }
-        rd.close();
-        return responseObj.toString();
     }
 }
