@@ -61,6 +61,7 @@ import de.fhb.mi.paperfly.PaperFlyApp;
 import de.fhb.mi.paperfly.dto.AccountDTO;
 import de.fhb.mi.paperfly.dto.RegisterAccountDTO;
 import de.fhb.mi.paperfly.dto.RoomDTO;
+import de.fhb.mi.paperfly.dto.Status;
 import de.fhb.mi.paperfly.dto.TokenDTO;
 
 /**
@@ -132,12 +133,12 @@ public class RestConsumerService extends Service implements RestConsumer {
     }
 
     @Override
-    public AccountDTO setMyAccountStatus(String status) throws RestConsumerException {
+    public AccountDTO setMyAccountStatus(Status status) throws RestConsumerException {
         return getMyAccount(status);
     }
 
     @Override
-    public AccountDTO getMyAccount(String status) throws RestConsumerException {
+    public AccountDTO getMyAccount(Status status) throws RestConsumerException {
         Log.d(TAG, "getMyAccount");
 
         HttpUriRequest request = new HttpGet(getConnectionURL(URL_CHANGE_ACCOUNT_STATUS) + status);

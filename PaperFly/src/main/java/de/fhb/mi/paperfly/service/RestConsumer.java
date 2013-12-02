@@ -6,6 +6,7 @@ import java.util.List;
 import de.fhb.mi.paperfly.dto.AccountDTO;
 import de.fhb.mi.paperfly.dto.RegisterAccountDTO;
 import de.fhb.mi.paperfly.dto.RoomDTO;
+import de.fhb.mi.paperfly.dto.Status;
 import de.fhb.mi.paperfly.dto.TokenDTO;
 
 /**
@@ -30,7 +31,7 @@ public interface RestConsumer {
      * @param status of the account
      * @return the account
      */
-    AccountDTO getMyAccount(String status) throws RestConsumerException;
+    AccountDTO getMyAccount(Status status) throws RestConsumerException;
 
     /**
      * sets the Account status
@@ -38,7 +39,7 @@ public interface RestConsumer {
      * @return
      * @throws RestConsumerException
      */
-    AccountDTO setMyAccountStatus(String status) throws RestConsumerException;
+    AccountDTO setMyAccountStatus(Status status) throws RestConsumerException;
 
     /**
      * Gets the account by the given username.
