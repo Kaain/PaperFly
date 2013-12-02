@@ -27,6 +27,6 @@
     <string name="action_search_user">Search User</string>
     <string name="title_activity_search_user">SearchUserActivity</string>
     <string name="title_activity_user_profile">UserProfile</string>
-
+    <string name="title_activity_edit_account_data">EditAccountDataActivity</string>
 
 </resources>
