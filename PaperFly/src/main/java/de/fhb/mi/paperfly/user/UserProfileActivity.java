@@ -38,9 +38,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.google.android.gms.common.GooglePlayServicesUtil;
-
 import de.fhb.mi.paperfly.HelpActivity;
 import de.fhb.mi.paperfly.R;
 import de.fhb.mi.paperfly.SettingsActivity;
@@ -317,17 +315,13 @@ public class UserProfileActivity extends Activity {
 
                 try {
                     account = mRestConsumerService.getAccountByUsername(username);
+                    if (account != null) {
+                        return true;
+                    }
                 } catch (RestConsumerException e) {
-                    e.printStackTrace();
-                    Toast.makeText(rootView.getContext(), e.getMessage(), Toast.LENGTH_SHORT)
-                            .show();
+                    Log.e(TAG, e.getMessage(), e);
                 }
-
-                if (account != null) {
-                    return true;
-                } else {
-                    return false;
-                }
+                return false;
             }
 
             @Override
@@ -354,7 +348,8 @@ public class UserProfileActivity extends Activity {
                     }
 
                 } else {
-                    Log.d("onPostExecute", "no success");
+                    Toast.makeText(rootView.getContext(), "Failed to load account!", Toast.LENGTH_SHORT)
+                            .show();
                 }
             }
         }

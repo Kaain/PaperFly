@@ -22,8 +22,6 @@ import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
-
-import com.google.android.gms.games.multiplayer.realtime.Room;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializationContext;
@@ -34,7 +32,12 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.google.gson.reflect.TypeToken;
-
+import de.fhb.mi.paperfly.PaperFlyApp;
+import de.fhb.mi.paperfly.dto.AccountDTO;
+import de.fhb.mi.paperfly.dto.RegisterAccountDTO;
+import de.fhb.mi.paperfly.dto.RoomDTO;
+import de.fhb.mi.paperfly.dto.Status;
+import de.fhb.mi.paperfly.dto.TokenDTO;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
@@ -57,13 +60,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import de.fhb.mi.paperfly.PaperFlyApp;
-import de.fhb.mi.paperfly.dto.AccountDTO;
-import de.fhb.mi.paperfly.dto.RegisterAccountDTO;
-import de.fhb.mi.paperfly.dto.RoomDTO;
-import de.fhb.mi.paperfly.dto.Status;
-import de.fhb.mi.paperfly.dto.TokenDTO;
-
 /**
  * This Class implements the connection to the REST-Service of the PaperFly-Server.
  *
@@ -74,7 +70,7 @@ public class RestConsumerService extends Service implements RestConsumer {
 
     public static final String LOCAL_IP = "10.0.2.2";
     public static final String AWS_IP = "46.137.173.175";
-    public static final boolean CONNECT_LOCAL = true;
+    public static final boolean CONNECT_LOCAL = false;
     public static final String PORT = "8080";
 
     public static final String URL_LOGIN_BASIC = "PaperFlyServer-web/secure/";
