@@ -9,7 +9,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.*;
+import android.widget.ArrayAdapter;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ListView;
 import de.fhb.mi.paperfly.PaperFlyApp;
 import de.fhb.mi.paperfly.R;
 import de.fhb.mi.paperfly.auth.AuthHelper;
@@ -172,7 +175,6 @@ public class ChatFragment extends Fragment {
 
                 @Override
                 public void onClose(int code, String reason) {
-                    Toast.makeText(rootView.getContext(), "Connection lost.", Toast.LENGTH_LONG).show();
                     Log.d(TAG, "Connection lost.");
                 }
             });
