@@ -26,6 +26,7 @@ public class BackgroundLocationService extends Service implements GooglePlayServ
         GooglePlayServicesClient.OnConnectionFailedListener,
         LocationListener {
     private static final String TAG = BackgroundLocationService.class.getSimpleName();
+    private static final int LOCATION_LOOKUP_INTERVAL = 60;
     IBinder mBinder = new LocationBinder();
     private LocationClient mLocationClient;
     private LocationRequest mLocationRequest;
@@ -41,8 +42,8 @@ public class BackgroundLocationService extends Service implements GooglePlayServ
         mLocationRequest = LocationRequest.create();
         // Use high accuracy
         mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
-        // Set the update interval to 5 seconds
-        mLocationRequest.setInterval(5);
+        // Set the update interval
+        mLocationRequest.setInterval(LOCATION_LOOKUP_INTERVAL);
         // Set the fastest update interval to 1 second
         mLocationRequest.setFastestInterval(1);
 
