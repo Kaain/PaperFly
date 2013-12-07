@@ -13,7 +13,9 @@
         android:layout_above="@+id/messageInput"
         android:layout_alignParentTop="true"
         android:layout_gravity="top"
-        android:background="@android:drawable/title_bar_tall" />
+        android:background="@android:drawable/title_bar_tall"
+        android:stackFromBottom="true"
+        android:transcriptMode="alwaysScroll"/>
 
     <EditText
         android:id="@+id/messageInput"

@@ -89,11 +89,6 @@ public class ChatFragment extends Fragment {
         });
         buSend.setClickable(false);
 
-//        messagesList.setAdapter(messagesAdapter);
-        messagesList.setStackFromBottom(true);
-        messagesList.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
-
-
         return rootView;
     }
 
