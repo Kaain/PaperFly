@@ -19,7 +19,7 @@ package de.fhb.mi.paperfly.friends;
 
 import android.app.Activity;
 import android.app.Fragment;
-import android.content.Intent;
+import android.app.FragmentManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -38,7 +38,7 @@ import de.fhb.mi.paperfly.R;
 import de.fhb.mi.paperfly.dto.AccountDTO;
 import de.fhb.mi.paperfly.service.RestConsumerException;
 import de.fhb.mi.paperfly.service.RestConsumerSingleton;
-import de.fhb.mi.paperfly.user.UserProfileActivity;
+import de.fhb.mi.paperfly.user.UserProfileFragment;
 
 /**
  * ListView of private contacts, a friendlist
@@ -122,9 +122,16 @@ public class FriendListFragment extends Fragment implements AdapterView.OnItemCl
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Log.d(TAG, "onItemClick");
-        Intent intent = new Intent(getActivity(), UserProfileActivity.class);
-        intent.putExtra(UserProfileActivity.ARGS_USER, listAdapter.getItem(position));
-        startActivity(intent);
+        Fragment fragment = new UserProfileFragment();
+        Bundle args = new Bundle();
+        args.putString(UserProfileFragment.ARGS_USER, listAdapter.getItem(position));
+        fragment.setArguments(args);
+
+        // Insert the fragment by replacing any existing fragment
+        FragmentManager fragmentManager = getFragmentManager();
+        fragmentManager.beginTransaction()
+                .replace(R.id.content_frame, fragment)
+                .commit();
     }
 
     /**

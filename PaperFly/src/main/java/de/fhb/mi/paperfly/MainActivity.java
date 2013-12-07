@@ -44,6 +44,8 @@ import de.fhb.mi.paperfly.navigation.NavKey;
 import de.fhb.mi.paperfly.navigation.NavListAdapter;
 import de.fhb.mi.paperfly.navigation.NavListAdapter.ViewHolder;
 import de.fhb.mi.paperfly.user.EditAccountDataActivity;
+import de.fhb.mi.paperfly.user.SearchUserActivity;
+import de.fhb.mi.paperfly.user.UserProfileFragment;
 
 /**
  * The Activity with the navigation and some Fragments.
@@ -56,7 +58,7 @@ public class MainActivity extends Activity {
     private static final String TITLE_LEFT_DRAWER = "Navigation";
     private static final String TITLE_RIGHT_DRAWER = "Status";
     private static final int REQUESTCODE_QRSCAN = 100;
-    private static final int REQUESTCODE_SEARCH_USER = 101;
+    public static final int REQUESTCODE_SEARCH_USER = 101;
     private DrawerLayout drawerLayout;
     private ListView drawerRightList;
     private ListView drawerLeftList;
@@ -107,12 +109,21 @@ public class MainActivity extends Activity {
         drawerLeftList.setOnItemClickListener(new DrawerItemClickListener());
 
         generateNavigation();
+        navigateTo(NavKey.GLOBAL);
     }
 
     @Override
     protected void onNewIntent(Intent intent) {
         Log.d(TAG, "onNewIntent");
-        super.onNewIntent(intent);
+        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+            String query = intent.getStringExtra(SearchManager.QUERY);
+            // manually launch the real search activity
+            final Intent searchIntent = new Intent(getApplicationContext(), SearchUserActivity.class);
+            // add query to the Intent Extras
+            searchIntent.putExtra(SearchManager.QUERY, query);
+            searchIntent.setAction(Intent.ACTION_SEARCH);
+            startActivityForResult(searchIntent, REQUESTCODE_SEARCH_USER);
+        }
     }
 
     @Override
@@ -127,10 +138,11 @@ public class MainActivity extends Activity {
                 bundle.clear();
                 mAuthTask = new UserLoginTask();
                 mAuthTask.execute();
-            } else {
-                navigateTo(NavKey.GLOBAL);
-                // TODO select global
             }
+//            else {
+//                navigateTo(NavKey.GLOBAL);
+//                // TODO select global
+//            }
         } else {
             showProgress(true);
             mAuthTask = new UserLoginTask();
@@ -188,6 +200,7 @@ public class MainActivity extends Activity {
         Log.d(TAG, "generateNavigation");
         NavListAdapter mAdapter = new NavListAdapter(this);
         mAdapter.addHeader(this.getResources().getString(R.string.nav_header_general));
+        mAdapter.addItem(NavKey.MY_ACCOUNT, this.getResources().getString(R.string.nav_item_my_account), R.drawable.ic_action_person);
         mAdapter.addItem(NavKey.CHECK_PRESENCE, this.getResources().getString(R.string.nav_item_check_presence), -1);
         mAdapter.addItem(NavKey.FRIENDLIST, this.getResources().getString(R.string.nav_item_open_friendlist), android.R.drawable.ic_menu_share);
         mAdapter.addItem(NavKey.EDIT_ACCOUNT, this.getResources().getString(R.string.nav_item_open_edit_account_data), android.R.drawable.ic_menu_edit);
@@ -195,7 +208,6 @@ public class MainActivity extends Activity {
         mAdapter.addHeader(this.getResources().getString(R.string.nav_header_chats));
         mAdapter.addItem(NavKey.GLOBAL, this.getResources().getString(R.string.nav_item_global), -1);
         mAdapter.addItem(NavKey.ENTER_ROOM, this.getResources().getString(R.string.nav_item_enter_room), android.R.drawable.ic_menu_camera);
-
 
         drawerLeftList.setAdapter(mAdapter);
     }
@@ -417,20 +429,28 @@ public class MainActivity extends Activity {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        Log.d(TAG, "onActivityResult");
-        if (requestCode == REQUESTCODE_QRSCAN) {
-            if (resultCode == RESULT_OK) {
-                String room = intent.getStringExtra("SCAN_RESULT");
-                String format = intent.getStringExtra("SCAN_RESULT_FORMAT");
-                switchToChatRoom(room);
-                Toast.makeText(this, room, Toast.LENGTH_SHORT).show();
-            } else if (resultCode == RESULT_CANCELED) {
-                // TODO only for mockup test
-                String testRoom = "INFZ 305";
-                Toast.makeText(this, "Cancel", Toast.LENGTH_SHORT).show();
-                switchToChatRoom(testRoom);
-            }
-
+        switch (requestCode) {
+            case REQUESTCODE_SEARCH_USER:
+                Log.d(TAG, "onActivityResult: REQUESTCODE_SEARCH_USER");
+                if (resultCode == RESULT_OK) {
+                    String user = intent.getStringExtra(UserProfileFragment.ARGS_USER);
+                    openUserProfile(user);
+                }
+                break;
+            case REQUESTCODE_QRSCAN:
+                Log.d(TAG, "onActivityResult: REQUESTCODE_QRSCAN");
+                if (resultCode == RESULT_OK) {
+                    String room = intent.getStringExtra("SCAN_RESULT");
+                    String format = intent.getStringExtra("SCAN_RESULT_FORMAT");
+                    switchToChatRoom(room);
+                    Toast.makeText(this, room, Toast.LENGTH_SHORT).show();
+                } else if (resultCode == RESULT_CANCELED) {
+                    // TODO only for mockup test
+                    String testRoom = "INFZ 305";
+                    Toast.makeText(this, "Cancel", Toast.LENGTH_SHORT).show();
+                    switchToChatRoom(testRoom);
+                }
+                break;
         }
     }
 
@@ -487,6 +507,10 @@ public class MainActivity extends Activity {
             case GLOBAL:
                 switchToGlobalChat();
                 break;
+            case MY_ACCOUNT:
+                // TODO insert actual username (not hardcoded)
+                openUserProfile("username");
+                break;
             case CHECK_PRESENCE:
                 new InfoDialog().show(getFragmentManager(), TAG);
                 break;
@@ -500,12 +524,23 @@ public class MainActivity extends Activity {
         drawerLayout.closeDrawer(Gravity.LEFT);
     }
 
-    private void openEditAccount() {
+    private void openUserProfile(String user) {
+        Fragment fragment = new UserProfileFragment();
+        Bundle args = new Bundle();
+        args.putString(UserProfileFragment.ARGS_USER, user);
+        fragment.setArguments(args);
 
+        // Insert the fragment by replacing any existing fragment
+        FragmentManager fragmentManager = getFragmentManager();
+        fragmentManager.beginTransaction()
+                .replace(R.id.content_frame, fragment)
+                .commit();
+    }
+
+    private void openEditAccount() {
         Intent intent = new Intent(MainActivity.this, EditAccountDataActivity.class);
         startActivity(intent);
         finish();
-
     }
 
     @Override
@@ -545,7 +580,7 @@ public class MainActivity extends Activity {
 
             if (success) {
                 Log.d(TAG, "navigateTo Global");
-                navigateTo(NavKey.GLOBAL);
+//                navigateTo(NavKey.GLOBAL);
                 // TODO select global
             } else {
                 Intent intent = new Intent(MainActivity.this, LoginActivity.class);

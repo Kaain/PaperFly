@@ -34,11 +34,12 @@ public class SearchUserActivity extends ListActivity {
     }
 
     @Override
-    public void onListItemClick(ListView l,
-                                View v, int position, long id) {
-        Intent intent = new Intent(this, UserProfileActivity.class);
-        intent.putExtra(UserProfileActivity.ARGS_USER, getListAdapter().getItem(position).toString());
-        startActivity(intent);
+    public void onListItemClick(ListView l, View v, int position, long id) {
+        Log.d(TAG, "onListItemClick");
+        Intent intent = new Intent();
+        intent.putExtra(UserProfileFragment.ARGS_USER, getListAdapter().getItem(position).toString());
+        setResult(RESULT_OK, intent);
+        finish();
     }
 
     /**
@@ -47,9 +48,9 @@ public class SearchUserActivity extends ListActivity {
      * @param intent the intent
      */
     private void handleIntent(Intent intent) {
+        Log.d(TAG, "handleIntent");
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
-            String query =
-                    intent.getStringExtra(SearchManager.QUERY);
+            String query = intent.getStringExtra(SearchManager.QUERY);
             doSearch(query);
         }
     }
