@@ -37,7 +37,6 @@ public class LoginActivity extends Activity {
     /**
      * The default email to populate the email field with.
      */
-    public static final String EXTRA_EMAIL = "com.example.android.authenticatordemo.extra.EMAIL";
     public static final String LOGIN_SUCCESFUL = "LOGIN_SUCCESFUL";
     private static final String TAG = LoginActivity.class.getSimpleName();
     /**
@@ -140,9 +139,7 @@ public class LoginActivity extends Activity {
         setContentView(R.layout.activity_login);
 
         // Set up the login form.
-        mEmail = getIntent().getStringExtra(EXTRA_EMAIL);
         mEmailView = (EditText) findViewById(R.id.accountMail);
-        mEmailView.setText(mEmail);
 
         mPasswordView = (EditText) findViewById(R.id.password);
 
