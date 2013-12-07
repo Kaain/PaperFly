@@ -37,15 +37,15 @@ import java.util.List;
 
 import de.fhb.mi.paperfly.auth.AuthHelper;
 import de.fhb.mi.paperfly.auth.LoginActivity;
-import de.fhb.mi.paperfly.fragments.ChatFragment;
-import de.fhb.mi.paperfly.friends.FriendListFragment;
+import de.fhb.mi.paperfly.chat.ChatFragment;
 import de.fhb.mi.paperfly.navigation.NavItemModel;
 import de.fhb.mi.paperfly.navigation.NavKey;
 import de.fhb.mi.paperfly.navigation.NavListAdapter;
 import de.fhb.mi.paperfly.navigation.NavListAdapter.ViewHolder;
 import de.fhb.mi.paperfly.user.EditAccountDataActivity;
-import de.fhb.mi.paperfly.user.SearchUserActivity;
+import de.fhb.mi.paperfly.user.FriendListFragment;
 import de.fhb.mi.paperfly.user.UserProfileFragment;
+import de.fhb.mi.paperfly.user.UserSearchActivity;
 
 /**
  * The Activity with the navigation and some Fragments.
@@ -118,7 +118,7 @@ public class MainActivity extends Activity {
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
             String query = intent.getStringExtra(SearchManager.QUERY);
             // manually launch the real search activity
-            final Intent searchIntent = new Intent(getApplicationContext(), SearchUserActivity.class);
+            final Intent searchIntent = new Intent(getApplicationContext(), UserSearchActivity.class);
             // add query to the Intent Extras
             searchIntent.putExtra(SearchManager.QUERY, query);
             searchIntent.setAction(Intent.ACTION_SEARCH);

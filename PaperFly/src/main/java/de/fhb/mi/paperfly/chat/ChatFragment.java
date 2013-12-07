@@ -1,4 +1,4 @@
-package de.fhb.mi.paperfly.fragments;
+package de.fhb.mi.paperfly.chat;
 
 import android.app.Activity;
 import android.app.Fragment;

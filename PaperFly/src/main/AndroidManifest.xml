@@ -68,7 +68,7 @@
             android:name="de.fhb.mi.paperfly.HelpActivity"
             android:label="@string/title_activity_help"/>
         <activity
-            android:name="de.fhb.mi.paperfly.user.SearchUserActivity"
+            android:name=".user.UserSearchActivity"
             android:label="@string/title_activity_search_user">
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH"/>

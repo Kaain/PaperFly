@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package de.fhb.mi.paperfly.friends;
+package de.fhb.mi.paperfly.user;
 
 import android.app.Activity;
 import android.app.Fragment;
@@ -38,7 +38,6 @@ import de.fhb.mi.paperfly.R;
 import de.fhb.mi.paperfly.dto.AccountDTO;
 import de.fhb.mi.paperfly.service.RestConsumerException;
 import de.fhb.mi.paperfly.service.RestConsumerSingleton;
-import de.fhb.mi.paperfly.user.UserProfileFragment;
 
 /**
  * ListView of private contacts, a friendlist
