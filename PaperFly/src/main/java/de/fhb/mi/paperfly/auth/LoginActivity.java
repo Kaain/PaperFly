@@ -4,14 +4,10 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
@@ -25,11 +21,12 @@ import java.io.UnsupportedEncodingException;
 import java.util.Date;
 
 import de.fhb.mi.paperfly.MainActivity;
+import de.fhb.mi.paperfly.PaperFlyApp;
 import de.fhb.mi.paperfly.R;
 import de.fhb.mi.paperfly.dto.RegisterAccountDTO;
+import de.fhb.mi.paperfly.dto.TokenDTO;
 import de.fhb.mi.paperfly.service.RestConsumerException;
-import de.fhb.mi.paperfly.service.RestConsumerService;
-import de.fhb.mi.paperfly.service.RestConsumerService.RestConsumerBinder;
+import de.fhb.mi.paperfly.service.RestConsumerSingleton;
 
 /**
  * Activity which displays a login screen to the user, offering registration as
@@ -57,24 +54,6 @@ public class LoginActivity extends Activity {
     private View mLoginFormView;
     private View mLoginStatusView;
     private TextView mLoginStatusMessageView;
-    private boolean mBound = false;
-    private RestConsumerService mRestConsumerService;
-    private ServiceConnection mConnection = new ServiceConnection() {
-
-        @Override
-        public void onServiceConnected(ComponentName className, IBinder service) {
-            // We've bound to LocalService, cast the IBinder and get LocalService instance
-            RestConsumerBinder binder = (RestConsumerBinder) service;
-            mRestConsumerService = binder.getServerInstance();
-            mBound = true;
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName arg0) {
-            mBound = false;
-        }
-    };
-
 
     /**
      * Attempt to login or register an user depending on which button was clicked.
@@ -183,17 +162,11 @@ public class LoginActivity extends Activity {
     @Override
     protected void onStart() {
         super.onStart();
-        Intent serviceIntent = new Intent(this, RestConsumerService.class);
-        bindService(serviceIntent, mConnection, Context.BIND_AUTO_CREATE);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        if (mBound) {
-            unbindService(mConnection);
-            mBound = false;
-        }
     }
 
     /**
@@ -246,14 +219,18 @@ public class LoginActivity extends Activity {
             String mail = params[0];
             String pw = params[1];
 
-            boolean success=false;
+            TokenDTO tokenDTO;
 
             try {
-                success= mRestConsumerService.login(mail, pw);
+                tokenDTO = RestConsumerSingleton.getInstance().login(mail, pw);
+                ((PaperFlyApp) getApplication()).setToken(tokenDTO);
+                if (tokenDTO != null) {
+                    return true;
+                }
             } catch (RestConsumerException e) {
                 e.printStackTrace();
             }
-            return success;
+            return false;
         }
 
         @Override
@@ -288,7 +265,7 @@ public class LoginActivity extends Activity {
             String mail = params[0];
             String pw = params[1];
 
-            RegisterAccountDTO nextUser= new RegisterAccountDTO();
+            RegisterAccountDTO nextUser = new RegisterAccountDTO();
             nextUser.setLastName("Mustermann");
             nextUser.setFirstName("Max");
             nextUser.setUsername("neuerUser");
@@ -301,7 +278,7 @@ public class LoginActivity extends Activity {
 
 
             try {
-                mRestConsumerService.register(nextUser);
+                RestConsumerSingleton.getInstance().register(nextUser);
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             } catch (RestConsumerException e) {

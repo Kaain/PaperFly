@@ -1,27 +1,7 @@
-/*
- * Copyright (C) 2013 Michael Koppen, Christoph Ott, Andy Klay
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
-
 package de.fhb.mi.paperfly.service;
 
-import android.app.Service;
-import android.content.Intent;
-import android.os.Binder;
-import android.os.IBinder;
 import android.util.Log;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializationContext;
@@ -32,12 +12,7 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.google.gson.reflect.TypeToken;
-import de.fhb.mi.paperfly.PaperFlyApp;
-import de.fhb.mi.paperfly.dto.AccountDTO;
-import de.fhb.mi.paperfly.dto.RegisterAccountDTO;
-import de.fhb.mi.paperfly.dto.RoomDTO;
-import de.fhb.mi.paperfly.dto.Status;
-import de.fhb.mi.paperfly.dto.TokenDTO;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
@@ -60,13 +35,19 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import de.fhb.mi.paperfly.dto.AccountDTO;
+import de.fhb.mi.paperfly.dto.RegisterAccountDTO;
+import de.fhb.mi.paperfly.dto.RoomDTO;
+import de.fhb.mi.paperfly.dto.Status;
+import de.fhb.mi.paperfly.dto.TokenDTO;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
 /**
- * This Class implements the connection to the REST-Service of the PaperFly-Server.
- *
  * @author Christoph Ott
- * @author Andy Klay (klay@fh-brandenburg.de)
  */
-public class RestConsumerService extends Service implements RestConsumer {
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public class RestConsumerSingleton implements RestConsumer {
 
     public static final String LOCAL_IP = "10.0.2.2";
     public static final String AWS_IP = "46.137.173.175";
@@ -86,10 +67,15 @@ public class RestConsumerService extends Service implements RestConsumer {
     public static final String URL_LOCATE_ACCOUNT = "PaperFlyServer-web/rest/v1/room/locateAccount/";
     public static final String URL_CHANGE_ACCOUNT_STATUS = "PaperFlyServer-web//rest/v1/myaccount/status/";
 
-
     private static final String TAG = "RestConsumerService";
-    private IBinder mbinder = new RestConsumerBinder();
 
+    private static class SingletonHolder {
+        public static final RestConsumerSingleton INSTANCE = new RestConsumerSingleton();
+    }
+
+    public static RestConsumerSingleton getInstance() {
+        return SingletonHolder.INSTANCE;
+    }
 
     @Override
     public AccountDTO editAccount(AccountDTO editedAccount) throws RestConsumerException, UnsupportedEncodingException {
@@ -191,7 +177,8 @@ public class RestConsumerService extends Service implements RestConsumer {
 
         HttpUriRequest request = new HttpGet(getConnectionURL(URL_ACCOUNTS_IN_ROOM) + roomID);
         List<AccountDTO> accountsInRoom = new ArrayList<AccountDTO>();
-        Type collectionType = new TypeToken<ArrayList<AccountDTO>>(){}.getType();
+        Type collectionType = new TypeToken<ArrayList<AccountDTO>>() {
+        }.getType();
 
         Log.d(TAG, request.getRequestLine().toString());
 
@@ -241,7 +228,7 @@ public class RestConsumerService extends Service implements RestConsumer {
     }
 
     @Override
-    public boolean login(String mail, String password) throws RestConsumerException {
+    public TokenDTO login(String mail, String password) throws RestConsumerException {
         Log.d(TAG, "login");
         HttpUriRequest request = new HttpGet(getConnectionURL(URL_LOGIN)); // Or HttpPost(), depends on your needs
         request.addHeader("user", mail);
@@ -257,24 +244,16 @@ public class RestConsumerService extends Service implements RestConsumer {
 
             String responseObjAsString = readInEntity(response);
             Gson gson = new Gson();
-            TokenDTO tokendto = gson.fromJson(responseObjAsString, TokenDTO.class);
-
-            ((PaperFlyApp) getApplication()).setToken(tokendto);
+            return gson.fromJson(responseObjAsString, TokenDTO.class);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return true;
-    }
-
-    @Override
-    public IBinder onBind(Intent intent) {
-        return mbinder;
+        return null;
     }
 
     @Override
     public TokenDTO register(RegisterAccountDTO registerAccount) throws UnsupportedEncodingException, RestConsumerException {
 
-        TokenDTO requestToken = null;
         HttpUriRequest request = new HttpPut(getConnectionURL(URL_REGISTER_ACCOUNT));
 
         Gson sendMapper = new GsonBuilder().registerTypeAdapter(Date.class, new JsonDateSerializer()).create();
@@ -300,23 +279,22 @@ public class RestConsumerService extends Service implements RestConsumer {
             String responseObjAsString = readInEntity(response);
             Log.d("json", responseObjAsString);
             Gson gson = new GsonBuilder().registerTypeAdapter(Date.class, new JsonDateDeserializer()).create();
-            requestToken = gson.fromJson(responseObjAsString, TokenDTO.class);
-
-            ((PaperFlyApp) getApplication()).setToken(requestToken);
+            return gson.fromJson(responseObjAsString, TokenDTO.class);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return requestToken;
+        return null;
     }
 
     @Override
-    public List<AccountDTO> searchAccount(String query)throws RestConsumerException{
+    public List<AccountDTO> searchAccount(String query) throws RestConsumerException {
 
         Log.d(TAG, "searchAccount");
 
         HttpUriRequest request = new HttpGet(getConnectionURL(URL_SEARCH_ACCOUNT) + query);
         List<AccountDTO> searchResultList = new ArrayList<AccountDTO>();
-        Type collectionType = new TypeToken<ArrayList<AccountDTO>>(){}.getType();
+        Type collectionType = new TypeToken<ArrayList<AccountDTO>>() {
+        }.getType();
 
         Log.d(TAG, request.getRequestLine().toString());
 
@@ -340,12 +318,13 @@ public class RestConsumerService extends Service implements RestConsumer {
 
     /**
      * evaluates the httpStatus aof a Request
+     *
      * @param response
      * @throws RestConsumerException
      */
     private void analyzeHttpStatus(HttpResponse response) throws RestConsumerException {
         if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-            Log.d(TAG, ""+response.getStatusLine().getStatusCode());
+            Log.d(TAG, "" + response.getStatusLine().getStatusCode());
             switch (response.getStatusLine().getStatusCode()) {
                 case 412:
                     throw new RestConsumerException(RestConsumerException.INVALID_INPUT_MESSAGE);
@@ -359,6 +338,7 @@ public class RestConsumerService extends Service implements RestConsumer {
 
     /**
      * reads in the response String
+     *
      * @param response
      * @return
      * @throws IOException
@@ -378,6 +358,7 @@ public class RestConsumerService extends Service implements RestConsumer {
 
     /**
      * builds the connection-url depency of local-setting-value CONNECT_LOCAL
+     *
      * @param restURL
      * @return
      */
@@ -396,12 +377,6 @@ public class RestConsumerService extends Service implements RestConsumer {
         urlToBuild.append(restURL);
 
         return urlToBuild.toString();
-    }
-
-    public class RestConsumerBinder extends Binder {
-        public RestConsumerService getServerInstance() {
-            return RestConsumerService.this;
-        }
     }
 
     /**
@@ -425,3 +400,4 @@ public class RestConsumerService extends Service implements RestConsumer {
         }
     }
 }
+

@@ -28,12 +28,14 @@ public interface RestConsumer {
     /**
      * Gets the connected account, could used also instead of setMyAccountStatus
      * Set the Status of the account to Status.ONLINE
+     *
      * @return the account
      */
     AccountDTO getMyAccount() throws RestConsumerException;
 
     /**
      * sets the Account status
+     *
      * @param status
      * @return
      * @throws RestConsumerException
@@ -70,16 +72,16 @@ public interface RestConsumer {
      *
      * @param mail     the mail address of the account
      * @param password the password of the account
-     * @return true if the login was successful, false if not
+     * @return the tokens if the login was successful, null if not
      * @throws RestConsumerException
      */
-    boolean login(String mail, String password) throws RestConsumerException;
+    TokenDTO login(String mail, String password) throws RestConsumerException;
 
     /**
      * Registers an account.
      *
      * @param account the account to register
-     * @return a token
+     * @return the tokens if the registration was successful, null if not
      * @throws UnsupportedEncodingException
      * @throws RestConsumerException
      */

@@ -19,13 +19,9 @@ package de.fhb.mi.paperfly.friends;
 
 import android.app.Activity;
 import android.app.Fragment;
-import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -41,7 +37,7 @@ import java.util.List;
 import de.fhb.mi.paperfly.R;
 import de.fhb.mi.paperfly.dto.AccountDTO;
 import de.fhb.mi.paperfly.service.RestConsumerException;
-import de.fhb.mi.paperfly.service.RestConsumerService;
+import de.fhb.mi.paperfly.service.RestConsumerSingleton;
 import de.fhb.mi.paperfly.user.UserProfileActivity;
 
 /**
@@ -59,39 +55,6 @@ public class FriendListFragment extends Fragment implements AdapterView.OnItemCl
     private GetAccountTask mAccountTask = null;
     AccountDTO account = null;
 
-    /**
-     * Begin *************************************** Rest-Connection ****************************** *
-     */
-    private boolean mBound = false;
-    private RestConsumerService mRestConsumerService;
-    private ServiceConnection mConnectionRestService = new ServiceConnection() {
-
-        @Override
-        public void onServiceConnected(ComponentName className, IBinder service) {
-            RestConsumerService.RestConsumerBinder binder = (RestConsumerService.RestConsumerBinder) service;
-            mRestConsumerService = binder.getServerInstance();
-            mBound = true;
-            Toast.makeText(rootView.getContext(), "RestConsumerService Connected", Toast.LENGTH_SHORT)
-                    .show();
-
-            mAccountTask = new GetAccountTask();
-            //TODO username is only template for actual user
-            mAccountTask.execute("username");
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName arg0) {
-            Toast.makeText(rootView.getContext(), "RestConsumerService Disconnected", Toast.LENGTH_SHORT)
-                    .show();
-            mBound = false;
-            mRestConsumerService = null;
-        }
-    };
-
-    /**
-     * End *************************************** Rest-Connection ****************************** *
-     */
-
     @Override
     public void onStart() {
         super.onStart();
@@ -105,7 +68,6 @@ public class FriendListFragment extends Fragment implements AdapterView.OnItemCl
         initViewsById();
 
         friendListValues = new ArrayList<String>();
-        Log.d(TAG, "binding RestConsumerService " + Boolean.toString(mBound));
 
         listAdapter = new ArrayAdapter<String>(rootView.getContext(), android.R.layout.simple_list_item_1, friendListValues);
         friendListView.setAdapter(listAdapter);
@@ -133,12 +95,6 @@ public class FriendListFragment extends Fragment implements AdapterView.OnItemCl
     public void onStop() {
         super.onStop();
         Log.d(TAG, "onStop");
-
-        super.onStop();
-        if (mBound) {
-            rootView.getContext().unbindService(mConnectionRestService);
-            mBound = false;
-        }
     }
 
     @Override
@@ -151,8 +107,10 @@ public class FriendListFragment extends Fragment implements AdapterView.OnItemCl
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         Log.d(TAG, "onAttach");
-        Intent serviceIntent = new Intent(activity.getBaseContext(), RestConsumerService.class);
-        mBound = activity.getBaseContext().bindService(serviceIntent, mConnectionRestService, Context.BIND_IMPORTANT);
+
+        mAccountTask = new GetAccountTask();
+        //TODO username is only template for actual user
+        mAccountTask.execute("username");
     }
 
     @Override
@@ -165,7 +123,7 @@ public class FriendListFragment extends Fragment implements AdapterView.OnItemCl
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Log.d(TAG, "onItemClick");
         Intent intent = new Intent(getActivity(), UserProfileActivity.class);
-        intent.putExtra(UserProfileActivity.ARGS_USER, listAdapter.getItem(position).toString());
+        intent.putExtra(UserProfileActivity.ARGS_USER, listAdapter.getItem(position));
         startActivity(intent);
     }
 
@@ -179,18 +137,14 @@ public class FriendListFragment extends Fragment implements AdapterView.OnItemCl
             String username = params[0];
 
             try {
-                account = mRestConsumerService.getAccountByUsername(username);
+                account = RestConsumerSingleton.getInstance().getAccountByUsername(username);
             } catch (RestConsumerException e) {
                 e.printStackTrace();
                 Toast.makeText(rootView.getContext(), e.getMessage(), Toast.LENGTH_SHORT)
                         .show();
             }
 
-            if (account != null) {
-                return true;
-            } else {
-                return false;
-            }
+            return account != null;
         }
 
         @Override
@@ -204,6 +158,7 @@ public class FriendListFragment extends Fragment implements AdapterView.OnItemCl
             friendListValues.add("wayne");
 
             if (success) {
+            /* dont know what this is
                 Log.d("onPostExecute", "success");
 
                 if (mRestConsumerService != null) {
@@ -222,6 +177,7 @@ public class FriendListFragment extends Fragment implements AdapterView.OnItemCl
                         friendListValues.add("Dummy User" + i);
                     }
                 }
+            */
 
                 listAdapter.notifyDataSetChanged();
             } else {

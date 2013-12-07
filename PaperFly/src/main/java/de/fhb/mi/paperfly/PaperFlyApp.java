@@ -13,7 +13,6 @@ import java.util.List;
 import de.fhb.mi.paperfly.dto.AccountDTO;
 import de.fhb.mi.paperfly.dto.TokenDTO;
 import de.fhb.mi.paperfly.service.BackgroundLocationService;
-import de.fhb.mi.paperfly.service.RestConsumerService;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -53,7 +52,6 @@ public class PaperFlyApp extends Application {
         if (BackgroundLocationService.servicesAvailable(this)) {
             startService(new Intent(this, BackgroundLocationService.class));
         }
-        startService(new Intent(this, RestConsumerService.class));
 
         chatGlobal = new ArrayList<String>();
         chatRoom = new ArrayList<String>();

@@ -38,7 +38,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import com.google.android.gms.common.GooglePlayServicesUtil;
+
 import de.fhb.mi.paperfly.HelpActivity;
 import de.fhb.mi.paperfly.R;
 import de.fhb.mi.paperfly.SettingsActivity;
@@ -46,7 +48,7 @@ import de.fhb.mi.paperfly.dto.AccountDTO;
 import de.fhb.mi.paperfly.service.BackgroundLocationService;
 import de.fhb.mi.paperfly.service.BackgroundLocationService.LocationBinder;
 import de.fhb.mi.paperfly.service.RestConsumerException;
-import de.fhb.mi.paperfly.service.RestConsumerService;
+import de.fhb.mi.paperfly.service.RestConsumerSingleton;
 
 /**
  * This activity shows detail information of a user.
@@ -233,39 +235,6 @@ public class UserProfileActivity extends Activity {
         private AccountDTO account = null;
         private String username = null;
 
-        /**
-         * Begin *************************************** Rest-Connection ****************************** *
-         */
-        private boolean mBound = false;
-        private RestConsumerService mRestConsumerService;
-        private ServiceConnection mConnectionRestService = new ServiceConnection() {
-
-            @Override
-            public void onServiceConnected(ComponentName className, IBinder service) {
-                RestConsumerService.RestConsumerBinder binder = (RestConsumerService.RestConsumerBinder) service;
-                mRestConsumerService = binder.getServerInstance();
-                mBound = true;
-                Toast.makeText(rootView.getContext(), "RestConsumerService Connected", Toast.LENGTH_SHORT)
-                        .show();
-
-                mAccountTask = new GetAccountTask();
-                mAccountTask.execute(username);
-            }
-
-            @Override
-            public void onServiceDisconnected(ComponentName arg0) {
-                Toast.makeText(rootView.getContext(), "RestConsumerService Disconnected", Toast.LENGTH_SHORT)
-                        .show();
-                mBound = false;
-                mRestConsumerService = null;
-            }
-        };
-
-        /**
-         * End *************************************** Rest-Connection ****************************** *
-         */
-
-
         public PlaceholderFragment() {
         }
 
@@ -288,20 +257,15 @@ public class UserProfileActivity extends Activity {
         public void onStop() {
             super.onStop();
             Log.d(TAG, "onStop");
-
-            super.onStop();
-            if (mBound) {
-                rootView.getContext().unbindService(mConnectionRestService);
-                mBound = false;
-            }
         }
 
         @Override
         public void onAttach(Activity activity) {
             super.onAttach(activity);
             Log.d(TAG, "onAttach");
-            Intent serviceIntent = new Intent(activity.getBaseContext(), RestConsumerService.class);
-            mBound = activity.getBaseContext().bindService(serviceIntent, mConnectionRestService, Context.BIND_IMPORTANT);
+
+            mAccountTask = new GetAccountTask();
+            mAccountTask.execute(username);
         }
 
         /**
@@ -314,14 +278,11 @@ public class UserProfileActivity extends Activity {
                 String username = params[0];
 
                 try {
-                    account = mRestConsumerService.getAccountByUsername(username);
-                    if (account != null) {
-                        return true;
-                    }
+                    account = RestConsumerSingleton.getInstance().getAccountByUsername(username);
                 } catch (RestConsumerException e) {
                     Log.e(TAG, e.getMessage(), e);
                 }
-                return false;
+                return account != null;
             }
 
             @Override
@@ -331,20 +292,10 @@ public class UserProfileActivity extends Activity {
                 if (success) {
                     Log.d("onPostExecute", "success");
 
-                    if (mRestConsumerService != null) {
-                        Log.d(TAG, "mRestConsumerService exists");
-
-                        if (account != null) {
-                            profileUsername.append(account.getUsername());
-                            profileFirstname.append(account.getFirstName());
-                            profileLastname.append(account.getLastName());
-                        }
-                    } else {
-                        Log.d(TAG, "create dummy entries");
-
-                        profileUsername.append("unknown user");
-                        profileFirstname.append("unknown user");
-                        profileLastname.append("unknown user");
+                    if (account != null) {
+                        profileUsername.append(account.getUsername());
+                        profileFirstname.append(account.getFirstName());
+                        profileLastname.append(account.getLastName());
                     }
 
                 } else {
