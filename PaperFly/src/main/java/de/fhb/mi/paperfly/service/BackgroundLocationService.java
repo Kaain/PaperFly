@@ -25,7 +25,7 @@ import com.google.android.gms.location.LocationRequest;
 public class BackgroundLocationService extends Service implements GooglePlayServicesClient.ConnectionCallbacks,
         GooglePlayServicesClient.OnConnectionFailedListener,
         LocationListener {
-    private static final String TAG = "BackgroundLocationService";
+    private static final String TAG = BackgroundLocationService.class.getSimpleName();
     IBinder mBinder = new LocationBinder();
     private LocationClient mLocationClient;
     private LocationRequest mLocationRequest;

@@ -38,7 +38,7 @@ import de.fhb.mi.paperfly.service.RestConsumerSingleton;
 
 public class EditAccountDataActivity extends Activity {
 
-    private static final String TAG = "EditAccountDataActivity";
+    private static final String TAG = EditAccountDataActivity.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -39,7 +39,7 @@ public class LoginActivity extends Activity {
      */
     public static final String EXTRA_EMAIL = "com.example.android.authenticatordemo.extra.EMAIL";
     public static final String LOGIN_SUCCESFUL = "LOGIN_SUCCESFUL";
-    private static final String TAG = "LoginActivity";
+    private static final String TAG = LoginActivity.class.getSimpleName();
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */

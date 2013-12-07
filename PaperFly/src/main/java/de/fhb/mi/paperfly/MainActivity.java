@@ -52,7 +52,7 @@ import de.fhb.mi.paperfly.user.EditAccountDataActivity;
  * @author Andy Klay   klay@fh-brandenburg.de
  */
 public class MainActivity extends Activity {
-    private static final String TAG = "MainActivity";
+    private static final String TAG = MainActivity.class.getSimpleName();
     private static final String TITLE_LEFT_DRAWER = "Navigation";
     private static final String TITLE_RIGHT_DRAWER = "Status";
     private static final int REQUESTCODE_QRSCAN = 100;

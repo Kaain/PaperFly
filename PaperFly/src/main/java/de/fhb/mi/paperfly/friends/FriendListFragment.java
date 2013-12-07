@@ -47,7 +47,7 @@ import de.fhb.mi.paperfly.user.UserProfileActivity;
  */
 public class FriendListFragment extends Fragment implements AdapterView.OnItemClickListener {
 
-    public static final String TAG = "FriendListFragment";
+    private static final String TAG = FriendListFragment.class.getSimpleName();
     private View rootView;
     private ListView friendListView;
     private List<String> friendListValues;

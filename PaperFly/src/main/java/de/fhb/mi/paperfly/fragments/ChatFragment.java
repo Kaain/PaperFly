@@ -13,6 +13,9 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
+
+import java.util.List;
+
 import de.fhb.mi.paperfly.PaperFlyApp;
 import de.fhb.mi.paperfly.R;
 import de.fhb.mi.paperfly.auth.AuthHelper;
@@ -21,14 +24,12 @@ import de.tavendo.autobahn.WebSocketConnectionHandler;
 import de.tavendo.autobahn.WebSocketException;
 import de.tavendo.autobahn.WebSocketOptions;
 
-import java.util.List;
-
 /**
  * @author Christoph Ott
  */
 public class ChatFragment extends Fragment {
 
-    public static final String TAG = "ChatFragment";
+    private static final String TAG = ChatFragment.class.getSimpleName();
     public static final String ARG_CHAT_ROOM = "chat_room";
     public static String ROOM_GLOBAL = "Global";
     private final WebSocketConnection mConnection = new WebSocketConnection();

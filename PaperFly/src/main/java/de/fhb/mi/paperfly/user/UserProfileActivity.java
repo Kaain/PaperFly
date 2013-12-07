@@ -64,7 +64,7 @@ public class UserProfileActivity extends Activity {
      * This code is returned in Activity.onActivityResult
      */
     private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
-    private static final String TAG = "UserProfileActivity";
+    private static final String TAG = UserProfileActivity.class.getSimpleName();
 
     private BackgroundLocationService mBackgroundLocationService;
     private boolean mBoundLocationService = false;

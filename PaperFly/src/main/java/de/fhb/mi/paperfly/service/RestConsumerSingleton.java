@@ -67,7 +67,7 @@ public class RestConsumerSingleton implements RestConsumer {
     public static final String URL_LOCATE_ACCOUNT = "PaperFlyServer-web/rest/v1/room/locateAccount/";
     public static final String URL_CHANGE_ACCOUNT_STATUS = "PaperFlyServer-web//rest/v1/myaccount/status/";
 
-    private static final String TAG = "RestConsumerService";
+    private static final String TAG = RestConsumerSingleton.class.getSimpleName();
 
     private static class SingletonHolder {
         public static final RestConsumerSingleton INSTANCE = new RestConsumerSingleton();

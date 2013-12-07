@@ -18,7 +18,7 @@ import de.fhb.mi.paperfly.R;
  * The activity to show if the user searches for another user.
  */
 public class SearchUserActivity extends ListActivity {
-    private static final String TAG = "SearchUserActivity";
+    private static final String TAG = SearchUserActivity.class.getSimpleName();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

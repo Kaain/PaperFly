@@ -8,6 +8,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import de.fhb.mi.paperfly.auth.AuthHelper;
 import de.tavendo.autobahn.WebSocketConnection;
 import de.tavendo.autobahn.WebSocketConnectionHandler;
@@ -15,7 +16,7 @@ import de.tavendo.autobahn.WebSocketException;
 
 public class WebSocketTestMainActivity extends Activity {
 
-    private static final String TAG = "de.tavendo.test1";
+    private static final String TAG = WebSocketTestMainActivity.class.getSimpleName();
     private final WebSocketConnection mConnection = new WebSocketConnection();
     private TextView laOutput;
     private EditText inURL;
