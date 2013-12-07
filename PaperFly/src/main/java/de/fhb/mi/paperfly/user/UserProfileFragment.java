@@ -78,6 +78,12 @@ public class UserProfileFragment extends Fragment {
     public UserProfileFragment() {
     }
 
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+    }
+
     private Intent getMapsIntent() {
         //TODO java.lang.Object irgendwo an der FH
         double latitude = 52.411433;
