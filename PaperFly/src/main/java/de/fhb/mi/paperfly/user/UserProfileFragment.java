@@ -81,7 +81,12 @@ public class UserProfileFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(TAG, "onCreate");
         setHasOptionsMenu(true);
+        username = getArguments().getString(ARGS_USER);
+
+        mAccountTask = new GetAccountTask();
+        mAccountTask.execute(username);
     }
 
     private Intent getMapsIntent() {
@@ -166,7 +171,6 @@ public class UserProfileFragment extends Fragment {
                              Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_user_profile, container, false);
         initViews(rootView);
-        username = getActivity().getIntent().getExtras().getString(ARGS_USER);
         return rootView;
     }
 
@@ -191,9 +195,6 @@ public class UserProfileFragment extends Fragment {
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         Log.d(TAG, "onAttach");
-
-        mAccountTask = new GetAccountTask();
-        mAccountTask.execute(username);
     }
 
     /**
@@ -206,6 +207,7 @@ public class UserProfileFragment extends Fragment {
             String username = params[0];
 
             try {
+                Log.d(TAG, "Searching for user:" + username);
                 account = RestConsumerSingleton.getInstance().getAccountByUsername(username);
             } catch (RestConsumerException e) {
                 Log.e(TAG, e.getMessage(), e);
