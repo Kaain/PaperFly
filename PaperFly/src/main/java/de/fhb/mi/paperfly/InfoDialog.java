@@ -14,7 +14,7 @@ public class InfoDialog extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         // Use the Builder class for convenient dialog construction
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setMessage("Nimmt sich die aktuelle Liste der zur Zeit anwesenden User und schickt sie an Programme die diese Liste abspeichern können oder weiter verschicken können. (z.B. email)")
+        builder.setMessage("Nimmt sich die aktuelle Liste der zur Zeit anwesenden User und schickt sie an Programme die diese Liste abspeichern koennen oder weiter verschicken koennen. (z.B. email)")
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         // FIRE ZE MISSILES!

@@ -3,9 +3,9 @@ package de.fhb.mi.paperfly.auth;
 import android.content.Context;
 import android.util.Base64;
 import android.util.Log;
+
 import com.google.gson.Gson;
-import de.fhb.mi.paperfly.dto.TokenDTO;
-import lombok.Cleanup;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
@@ -14,7 +14,16 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.DefaultHttpClient;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+
+import de.fhb.mi.paperfly.dto.TokenDTO;
+import lombok.Cleanup;
 
 /**
  * @author Christoph Ott
@@ -45,8 +54,8 @@ public class AuthHelper {
     }
 
     /**
-     * @param mail     the user´s mail address
-     * @param password the user´s password
+     * @param mail     the user's mail address
+     * @param password the user's password
      * @return a TokenDTO if login successful, null if not
      * @throws IOException
      */

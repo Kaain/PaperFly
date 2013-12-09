@@ -193,7 +193,6 @@ public class MainActivity extends Activity {
      * Generates the NavigationList on the left side.
      */
     private void generateNavigation() {
-        //TODO muesste es nicht heißen generateNavigationLeft?
         Log.d(TAG, "generateNavigation");
         NavListAdapter mAdapter = new NavListAdapter(this);
         mAdapter.addHeader(this.getResources().getString(R.string.nav_header_general));
