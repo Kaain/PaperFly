@@ -124,7 +124,10 @@ public class UserProfileFragment extends Fragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.user_profile, menu);
+        if (menu != null) {
+            inflater.inflate(R.menu.user_profile, menu);
+            menu.findItem(R.id.action_search_user).setVisible(false);
+        }
     }
 
     @Override

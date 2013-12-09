@@ -1,18 +1,10 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    tools:context=".UserProfileActivity">
+      xmlns:tools="http://schemas.android.com/tools"
+      tools:context=".UserProfileActivity">
 
     <item
         android:id="@+id/action_maps"
         android:icon="@android:drawable/ic_menu_mapmode"
         android:showAsAction="always"
-        android:title="@string/menu_maps" />
-    <item
-        android:id="@+id/action_settings"
-        android:showAsAction="never"
-        android:title="@string/action_settings" />
-    <item
-        android:id="@+id/action_help"
-        android:showAsAction="never"
-        android:title="@string/action_help" />
+        android:title="@string/menu_maps"/>
 </menu>
