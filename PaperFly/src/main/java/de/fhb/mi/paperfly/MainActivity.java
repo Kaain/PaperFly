@@ -7,7 +7,6 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.SearchManager;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
@@ -21,14 +20,12 @@ import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.MenuItem.OnActionExpandListener;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
-import android.widget.SearchView;
 import android.widget.Toast;
 
 import java.io.IOException;
@@ -42,7 +39,6 @@ import de.fhb.mi.paperfly.navigation.NavItemModel;
 import de.fhb.mi.paperfly.navigation.NavKey;
 import de.fhb.mi.paperfly.navigation.NavListAdapter;
 import de.fhb.mi.paperfly.navigation.NavListAdapter.ViewHolder;
-import de.fhb.mi.paperfly.user.EditAccountDataActivity;
 import de.fhb.mi.paperfly.user.FriendListFragment;
 import de.fhb.mi.paperfly.user.UserProfileFragment;
 import de.fhb.mi.paperfly.user.UserSearchActivity;
@@ -122,6 +118,7 @@ public class MainActivity extends Activity {
             // add query to the Intent Extras
             searchIntent.putExtra(SearchManager.QUERY, query);
             searchIntent.setAction(Intent.ACTION_SEARCH);
+            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
             startActivityForResult(searchIntent, REQUESTCODE_SEARCH_USER);
         }
     }
@@ -203,7 +200,6 @@ public class MainActivity extends Activity {
         mAdapter.addItem(NavKey.MY_ACCOUNT, this.getResources().getString(R.string.nav_item_my_account), R.drawable.ic_action_person);
         mAdapter.addItem(NavKey.CHECK_PRESENCE, this.getResources().getString(R.string.nav_item_check_presence), -1);
         mAdapter.addItem(NavKey.FRIENDLIST, this.getResources().getString(R.string.nav_item_open_friendlist), android.R.drawable.ic_menu_share);
-        mAdapter.addItem(NavKey.EDIT_ACCOUNT, this.getResources().getString(R.string.nav_item_open_edit_account_data), android.R.drawable.ic_menu_edit);
 
         mAdapter.addHeader(this.getResources().getString(R.string.nav_header_chats));
         mAdapter.addItem(NavKey.GLOBAL, this.getResources().getString(R.string.nav_item_global), -1);
@@ -219,29 +215,6 @@ public class MainActivity extends Activity {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main, menu);
 
-        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-        SearchView searchView = (SearchView) menu.findItem(R.id.action_search_user).getActionView();
-
-        // Get the menu item from the action bar
-        MenuItem menuItem = menu.findItem(R.id.action_search_user);
-        menuItem.setOnActionExpandListener(new OnActionExpandListener() {
-
-            @Override
-            public boolean onMenuItemActionExpand(MenuItem item) {
-                Log.d(TAG, "Search activated. Locking drawers.");
-                drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-                return true;
-            }
-
-            @Override
-            public boolean onMenuItemActionCollapse(MenuItem item) {
-                Log.d(TAG, "Search deactivated. Unlocking drawers.");
-                drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
-                return true;
-            }
-        });
-        // Assumes current activity is the searchable activity
-        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -336,11 +309,6 @@ public class MainActivity extends Activity {
             case R.id.action_websockettest:
                 Intent intent = new Intent(this, WebSocketTestMainActivity.class);
                 startActivity(intent);
-                return true;
-            case R.id.action_search_user:
-                return false;
-            case R.id.action_show_persons:
-                openDrawerAndCloseOther(Gravity.RIGHT);
                 return true;
             case R.id.action_settings:
                 startActivity(new Intent(this, SettingsActivity.class));
@@ -517,9 +485,6 @@ public class MainActivity extends Activity {
             case FRIENDLIST:
                 openFriendList();
                 break;
-            case EDIT_ACCOUNT:
-                openEditAccount();
-                break;
         }
         drawerLayout.closeDrawer(Gravity.LEFT);
     }
@@ -535,12 +500,6 @@ public class MainActivity extends Activity {
         fragmentManager.beginTransaction()
                 .replace(R.id.content_frame, fragment)
                 .commit();
-    }
-
-    private void openEditAccount() {
-        Intent intent = new Intent(MainActivity.this, EditAccountDataActivity.class);
-        startActivity(intent);
-        finish();
     }
 
     @Override

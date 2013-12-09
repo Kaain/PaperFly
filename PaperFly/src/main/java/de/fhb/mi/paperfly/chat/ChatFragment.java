@@ -2,17 +2,25 @@ package de.fhb.mi.paperfly.chat;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.app.SearchManager;
+import android.content.Context;
 import android.os.Bundle;
+import android.support.v4.widget.DrawerLayout;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.SearchView;
 
 import java.util.List;
 
@@ -39,12 +47,20 @@ public class ChatFragment extends Fragment {
     private ImageButton buSend;
     private ArrayAdapter<String> messagesAdapter;
     private boolean globalRoom;
+    private DrawerLayout drawerLayout;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
         this.rootView = inflater.inflate(R.layout.fragment_chat, container, false);
+        this.drawerLayout = (DrawerLayout) container.getParent();
         initViewsById();
 
         String room = getArguments().getString(ARG_CHAT_ROOM);
@@ -90,6 +106,81 @@ public class ChatFragment extends Fragment {
         buSend.setClickable(false);
 
         return rootView;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        if (menu != null) {
+            inflater.inflate(R.menu.chat, menu);
+
+            SearchManager searchManager = (SearchManager) getActivity().getSystemService(Context.SEARCH_SERVICE);
+            SearchView searchView = (SearchView) menu.findItem(R.id.action_search_user).getActionView();
+
+            // Get the menu item from the action bar
+            MenuItem menuItem = menu.findItem(R.id.action_search_user);
+            menuItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
+
+                @Override
+                public boolean onMenuItemActionExpand(MenuItem item) {
+                    Log.d(TAG, "Search activated. Locking drawers.");
+                    drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+                    return true;
+                }
+
+                @Override
+                public boolean onMenuItemActionCollapse(MenuItem item) {
+                    Log.d(TAG, "Search deactivated. Unlocking drawers.");
+                    drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+                    return true;
+                }
+            });
+            // Assumes current activity is the searchable activity
+            searchView.setSearchableInfo(searchManager.getSearchableInfo(getActivity().getComponentName()));
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_search_user:
+                return false;
+            case R.id.action_show_persons:
+                openDrawerAndCloseOther(Gravity.RIGHT);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    /**
+     * Opens the specified drawer and closes the other one, if it is visible
+     *
+     * @param drawerGravity the drawer to be opened
+     */
+    private void openDrawerAndCloseOther(int drawerGravity) {
+        Log.d(TAG, "openDrawerAndCloseOther");
+        // TODO duplicated from MainActivity
+        switch (drawerGravity) {
+            case Gravity.LEFT:
+                if (drawerLayout.isDrawerVisible(Gravity.LEFT)) {
+                    drawerLayout.closeDrawer(Gravity.LEFT);
+                } else if (drawerLayout.isDrawerVisible(Gravity.RIGHT)) {
+                    drawerLayout.closeDrawer(Gravity.RIGHT);
+                    drawerLayout.openDrawer(Gravity.LEFT);
+                } else {
+                    drawerLayout.openDrawer(Gravity.LEFT);
+                }
+                break;
+            case Gravity.RIGHT:
+                if (drawerLayout.isDrawerVisible(Gravity.RIGHT)) {
+                    drawerLayout.closeDrawer(Gravity.RIGHT);
+                } else if (drawerLayout.isDrawerVisible(Gravity.LEFT)) {
+                    drawerLayout.closeDrawer(Gravity.LEFT);
+                    drawerLayout.openDrawer(Gravity.RIGHT);
+                } else {
+                    drawerLayout.openDrawer(Gravity.RIGHT);
+                }
+                break;
+        }
     }
 
     @Override

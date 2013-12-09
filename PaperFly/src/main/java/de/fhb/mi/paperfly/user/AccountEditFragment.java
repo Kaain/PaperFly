@@ -36,6 +36,11 @@ public class AccountEditFragment extends Fragment {
 
     private AccountEditTask mMyAccountEditTask = null;
 
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
+
     private void initViews(View rootView) {
         accountUsername = (EditText) rootView.findViewById(R.id.accountUserName);
         accountFirstname = (EditText) rootView.findViewById(R.id.accountFirstName);
@@ -69,7 +74,6 @@ public class AccountEditFragment extends Fragment {
         mMyAccountTask = new GetMyAccountTask();
         mMyAccountTask.execute();
     }
-
 
     /**
      * Represents an asynchronous GetMyAccountTask used to get the account data

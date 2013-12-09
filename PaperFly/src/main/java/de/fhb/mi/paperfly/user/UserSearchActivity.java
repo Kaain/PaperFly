@@ -64,7 +64,7 @@ public class UserSearchActivity extends ListActivity {
         Log.d(TAG, "doSearch: " + queryStr);
         List<String> list = new ArrayList<String>();
         for (int i = 0; i < 20; i++) {
-            list.add("UserResult" + i + " for " + queryStr);
+            list.add("UserResult" + i + "for" + queryStr);
         }
         setListAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, list));
     }

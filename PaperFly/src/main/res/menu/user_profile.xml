@@ -3,6 +3,11 @@
       tools:context=".UserProfileActivity">
 
     <item
+        android:id="@+id/action_edit_account"
+        android:title="@string/action_settings"
+        android:showAsAction="always"
+        android:icon="@android:drawable/ic_menu_edit"/>
+    <item
         android:id="@+id/action_maps"
         android:icon="@android:drawable/ic_menu_mapmode"
         android:showAsAction="always"

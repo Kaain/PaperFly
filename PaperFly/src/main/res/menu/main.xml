@@ -2,29 +2,18 @@
     <item
         android:id="@+id/action_websockettest"
         android:showAsAction="never"
-        android:title="@string/action_websockettest" />
-    <item
-        android:id="@+id/action_search_user"
-        android:actionViewClass="android.widget.SearchView"
-        android:icon="@android:drawable/ic_menu_search"
-        android:showAsAction="collapseActionView|always"
-        android:title="@string/action_search_user" />
-    <item
-        android:id="@+id/action_show_persons"
-        android:icon="@drawable/ic_action_group"
-        android:showAsAction="ifRoom"
-        android:title="@string/action_show_persons" />
+        android:title="@string/action_websockettest"/>
     <item
         android:id="@+id/action_settings"
         android:showAsAction="never"
-        android:title="@string/action_settings" />
+        android:title="@string/action_settings"/>
     <item
         android:id="@+id/action_help"
         android:showAsAction="never"
-        android:title="@string/action_help" />
+        android:title="@string/action_help"/>
     <item
         android:id="@+id/action_logout"
         android:showAsAction="never"
-        android:title="@string/action_logout" />
+        android:title="@string/action_logout"/>
 
 </menu>

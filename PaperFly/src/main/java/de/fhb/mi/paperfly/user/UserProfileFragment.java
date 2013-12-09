@@ -27,21 +27,19 @@ import android.widget.Toast;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 
 import de.fhb.mi.paperfly.HelpActivity;
+import de.fhb.mi.paperfly.PaperFlyApp;
 import de.fhb.mi.paperfly.R;
 import de.fhb.mi.paperfly.SettingsActivity;
 import de.fhb.mi.paperfly.dto.AccountDTO;
 import de.fhb.mi.paperfly.service.BackgroundLocationService;
 import de.fhb.mi.paperfly.service.RestConsumerException;
 import de.fhb.mi.paperfly.service.RestConsumerSingleton;
+import lombok.NoArgsConstructor;
 
 /**
- * A simple {@link android.support.v4.app.Fragment} subclass.
- *
+ * A {@link android.app.Fragment} for showing a user profile.
  */
-
-/**
- * A placeholder fragment containing a simple view.
- */
+@NoArgsConstructor
 public class UserProfileFragment extends Fragment {
 
     public static final String TAG = UserProfileFragment.class.getSimpleName();
@@ -74,9 +72,6 @@ public class UserProfileFragment extends Fragment {
             mBoundLocationService = false;
         }
     };
-
-    public UserProfileFragment() {
-    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -131,7 +126,6 @@ public class UserProfileFragment extends Fragment {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         if (menu != null) {
             inflater.inflate(R.menu.user_profile, menu);
-            menu.findItem(R.id.action_search_user).setVisible(false);
         }
     }
 
@@ -162,6 +156,16 @@ public class UserProfileFragment extends Fragment {
                     }
                 }
                 return true;
+            case R.id.action_edit_account:
+                Fragment fragment = new AccountEditFragment();
+                Bundle args = new Bundle();
+                args.putString(UserProfileFragment.ARGS_USER, username);
+                fragment.setArguments(args);
+
+                getFragmentManager().beginTransaction()
+                        .replace(R.id.content_frame, fragment)
+                        .commit();
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -177,8 +181,10 @@ public class UserProfileFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        Intent serviceIntent = new Intent(getActivity(), BackgroundLocationService.class);
-        getActivity().bindService(serviceIntent, mConnectionLocationService, Context.BIND_AUTO_CREATE);
+        if (((PaperFlyApp) getActivity().getApplication()).isMyServiceRunning(BackgroundLocationService.class)) {
+            Intent serviceIntent = new Intent(getActivity(), BackgroundLocationService.class);
+            getActivity().bindService(serviceIntent, mConnectionLocationService, Context.BIND_AUTO_CREATE);
+        }
     }
 
     @Override

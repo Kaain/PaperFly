@@ -1,9 +1,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    tools:context=".EditAccountDataActivity" >
-    
-    <item android:id="@+id/action_settings"
+      xmlns:tools="http://schemas.android.com/tools"
+      tools:context=".EditAccountDataActivity">
+
+    <item
+        android:id="@+id/action_edit_account"
         android:title="@string/action_settings"
         android:orderInCategory="100"
-        android:showAsAction="never" />
+        android:showAsAction="always"
+        android:icon="@android:drawable/ic_menu_edit"/>
 </menu>

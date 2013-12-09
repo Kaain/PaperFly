@@ -35,10 +35,10 @@ public class PaperFlyApp extends Application {
      * @param serviceToCheck the service to check
      * @return true if the service is running, false if not
      */
-    public boolean isMyServiceRunning(Service serviceToCheck) {
+    public boolean isMyServiceRunning(Class<? extends Service> serviceToCheck) {
         ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
         for (RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-            if (serviceToCheck.getClass().getName().equals(service.service.getClassName())) {
+            if (serviceToCheck.getName().equals(service.service.getClassName())) {
                 return true;
             }
         }
