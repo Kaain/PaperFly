@@ -57,7 +57,7 @@ public class UserProfileFragment extends Fragment {
 
     private GetAccountTask mAccountTask = null;
     private AccountDTO account = null;
-    private boolean myAccount;
+    private boolean isMyAccount;
 
     private String username = null;
     private BackgroundLocationService mBackgroundLocationService;
@@ -83,7 +83,7 @@ public class UserProfileFragment extends Fragment {
         super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate");
         setHasOptionsMenu(true);
-        myAccount = getArguments().getBoolean(ARGS_MY_ACCOUNT, false);
+        isMyAccount = getArguments().getBoolean(ARGS_MY_ACCOUNT, false);
         username = getArguments().getString(ARGS_USER);
 
         mAccountTask = new GetAccountTask();
@@ -133,6 +133,9 @@ public class UserProfileFragment extends Fragment {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         if (menu != null) {
             inflater.inflate(R.menu.user_profile, menu);
+            if (!isMyAccount) {
+                menu.findItem(R.id.action_edit_account).setVisible(false);
+            }
         }
     }
 
@@ -182,7 +185,7 @@ public class UserProfileFragment extends Fragment {
                              Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_user_profile, container, false);
         initViews(rootView);
-        if (myAccount) {
+        if (isMyAccount) {
             friendSwitch.setVisibility(View.INVISIBLE);
         } else {
             friendSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
