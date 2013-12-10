@@ -492,6 +492,7 @@ public class MainActivity extends Activity {
         Fragment fragment = new UserProfileFragment();
         Bundle args = new Bundle();
         args.putString(UserProfileFragment.ARGS_USER, user);
+        args.putBoolean(UserProfileFragment.ARGS_MY_ACCOUNT, true);
         fragment.setArguments(args);
 
         // Insert the fragment by replacing any existing fragment

@@ -21,6 +21,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -45,16 +47,19 @@ public class UserProfileFragment extends Fragment {
     public static final String TAG = UserProfileFragment.class.getSimpleName();
     private static final int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
     public static final String ARGS_USER = "user";
+    public static final String ARGS_MY_ACCOUNT = "myaccount";
 
     private View rootView;
+    private Switch friendSwitch;
     private TextView profileUsername;
     private TextView profileFirstname;
     private TextView profileLastname;
 
     private GetAccountTask mAccountTask = null;
     private AccountDTO account = null;
-    private String username = null;
+    private boolean myAccount;
 
+    private String username = null;
     private BackgroundLocationService mBackgroundLocationService;
     private boolean mBoundLocationService = false;
     private ServiceConnection mConnectionLocationService = new ServiceConnection() {
@@ -78,6 +83,7 @@ public class UserProfileFragment extends Fragment {
         super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate");
         setHasOptionsMenu(true);
+        myAccount = getArguments().getBoolean(ARGS_MY_ACCOUNT, false);
         username = getArguments().getString(ARGS_USER);
 
         mAccountTask = new GetAccountTask();
@@ -117,6 +123,7 @@ public class UserProfileFragment extends Fragment {
     }
 
     private void initViews(View rootView) {
+        friendSwitch = (Switch) rootView.findViewById(R.id.friendSwitch);
         profileUsername = (TextView) rootView.findViewById(R.id.profileUsername);
         profileFirstname = (TextView) rootView.findViewById(R.id.profileFirstname);
         profileLastname = (TextView) rootView.findViewById(R.id.profileLastname);
@@ -175,6 +182,21 @@ public class UserProfileFragment extends Fragment {
                              Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_user_profile, container, false);
         initViews(rootView);
+        if (myAccount) {
+            friendSwitch.setVisibility(View.INVISIBLE);
+        } else {
+            friendSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    // TODO update account
+                    if (isChecked) {
+                        Toast.makeText(getActivity(), account.getUsername() + "is now your friend", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(getActivity(), account.getUsername() + "is not your friend", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+        }
         return rootView;
     }
 

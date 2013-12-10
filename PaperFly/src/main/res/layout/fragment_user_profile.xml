@@ -11,6 +11,16 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
+        <Switch
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/friendSwitch"
+            android:layout_gravity="center_horizontal"
+            android:checked="false"
+            android:textOn="Friend"
+            android:textOff="Add Friend"
+            android:height="60dp"/>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -21,34 +31,33 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:layout_marginLeft="15dp"
                 android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/profileUsername"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="15dp"
                     android:layout_weight="1"
                     android:text="Username: "
-                    android:textSize="18sp" />
+                    android:textSize="18sp"/>
 
                 <TextView
                     android:id="@+id/profileFirstname"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="15dp"
                     android:layout_weight="1"
                     android:text="Firstname: "
-                    android:textSize="18sp" />
+                    android:textSize="18sp"/>
 
                 <TextView
                     android:id="@+id/profileLastname"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="15dp"
                     android:layout_weight="1"
                     android:text="Lastname: "
-                    android:textSize="18sp" />
+                    android:textSize="18sp"/>
+
             </LinearLayout>
 
             <ImageView
@@ -58,7 +67,7 @@
                 android:layout_gravity="right"
                 android:layout_marginRight="20dp"
                 android:layout_weight="0"
-                android:src="@drawable/ic_action_person" />
+                android:src="@drawable/ic_action_person"/>
 
         </LinearLayout>
 
