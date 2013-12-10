@@ -190,9 +190,9 @@ public class UserProfileFragment extends Fragment {
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                     // TODO update account
                     if (isChecked) {
-                        Toast.makeText(getActivity(), account.getUsername() + "is now your friend", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), "is now your friend", Toast.LENGTH_SHORT).show();
                     } else {
-                        Toast.makeText(getActivity(), account.getUsername() + "is not your friend", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), "is not your friend", Toast.LENGTH_SHORT).show();
                     }
                 }
             });

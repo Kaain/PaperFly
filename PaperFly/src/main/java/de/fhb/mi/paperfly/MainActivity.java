@@ -401,7 +401,7 @@ public class MainActivity extends Activity {
                 Log.d(TAG, "onActivityResult: REQUESTCODE_SEARCH_USER");
                 if (resultCode == RESULT_OK) {
                     String user = intent.getStringExtra(UserProfileFragment.ARGS_USER);
-                    openUserProfile(user);
+                    openUserProfile(user, false);
                 }
                 break;
             case REQUESTCODE_QRSCAN:
@@ -476,7 +476,7 @@ public class MainActivity extends Activity {
                 break;
             case MY_ACCOUNT:
                 // TODO insert actual username (not hardcoded)
-                openUserProfile("username");
+                openUserProfile("username", true);
                 break;
             case CHECK_PRESENCE:
                 new InfoDialog().show(getFragmentManager(), TAG);
@@ -488,11 +488,11 @@ public class MainActivity extends Activity {
         drawerLayout.closeDrawer(Gravity.LEFT);
     }
 
-    private void openUserProfile(String user) {
+    private void openUserProfile(String user, boolean isMyAccount) {
         Fragment fragment = new UserProfileFragment();
         Bundle args = new Bundle();
         args.putString(UserProfileFragment.ARGS_USER, user);
-        args.putBoolean(UserProfileFragment.ARGS_MY_ACCOUNT, true);
+        args.putBoolean(UserProfileFragment.ARGS_MY_ACCOUNT, isMyAccount);
         fragment.setArguments(args);
 
         // Insert the fragment by replacing any existing fragment
