@@ -66,8 +66,10 @@ public class ChatFragment extends Fragment {
         String room = getArguments().getString(ARG_CHAT_ROOM);
         if (room == ROOM_GLOBAL) {
             globalRoom = true;
+            getActivity().setTitle(ROOM_GLOBAL);
         } else {
             globalRoom = false;
+            getActivity().setTitle(room);
         }
 
         messagesAdapter = new ArrayAdapter<String>(rootView.getContext(), android.R.layout.simple_list_item_1);

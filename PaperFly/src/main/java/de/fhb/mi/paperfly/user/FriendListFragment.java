@@ -61,6 +61,7 @@ public class FriendListFragment extends Fragment implements AdapterView.OnItemCl
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+        getActivity().setTitle(R.string.nav_item_open_friendlist);
     }
 
     @Override
@@ -185,9 +186,9 @@ public class FriendListFragment extends Fragment implements AdapterView.OnItemCl
             mAccountTask = null;
 
             //TODO Dummy data of DB...da Friendlist in Json nicht enthalten
-            friendListValues.add("salaxy");
-            friendListValues.add("kaain");
-            friendListValues.add("yserz");
+            friendListValues.add("Hans");
+            friendListValues.add("Peter");
+            friendListValues.add("Müller");
             friendListValues.add("wayne");
 
             if (success) {
