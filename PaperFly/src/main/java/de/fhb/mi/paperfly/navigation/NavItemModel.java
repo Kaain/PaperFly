@@ -15,19 +15,21 @@ public class NavItemModel {
     private String title;
     private int iconID;
     private boolean isHeader;
+    private boolean isVisible;
 
-    public NavItemModel(NavKey key, String title, int iconID, boolean isHeader) {
+    public NavItemModel(NavKey key, String title, int iconID, boolean isHeader, boolean isVisible) {
         this.key = key;
         this.title = title;
         this.iconID = iconID;
         this.isHeader = isHeader;
+        this.isVisible = isVisible;
     }
 
     public NavItemModel(String title, int iconID, boolean isHeader) {
-        this(NavKey.HEADER, title, iconID, isHeader);
+        this(NavKey.HEADER, title, iconID, isHeader, true);
     }
 
     public NavItemModel(NavKey key, String title, int icon) {
-        this(key, title, icon, false);
+        this(key, title, icon, false, true);
     }
 }

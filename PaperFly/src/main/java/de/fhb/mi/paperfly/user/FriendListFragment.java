@@ -49,7 +49,7 @@ import de.fhb.mi.paperfly.service.RestConsumerSingleton;
  */
 public class FriendListFragment extends Fragment implements AdapterView.OnItemClickListener {
 
-    private static final String TAG = FriendListFragment.class.getSimpleName();
+    public static final String TAG = FriendListFragment.class.getSimpleName();
     private View rootView;
     private ListView friendListView;
     private List<String> friendListValues;
@@ -60,8 +60,8 @@ public class FriendListFragment extends Fragment implements AdapterView.OnItemCl
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
-        getActivity().setTitle(R.string.nav_item_open_friendlist);
+        setRetainInstance(true);
+
     }
 
     @Override
@@ -70,6 +70,9 @@ public class FriendListFragment extends Fragment implements AdapterView.OnItemCl
 
         this.rootView = inflater.inflate(R.layout.fragment_friends, container, false);
         initViewsById();
+
+        setHasOptionsMenu(true);
+        getActivity().setTitle(R.string.nav_item_open_friendlist);
 
         friendListValues = new ArrayList<String>();
 

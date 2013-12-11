@@ -37,7 +37,9 @@ import de.tavendo.autobahn.WebSocketOptions;
  */
 public class ChatFragment extends Fragment {
 
-    private static final String TAG = ChatFragment.class.getSimpleName();
+    public static final String TAG = ChatFragment.class.getSimpleName();
+    public static final String TAG_GLOBAL = TAG + "_Global";
+    public static final String TAG_ROOM = TAG + "Room";
     public static final String ARG_CHAT_ROOM = "chat_room";
     public static String ROOM_GLOBAL = "Global";
     private final WebSocketConnection mConnection = new WebSocketConnection();

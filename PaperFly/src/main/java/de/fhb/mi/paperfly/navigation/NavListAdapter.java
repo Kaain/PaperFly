@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import de.fhb.mi.paperfly.R;
 
 /**
@@ -24,6 +25,10 @@ public class NavListAdapter extends ArrayAdapter<NavItemModel> {
 
     public void addItem(NavKey key, String title, int iconID) {
         add(new NavItemModel(key, title, iconID));
+    }
+
+    public void addItem(NavKey key, String title, int iconID, boolean isVisible) {
+        add(new NavItemModel(key, title, iconID, false, isVisible));
     }
 
     public void addItem(NavItemModel itemModel) {
@@ -63,9 +68,15 @@ public class NavListAdapter extends ArrayAdapter<NavItemModel> {
             TextView text = (TextView) view.findViewById(R.id.nav_text);
             ImageView icon = (ImageView) view.findViewById(R.id.nav_icon);
             view.setTag(new ViewHolder(item.getKey(), text, icon));
+
         }
 
         if (holder == null && view != null) {
+            if (item.isVisible()) {
+                view.setVisibility(View.VISIBLE);
+            } else {
+                view.setVisibility(View.INVISIBLE);
+            }
             Object tag = view.getTag();
             if (tag instanceof ViewHolder) {
                 holder = (ViewHolder) tag;

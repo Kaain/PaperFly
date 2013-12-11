@@ -24,7 +24,6 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -366,14 +365,12 @@ public class MainActivity extends Activity {
     private boolean doQRScan() {
         Log.d(TAG, "doQRScan");
         PackageManager pm = this.getPackageManager();
-        if (pm.hasSystemFeature(PackageManager.FEATURE_CAMERA_FRONT)) {
+        if (pm.hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
             Intent intent = new Intent("com.google.zxing.client.android.SCAN");
             intent.putExtra("SCAN_MODE", "QR_CODE_MODE");
             startActivityForResult(intent, REQUESTCODE_QRSCAN);
             return true;
         } else {
-            // TODO only for mockup test
-            switchToChatRoom("INFZ_305");
             Toast.makeText(this, "There is no camera for this device.", Toast.LENGTH_SHORT).show();
             return false;
         }
@@ -387,11 +384,18 @@ public class MainActivity extends Activity {
     private boolean openFriendList() {
         Log.d(TAG, "openFriendList");
 
-        Fragment fragment = new FriendListFragment();
         FragmentManager fragmentManager = getFragmentManager();
-        fragmentManager.beginTransaction()
-                .replace(R.id.content_frame, fragment)
-                .commit();
+        Fragment fragmentByTag = fragmentManager.findFragmentByTag(FriendListFragment.TAG);
+        if (fragmentByTag == null) {
+            Fragment fragment = new FriendListFragment();
+            fragmentManager.beginTransaction()
+                    .replace(R.id.content_frame, fragment, FriendListFragment.TAG)
+                    .commit();
+        } else {
+            fragmentManager.beginTransaction()
+                    .attach(fragmentByTag)
+                    .commit();
+        }
 
         return true;
     }
@@ -411,13 +415,10 @@ public class MainActivity extends Activity {
                 if (resultCode == RESULT_OK) {
                     String room = intent.getStringExtra("SCAN_RESULT");
                     String format = intent.getStringExtra("SCAN_RESULT_FORMAT");
-                    switchToChatRoom(room);
+                    switchToNewChatRoom(room);
                     Toast.makeText(this, room, Toast.LENGTH_SHORT).show();
                 } else if (resultCode == RESULT_CANCELED) {
-                    // TODO only for mockup test
-                    String testRoom = "INFZ 305";
                     Toast.makeText(this, "Cancel", Toast.LENGTH_SHORT).show();
-                    switchToChatRoom(testRoom);
                 }
                 break;
         }
@@ -428,38 +429,79 @@ public class MainActivity extends Activity {
      *
      * @param room the room to open
      */
-    private void switchToChatRoom(String room) {
-        Fragment fragment = new ChatFragment();
+    private void switchToNewChatRoom(String room) {
+        FragmentManager fragmentManager = getFragmentManager();
+        Fragment fragmentByTag = fragmentManager.findFragmentByTag(ChatFragment.TAG_ROOM);
+
+        Fragment newFragment = new ChatFragment();
         Bundle args = new Bundle();
         args.putString(ChatFragment.ARG_CHAT_ROOM, room);
-        fragment.setArguments(args);
+        newFragment.setArguments(args);
 
-        // Insert the fragment by replacing any existing fragment
+        if (fragmentByTag == null) {
+            // Insert the fragment by replacing any existing fragment
+            fragmentManager.beginTransaction()
+                    .replace(R.id.content_frame, newFragment, ChatFragment.TAG_ROOM)
+                    .commit();
+
+            // change navigation drawer
+            NavListAdapter adapter = (NavListAdapter) drawerLeftList.getAdapter();
+            NavItemModel enterRoomNav = adapter.getItem(drawerLeftList.getCheckedItemPosition());
+            enterRoomNav.setKey(NavKey.ROOM);
+            enterRoomNav.setTitle(room);
+            enterRoomNav.setIconID(-1);
+
+            adapter.addItem(NavKey.ENTER_ROOM, this.getResources().getString(R.string.nav_item_enter_room), android.R.drawable.ic_menu_camera);
+            drawerLeftList.setAdapter(adapter);
+        } else {
+            // there already was a room selected, that's why there is no need to add a new navItem
+            // but remove the old fragment
+            fragmentManager.beginTransaction()
+                    .remove(fragmentByTag)
+                    .replace(R.id.content_frame, newFragment, ChatFragment.TAG_ROOM)
+                    .commit();
+        }
+    }
+
+    /**
+     * Switch to the chat room which was earlier selected
+     */
+    private void switchToChatRoom() {
         FragmentManager fragmentManager = getFragmentManager();
-        fragmentManager.beginTransaction()
-                .replace(R.id.content_frame, fragment)
-                .commit();
+        Fragment fragment = fragmentManager.findFragmentByTag(ChatFragment.TAG);
 
-        NavItemModel enterRoomNav = (NavItemModel) drawerLeftList.getItemAtPosition(drawerLeftList.getCheckedItemPosition());
-        enterRoomNav.setTitle(room);
-        enterRoomNav.setIconID(-1);
-        ((BaseAdapter) drawerLeftList.getAdapter()).notifyDataSetChanged();
+        // Attach fragment that was previously attached
+        if (fragment != null) {
+            fragmentManager.beginTransaction()
+                    .attach(fragment)
+                    .commit();
+        }
     }
 
     /**
      * Opens the global chat in a new fragment.
      */
     private void switchToGlobalChat() {
-        Fragment fragment = new ChatFragment();
-        Bundle args = new Bundle();
-        args.putString(ChatFragment.ARG_CHAT_ROOM, ChatFragment.ROOM_GLOBAL);
-        fragment.setArguments(args);
-
-        // Insert the fragment by replacing any existing fragment
         FragmentManager fragmentManager = getFragmentManager();
-        fragmentManager.beginTransaction()
-                .replace(R.id.content_frame, fragment)
-                .commit();
+        Fragment fragmentByTag = fragmentManager.findFragmentByTag(ChatFragment.TAG_GLOBAL);
+
+        if (fragmentByTag == null) {
+            Fragment fragment = new ChatFragment();
+            Bundle args = new Bundle();
+            args.putString(ChatFragment.ARG_CHAT_ROOM, ChatFragment.ROOM_GLOBAL);
+            fragment.setArguments(args);
+
+            // Insert the fragment by replacing any existing fragment
+            fragmentManager.beginTransaction()
+                    .replace(R.id.content_frame, fragment, ChatFragment.TAG_GLOBAL)
+                    .commit();
+
+        } else {
+            // attach fragment that was previously attached
+            fragmentManager.beginTransaction()
+                    .attach(fragmentByTag)
+                    .commit();
+        }
     }
 
     /**
@@ -470,6 +512,9 @@ public class MainActivity extends Activity {
     private void navigateTo(NavKey navkey) {
         Log.d(TAG, "navigateTo: " + navkey);
         switch (navkey) {
+            case ROOM:
+                switchToChatRoom();
+                break;
             case ENTER_ROOM:
                 doQRScan();
                 break;
