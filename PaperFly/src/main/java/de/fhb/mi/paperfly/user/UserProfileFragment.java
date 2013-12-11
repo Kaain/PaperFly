@@ -85,6 +85,7 @@ public class UserProfileFragment extends Fragment {
         setHasOptionsMenu(true);
         isMyAccount = getArguments().getBoolean(ARGS_MY_ACCOUNT, false);
         username = getArguments().getString(ARGS_USER);
+        getActivity().setTitle(username);
 
         mAccountTask = new GetAccountTask();
         mAccountTask.execute(username);

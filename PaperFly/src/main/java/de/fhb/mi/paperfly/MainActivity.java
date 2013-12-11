@@ -93,11 +93,13 @@ public class MainActivity extends Activity {
         // Set the adapter for the list view
         drawerRightList.setAdapter(new ArrayAdapter<String>(this,
                 R.layout.drawer_list_item, drawerRightValues));
+
         // Set the list's click listener
         drawerRightList.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
+                openUserProfile(drawerRightList.getItemAtPosition(position).toString(), false);
+                drawerLayout.closeDrawers();
             }
         });
 
@@ -249,7 +251,7 @@ public class MainActivity extends Activity {
 
             /** Called when a drawer has settled in a completely closed state. */
             public void onDrawerClosed(View view) {
-                getActionBar().setTitle(R.string.app_name);
+                setTitle(mTitle);
                 invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
             }
 
