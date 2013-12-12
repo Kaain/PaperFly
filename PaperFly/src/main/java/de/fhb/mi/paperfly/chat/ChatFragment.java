@@ -66,7 +66,7 @@ public class ChatFragment extends Fragment {
         initViewsById();
 
         String room = getArguments().getString(ARG_CHAT_ROOM);
-        if (room == ROOM_GLOBAL) {
+        if (room.equals(ROOM_GLOBAL)) {
             globalRoom = true;
             getActivity().setTitle(ROOM_GLOBAL);
         } else {
@@ -238,7 +238,6 @@ public class ChatFragment extends Fragment {
         }
         messagesAdapter = new ArrayAdapter<String>(rootView.getContext(), android.R.layout.simple_list_item_1, chatList);
         messagesList.setAdapter(messagesAdapter);
-        messageInput.requestFocus();
     }
 
     private void initViewsById() {

@@ -134,7 +134,9 @@ public class UserProfileFragment extends Fragment {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         if (menu != null) {
             inflater.inflate(R.menu.user_profile, menu);
-            if (!isMyAccount) {
+            if (isMyAccount) {
+                menu.findItem(R.id.action_maps).setVisible(false);
+            } else {
                 menu.findItem(R.id.action_edit_account).setVisible(false);
             }
         }

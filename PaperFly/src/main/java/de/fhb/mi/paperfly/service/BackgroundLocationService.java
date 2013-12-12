@@ -35,6 +35,7 @@ public class BackgroundLocationService extends Service implements GooglePlayServ
 
     @Override
     public void onCreate() {
+        Log.d(TAG, "onCreate");
         super.onCreate();
 
         mInProgress = false;
@@ -70,6 +71,7 @@ public class BackgroundLocationService extends Service implements GooglePlayServ
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.d(TAG, "OnStartCommand");
         super.onStartCommand(intent, flags, startId);
 
         if (!servicesAvailable || mLocationClient.isConnected() || mInProgress) {
@@ -101,6 +103,7 @@ public class BackgroundLocationService extends Service implements GooglePlayServ
 
     @Override
     public void onConnected(Bundle bundle) {
+        Log.d(TAG, "connected");
         mLocationClient.requestLocationUpdates(mLocationRequest, this);
     }
 

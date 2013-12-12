@@ -7,6 +7,7 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.SearchManager;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
@@ -63,6 +64,9 @@ public class MainActivity extends Activity {
     private UserLoginTask mAuthTask = null;
     private UserLogoutTask logoutTask = null;
     private View progressLayout;
+    private boolean roomAdded = false;
+    private int roomNavID;
+    private String actualRoom;
 
 //    public final static String FRAGMENT_BEFORE="fragment_before";
 //    private NavKey before;
@@ -368,7 +372,12 @@ public class MainActivity extends Activity {
         if (pm.hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
             Intent intent = new Intent("com.google.zxing.client.android.SCAN");
             intent.putExtra("SCAN_MODE", "QR_CODE_MODE");
-            startActivityForResult(intent, REQUESTCODE_QRSCAN);
+            try {
+                startActivityForResult(intent, REQUESTCODE_QRSCAN);
+            } catch (ActivityNotFoundException e) {
+                Toast.makeText(this, "You have no QR Scanner", Toast.LENGTH_LONG).show();
+                Log.e(TAG, e.getMessage(), e);
+            }
             return true;
         } else {
             Toast.makeText(this, "There is no camera for this device.", Toast.LENGTH_SHORT).show();
@@ -438,29 +447,41 @@ public class MainActivity extends Activity {
         args.putString(ChatFragment.ARG_CHAT_ROOM, room);
         newFragment.setArguments(args);
 
-        if (fragmentByTag == null) {
-            // Insert the fragment by replacing any existing fragment
-            fragmentManager.beginTransaction()
-                    .replace(R.id.content_frame, newFragment, ChatFragment.TAG_ROOM)
-                    .commit();
+//        if (fragmentByTag == null) {
+        // Insert the fragment by replacing any existing fragment
+        fragmentManager.beginTransaction()
+                .replace(R.id.content_frame, newFragment, ChatFragment.TAG_ROOM)
+                .commit();
+        NavListAdapter adapter = (NavListAdapter) drawerLeftList.getAdapter();
+        if (!roomAdded) {
+            roomNavID = drawerLeftList.getCheckedItemPosition();
 
             // change navigation drawer
-            NavListAdapter adapter = (NavListAdapter) drawerLeftList.getAdapter();
-            NavItemModel enterRoomNav = adapter.getItem(drawerLeftList.getCheckedItemPosition());
+            NavItemModel enterRoomNav = adapter.getItem(roomNavID);
             enterRoomNav.setKey(NavKey.ROOM);
             enterRoomNav.setTitle(room);
             enterRoomNav.setIconID(-1);
 
+
             adapter.addItem(NavKey.ENTER_ROOM, this.getResources().getString(R.string.nav_item_enter_room), android.R.drawable.ic_menu_camera);
             drawerLeftList.setAdapter(adapter);
+            roomAdded = true;
         } else {
-            // there already was a room selected, that's why there is no need to add a new navItem
-            // but remove the old fragment
-            fragmentManager.beginTransaction()
-                    .remove(fragmentByTag)
-                    .replace(R.id.content_frame, newFragment, ChatFragment.TAG_ROOM)
-                    .commit();
+            NavItemModel enterRoomNav = adapter.getItem(roomNavID);
+            enterRoomNav.setKey(NavKey.ROOM);
+            enterRoomNav.setTitle(room);
+            enterRoomNav.setIconID(-1);
+            adapter.notifyDataSetChanged();
         }
+        actualRoom = room;
+//        } else {
+//            // there already was a room selected, that's why there is no need to add a new navItem
+//            // but remove the old fragment
+//            fragmentManager.beginTransaction()
+//                    .remove(fragmentByTag)
+//                    .replace(R.id.content_frame, newFragment, ChatFragment.TAG_ROOM)
+//                    .commit();
+//        }
     }
 
     /**
@@ -474,6 +495,17 @@ public class MainActivity extends Activity {
         if (fragment != null) {
             fragmentManager.beginTransaction()
                     .attach(fragment)
+                    .commit();
+        } else {
+            Fragment newFragment = new ChatFragment();
+            Bundle args = new Bundle();
+            args.putString(ChatFragment.ARG_CHAT_ROOM, actualRoom);
+            newFragment.setArguments(args);
+
+//        if (fragmentByTag == null) {
+            // Insert the fragment by replacing any existing fragment
+            fragmentManager.beginTransaction()
+                    .replace(R.id.content_frame, newFragment, ChatFragment.TAG_ROOM)
                     .commit();
         }
     }
