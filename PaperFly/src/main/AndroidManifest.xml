@@ -82,8 +82,8 @@
                 android:resource="@xml/searchable"/>
         </activity>
 
+        <service android:name="de.fhb.mi.paperfly.service.BackgroundLocationService"/>
 
     </application>
 
-    <service android:name="de.fhb.mi.paperfly.service.BackgroundLocationService"/>
 </manifest>
