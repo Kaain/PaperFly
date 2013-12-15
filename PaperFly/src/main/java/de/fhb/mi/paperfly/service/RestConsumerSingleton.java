@@ -123,7 +123,7 @@ public class RestConsumerSingleton implements RestConsumer {
     public AccountDTO setMyAccountStatus(Status status) throws RestConsumerException {
         Log.d(TAG, "getMyAccount");
 
-        HttpUriRequest request = new HttpGet(getConnectionURL(URL_CHANGE_ACCOUNT_STATUS) + status);
+        HttpUriRequest request = new HttpGet(getConnectionURL(URL_CHANGE_ACCOUNT_STATUS) + status.ordinal());
         AccountDTO account = null;
 
         Log.d(TAG, request.getRequestLine().toString());
