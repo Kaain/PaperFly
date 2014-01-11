@@ -3,7 +3,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.7.+'
+        classpath 'com.android.tools.build:gradle:0.7.1'
     }
 }
 apply plugin: 'android'
@@ -14,6 +14,12 @@ repositories {
 }
 
 android {
+    packagingOptions {
+        exclude 'META-INF/ASL2.0'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/NOTICE'
+    }
+
     compileSdkVersion 18
     buildToolsVersion "18.1.0"
 
