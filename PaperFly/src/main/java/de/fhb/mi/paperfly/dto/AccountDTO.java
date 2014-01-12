@@ -38,6 +38,7 @@ public class AccountDTO extends BaseDTO {
     private String username;
     private String lastName;
     private String firstName;
+    private Status status;
     private List<AccountDTO> friendList;
 
     public AccountDTO(final AccountDTO account) {
@@ -48,6 +49,7 @@ public class AccountDTO extends BaseDTO {
         this.setFriendList(account.getFriendList());
         this.setCreated(account.getCreated());
         this.setLastModified(account.getLastModified());
+        this.setStatus(account.getStatus());
         this.setEnabled(account.isEnabled());
     }
 }

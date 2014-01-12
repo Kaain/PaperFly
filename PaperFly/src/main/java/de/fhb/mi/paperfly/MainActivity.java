@@ -29,7 +29,6 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -656,10 +655,9 @@ public class MainActivity extends Activity {
         @Override
         protected Boolean doInBackground(Void... params) {
             try {
-                AuthHelper.logout();
-                RestConsumerSingleton.getInstance().setConsumer(null);
+                RestConsumerSingleton.getInstance().logout();
                 return true;
-            } catch (IOException e) {
+            } catch (RestConsumerException e) {
                 e.printStackTrace();
             }
             return false;
