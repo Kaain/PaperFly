@@ -187,7 +187,7 @@ public class FriendListFragment extends Fragment implements AdapterView.OnItemCl
         protected void onPostExecute(final Boolean success) {
             account = ((PaperFlyApp) getActivity().getApplication()).getAccount();
             for (AccountDTO friend : account.getFriendList()) {
-                friendListValues.add(friend.getUsername());
+                friendListValues.add(friend.getUsername() + " " + friend.getStatus());
             }
             ((ArrayAdapter) friendListView.getAdapter()).notifyDataSetChanged();
         }

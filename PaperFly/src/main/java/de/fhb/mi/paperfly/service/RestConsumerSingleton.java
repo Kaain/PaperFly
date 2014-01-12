@@ -190,6 +190,31 @@ public class RestConsumerSingleton implements RestConsumer {
         return responseAccount;
     }
 
+    public void logout() throws RestConsumerException {
+        Log.d(TAG, "logout");
+
+        AccountDTO responseAccount = null;
+        HttpUriRequest request = new HttpGet(getConnectionURL(URL_LOGOUT));
+        Log.d(TAG, request.getRequestLine().toString());
+
+        HttpClient httpclient = application.getHttpClient();
+        HttpResponse response;
+        try {
+            consumer.sign(request);
+            response = httpclient.execute(request);
+            analyzeHttpStatus(response);
+            consumer = null;
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (OAuthExpectationFailedException e) {
+            e.printStackTrace();
+        } catch (OAuthCommunicationException e) {
+            e.printStackTrace();
+        } catch (OAuthMessageSignerException e) {
+            e.printStackTrace();
+        }
+    }
+
     @Override
     public void updateMyAccount() throws RestConsumerException, UnsupportedEncodingException {
         Log.d(TAG, "updateMyAccount");
