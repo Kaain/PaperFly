@@ -18,6 +18,15 @@ import de.fhb.mi.paperfly.dto.TokenDTO;
 public interface RestConsumer {
 
     /**
+     * Get all accounts in room
+     *
+     * @param roomID the room
+     *
+     * @return all accounts in room
+     */
+    List<AccountDTO> getUsersInRoom(String roomID) throws RestConsumerException;
+
+    /**
      * Edits an account
      *
      * @param editedAccount the account to edit

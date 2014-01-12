@@ -78,6 +78,9 @@ public class RestConsumerSingleton implements RestConsumer {
     public static final String URL_CHANGE_ACCOUNT_STATUS = "PaperFlyServer-web/rest/v1/myaccount/status/";
     public static final String URL_CHAT_GLOBAL = "ws://" + AWS_IP + ":" + PORT + "/PaperFlyServer-web/ws/chat/global";
 
+    public static final String URL_GET_ALL_ACCOUNTS_IN_ROOM = "PaperFlyServer-web/rest/v1/room/accounts/";
+
+
     private static final String TAG = RestConsumerSingleton.class.getSimpleName();
 
     private PaperFlyApp application;
@@ -107,6 +110,40 @@ public class RestConsumerSingleton implements RestConsumer {
      */
     public void init(PaperFlyApp application) {
         this.application = application;
+    }
+
+    @Override
+    public List<AccountDTO> getUsersInRoom(String roomID) throws RestConsumerException {
+        Log.d(TAG, "getUsersInRoom");
+
+        HttpUriRequest request = new HttpGet(getConnectionURL(URL_ACCOUNTS_IN_ROOM) + roomID);
+        List<AccountDTO> usersInRoom = null;
+        Type collectionType = new TypeToken<ArrayList<AccountDTO>>() {}.getType();
+
+        Log.d(TAG, request.getRequestLine().toString());
+
+        HttpClient httpclient = new DefaultHttpClient();
+        HttpResponse response;
+        try {
+            consumer.sign(request);
+            response = httpclient.execute(request);
+            analyzeHttpStatus(response);
+
+            String responseObjAsString = readInEntity(response);
+            Gson gson = new GsonBuilder().registerTypeAdapter(Date.class, new JsonDateDeserializer()).create();
+            Log.d(TAG, "json: " + responseObjAsString);
+
+            usersInRoom = gson.fromJson(responseObjAsString, collectionType);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (OAuthExpectationFailedException e) {
+            e.printStackTrace();
+        } catch (OAuthCommunicationException e) {
+            e.printStackTrace();
+        } catch (OAuthMessageSignerException e) {
+            e.printStackTrace();
+        }
+        return usersInRoom;
     }
 
     @Override
