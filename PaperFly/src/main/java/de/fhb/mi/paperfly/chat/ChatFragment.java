@@ -22,11 +22,21 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.SearchView;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
+
+import org.apache.http.cookie.Cookie;
+import org.apache.http.message.BasicNameValuePair;
+
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import de.fhb.mi.paperfly.PaperFlyApp;
 import de.fhb.mi.paperfly.R;
 import de.fhb.mi.paperfly.auth.AuthHelper;
+import de.fhb.mi.paperfly.dto.Message;
+import de.fhb.mi.paperfly.dto.MessageType;
 import de.tavendo.autobahn.WebSocketConnection;
 import de.tavendo.autobahn.WebSocketConnectionHandler;
 import de.tavendo.autobahn.WebSocketException;
@@ -102,8 +112,9 @@ public class ChatFragment extends Fragment {
         buSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String message = "{'text': '" + messageInput.getText().toString() + "'}";
-                mConnection.sendTextMessage(message);
+                Gson gson = new Gson();
+                Message message = new Message("heinz", MessageType.TEXT, new Date(), messageInput.getText().toString());
+                mConnection.sendTextMessage(gson.toJson(message));
                 messageInput.setText("");
             }
         });
@@ -247,9 +258,17 @@ public class ChatFragment extends Fragment {
     }
 
     private void connectToWebsocket(final String wsuri) {
-        WebSocketOptions asd = new WebSocketOptions();
+        List<BasicNameValuePair> headers = new ArrayList<BasicNameValuePair>();
+        List<Cookie> cookies = ((PaperFlyApp) getActivity().getApplication()).getCookieStore().getCookies();
+        for (Cookie cookie : cookies) {
+            if (cookie.getName().equals("JSESSIONID")) {
+                Log.d(TAG, "Cookie: " + cookie.toString());
+                headers.add(new BasicNameValuePair("Cookie", cookie.getName() + "=" + cookie.getValue()));
+            }
+        }
+
         try {
-            mConnection.connect(wsuri, new WebSocketConnectionHandler() {
+            WebSocketConnectionHandler wsHandler = new WebSocketConnectionHandler() {
 
                 @Override
                 public void onOpen() {
@@ -259,15 +278,23 @@ public class ChatFragment extends Fragment {
                 @Override
                 public void onTextMessage(String payload) {
                     Log.d(TAG, "Got payload: " + payload);
-                    messagesAdapter.add(payload);
-                    messagesAdapter.notifyDataSetChanged();
+                    Gson gson = new Gson();
+                    Message message = null;
+                    try {
+                        message = gson.fromJson(payload, Message.class);
+                        messagesAdapter.add(message.getBody());
+                        messagesAdapter.notifyDataSetChanged();
+                    } catch (JsonSyntaxException e) {
+                        Log.e(TAG, e.getMessage());
+                    }
                 }
 
                 @Override
                 public void onClose(int code, String reason) {
                     Log.d(TAG, "Connection lost.");
                 }
-            });
+            };
+            mConnection.connect(wsuri, null, wsHandler, new WebSocketOptions(), headers);
         } catch (WebSocketException e) {
             Log.d(TAG, e.toString());
         }

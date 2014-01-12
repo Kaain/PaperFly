@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import de.fhb.mi.paperfly.PaperFlyApp;
 import de.fhb.mi.paperfly.dto.AccountDTO;
 import de.fhb.mi.paperfly.dto.RegisterAccountDTO;
 import de.fhb.mi.paperfly.dto.RoomDTO;
@@ -69,12 +70,18 @@ public class RestConsumerSingleton implements RestConsumer {
 
     private static final String TAG = RestConsumerSingleton.class.getSimpleName();
 
+    private PaperFlyApp application;
+
     private static class SingletonHolder {
         public static final RestConsumerSingleton INSTANCE = new RestConsumerSingleton();
     }
 
     public static RestConsumerSingleton getInstance() {
         return SingletonHolder.INSTANCE;
+    }
+
+    public void init(PaperFlyApp application) {
+        this.application = application;
     }
 
     @Override
@@ -230,24 +237,24 @@ public class RestConsumerSingleton implements RestConsumer {
     @Override
     public TokenDTO login(String mail, String password) throws RestConsumerException {
         Log.d(TAG, "login");
-        HttpUriRequest request = new HttpGet(getConnectionURL(URL_LOGIN)); // Or HttpPost(), depends on your needs
+        HttpGet request = new HttpGet(getConnectionURL(URL_LOGIN)); // Or HttpPost(), depends on your needs
         request.addHeader("user", mail);
         request.addHeader("pw", password);
 
         Log.d(TAG, request.getRequestLine().toString());
-
-        HttpClient httpclient = new DefaultHttpClient();
+        HttpClient httpclient = application.getHttpClient();
         HttpResponse response;
         try {
             response = httpclient.execute(request);
             analyzeHttpStatus(response);
-
             String responseObjAsString = readInEntity(response);
             Gson gson = new Gson();
+
             return gson.fromJson(responseObjAsString, TokenDTO.class);
         } catch (IOException e) {
             e.printStackTrace();
         }
+
         return null;
     }
 

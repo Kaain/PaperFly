@@ -110,7 +110,7 @@ public class MainActivity extends Activity {
         drawerLeftList.setOnItemClickListener(new DrawerItemClickListener());
 
         generateNavigation();
-        navigateTo(NavKey.GLOBAL);
+//        navigateTo(NavKey.GLOBAL);
     }
 
     @Override
@@ -140,11 +140,10 @@ public class MainActivity extends Activity {
                 bundle.clear();
                 mAuthTask = new UserLoginTask();
                 mAuthTask.execute();
-            }
-//            else {
-//                navigateTo(NavKey.GLOBAL);
+            } else {
+                navigateTo(NavKey.GLOBAL);
 //                // TODO select global
-//            }
+            }
         } else {
             showProgress(true);
             mAuthTask = new UserLoginTask();
@@ -618,7 +617,7 @@ public class MainActivity extends Activity {
 
             if (success) {
                 Log.d(TAG, "navigateTo Global");
-//                navigateTo(NavKey.GLOBAL);
+                navigateTo(NavKey.GLOBAL);
                 // TODO select global
             } else {
                 Intent intent = new Intent(MainActivity.this, LoginActivity.class);
