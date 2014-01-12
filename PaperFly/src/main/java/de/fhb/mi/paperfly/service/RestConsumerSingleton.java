@@ -124,7 +124,7 @@ public class RestConsumerSingleton implements RestConsumer {
         entityToSend.setContentEncoding("UTF-8");
         entityToSend.setContentType(new BasicHeader(HTTP.CONTENT_TYPE, "application/json"));
 
-        ((HttpPut) request).setEntity(entityToSend);
+        ((HttpPost) request).setEntity(entityToSend);
         request.addHeader("accept", "application/json");
 
         Log.d(TAG, request.getRequestLine().toString());

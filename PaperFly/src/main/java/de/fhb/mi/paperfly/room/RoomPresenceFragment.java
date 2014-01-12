@@ -111,7 +111,6 @@ public class RoomPresenceFragment extends Fragment implements AbsListView.OnItem
         mListener = null;
     }
 
-
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         if (null != mListener) {

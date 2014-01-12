@@ -47,9 +47,11 @@
                 android:hint="@string/email"
                 android:maxLines="1"
                 android:editable="false"
+                android:focusable="false"
                 android:singleLine="true"
                 android:inputType="textEmailAddress"
-                android:maxLength="20" />
+                android:maxLength="20"
+                android:textColor="#939694" />
 
             <EditText
                 android:id="@+id/accountUserName"
@@ -59,8 +61,10 @@
                 android:maxLines="1"
                 android:singleLine="true"
                 android:editable="false"
+                android:focusable="false"
                 android:inputType="text|textPersonName"
-                android:maxLength="20" />
+                android:maxLength="20"
+                android:textColor="#939694" />
 
             <Button
                 android:id="@+id/update_button"
@@ -68,7 +72,6 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="right"
                 android:layout_marginTop="16dp"
-                android:onClick="pressUpdate"
                 android:paddingLeft="32dp"
                 android:paddingRight="32dp"
                 android:text="update" />

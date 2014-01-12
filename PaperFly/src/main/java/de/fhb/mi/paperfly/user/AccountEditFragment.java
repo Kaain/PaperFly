@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -56,13 +57,22 @@ public class AccountEditFragment extends Fragment {
         accountFirstname.setText(account.getFirstName());
         accountLastname.setText(account.getLastName());
         accountMail.setText(account.getEmail());
+
+        final Button button = (Button) rootView.findViewById(R.id.update_button);
+        button.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                pressUpdate();
+            }
+        });
+
         return rootView;
     }
 
-    public void pressUpdate(View view) {
+    public void pressUpdate() {
         Log.d(TAG, "pressUpdate");
-        Toast.makeText(rootView.getContext(), "Update pressed TODO", Toast.LENGTH_SHORT)
-                .show();
+
+        mMyAccountEditTask = new AccountEditTask();
+        mMyAccountEditTask.execute();
     }
 
     @Override
@@ -115,6 +125,7 @@ public class AccountEditFragment extends Fragment {
                     accountLastname.setText(account.getLastName());
                     accountMail.setText(account.getEmail());
                 }
+                Toast.makeText(rootView.getContext(), "Update successful!", Toast.LENGTH_SHORT).show();
             }
 
         }
