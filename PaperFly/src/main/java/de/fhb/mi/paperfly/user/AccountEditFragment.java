@@ -14,6 +14,7 @@ import android.widget.Toast;
 
 import java.io.UnsupportedEncodingException;
 
+import de.fhb.mi.paperfly.PaperFlyApp;
 import de.fhb.mi.paperfly.R;
 import de.fhb.mi.paperfly.dto.AccountDTO;
 import de.fhb.mi.paperfly.service.RestConsumerException;
@@ -30,9 +31,6 @@ public class AccountEditFragment extends Fragment {
     private EditText accountFirstname;
     private EditText accountLastname;
     private EditText accountMail;
-
-    private GetMyAccountTask mMyAccountTask = null;
-    private AccountDTO account = null;
 
     private AccountEditTask mMyAccountEditTask = null;
 
@@ -53,6 +51,11 @@ public class AccountEditFragment extends Fragment {
                              Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_edit_account_data, container, false);
         initViews(rootView);
+        AccountDTO account = ((PaperFlyApp) getActivity().getApplication()).getAccount();
+        accountUsername.setText(account.getUsername());
+        accountFirstname.setText(account.getFirstName());
+        accountLastname.setText(account.getLastName());
+        accountMail.setText(account.getEmail());
         return rootView;
     }
 
@@ -72,45 +75,7 @@ public class AccountEditFragment extends Fragment {
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         Log.d(TAG, "onAttach");
-
-        mMyAccountTask = new GetMyAccountTask();
-        mMyAccountTask.execute();
     }
-
-    /**
-     * Represents an asynchronous GetMyAccountTask used to get the account data
-     */
-    public class GetMyAccountTask extends AsyncTask<String, Void, Boolean> {
-
-        @Override
-        protected Boolean doInBackground(String... params) {
-
-            try {
-                account = RestConsumerSingleton.getInstance().getMyAccount();
-            } catch (RestConsumerException e) {
-                e.printStackTrace();
-            }
-
-            return account != null;
-        }
-
-        @Override
-        protected void onPostExecute(final Boolean success) {
-            mMyAccountTask = null;
-
-            if (success) {
-                Log.d("onPostExecute", "success");
-
-                if (account != null) {
-                    accountUsername.setText(account.getUsername());
-                    accountFirstname.setText(account.getFirstName());
-                    accountLastname.setText(account.getLastName());
-                    accountMail.setText(account.getEmail());
-                }
-            }
-        }
-    }
-
 
     /**
      * Represents an asynchronous AccountEditTask used to set the account data
@@ -119,31 +84,22 @@ public class AccountEditFragment extends Fragment {
 
         @Override
         protected Boolean doInBackground(String... params) {
-
+            AccountDTO account = null;
             try {
 
-                AccountDTO editedAccount = new AccountDTO();
-//                    editedAccount.setEmail(accountMail.getText());
-//                    editedAccount.setFirstName();
-//                    editedAccount.setLastName();
-//                    editedAccount.setUsername(accountUsername.getText());
+                AccountDTO editedAccount = new AccountDTO(((PaperFlyApp) getActivity().getApplication()).getAccount());
+                editedAccount.setFirstName(accountFirstname.getText().toString());
+                editedAccount.setLastName(accountLastname.getText().toString());
 
                 account = RestConsumerSingleton.getInstance().editAccount(editedAccount);
+                ((PaperFlyApp) getActivity().getApplication()).setAccount(account);
             } catch (RestConsumerException e) {
                 e.printStackTrace();
-                Toast.makeText(rootView.getContext(), e.getMessage(), Toast.LENGTH_SHORT)
-                        .show();
-
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
 
-
-            if (account != null) {
-                return true;
-            } else {
-                return false;
-            }
+            return account != null;
         }
 
         @Override
@@ -152,13 +108,13 @@ public class AccountEditFragment extends Fragment {
 
             if (success) {
                 Log.d("onPostExecute", "success");
-
-//                        if (account != null) {
-//                            accountUsername.setText(account.getUsername());
-//                            accountFirstname.setText(account.getFirstName());
-//                            accountLastname.setText(account.getLastName());
-//                            accountMail.setText(account.getEmail());
-//                        }
+                AccountDTO account = ((PaperFlyApp) getActivity().getApplication()).getAccount();
+                if (account != null) {
+                    accountUsername.setText(account.getUsername());
+                    accountFirstname.setText(account.getFirstName());
+                    accountLastname.setText(account.getLastName());
+                    accountMail.setText(account.getEmail());
+                }
             }
 
         }

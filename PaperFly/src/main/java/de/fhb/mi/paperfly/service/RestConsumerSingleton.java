@@ -42,7 +42,13 @@ import de.fhb.mi.paperfly.dto.RoomDTO;
 import de.fhb.mi.paperfly.dto.Status;
 import de.fhb.mi.paperfly.dto.TokenDTO;
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import oauth.signpost.commonshttp.CommonsHttpOAuthConsumer;
+import oauth.signpost.exception.OAuthCommunicationException;
+import oauth.signpost.exception.OAuthExpectationFailedException;
+import oauth.signpost.exception.OAuthMessageSignerException;
 
 /**
  * This is an implementation of {@link de.fhb.mi.paperfly.service.RestConsumer} implemented as singleton.
@@ -68,12 +74,17 @@ public class RestConsumerSingleton implements RestConsumer {
     public static final String URL_ADD_FRIEND = "PaperFlyServer-web/rest/v1/myaccount/friend/";
     public static final String URL_ACCOUNTS_IN_ROOM = "PaperFlyServer-web/rest/v1/room/accounts/";
     public static final String URL_LOCATE_ACCOUNT = "PaperFlyServer-web/rest/v1/room/locateAccount/";
-    public static final String URL_CHANGE_ACCOUNT_STATUS = "PaperFlyServer-web//rest/v1/myaccount/status/";
+    public static final String URL_CHANGE_ACCOUNT_STATUS = "PaperFlyServer-web/rest/v1/myaccount/status/";
     public static final String URL_CHAT_GLOBAL = "ws://" + AWS_IP + ":" + PORT + "/PaperFlyServer-web/ws/chat/global";
 
     private static final String TAG = RestConsumerSingleton.class.getSimpleName();
 
     private PaperFlyApp application;
+
+    //TODO consumer wird null gesetzt in der app, wenn man ausloggt. besser machen?
+    @Getter
+    @Setter
+    private CommonsHttpOAuthConsumer consumer = null;
 
     private static class SingletonHolder {
         public static final RestConsumerSingleton INSTANCE = new RestConsumerSingleton();
@@ -121,6 +132,7 @@ public class RestConsumerSingleton implements RestConsumer {
         HttpClient httpclient = new DefaultHttpClient();
         HttpResponse response;
         try {
+            consumer.sign(request);
             response = httpclient.execute(request);
             analyzeHttpStatus(response);
 
@@ -130,20 +142,21 @@ public class RestConsumerSingleton implements RestConsumer {
             responseAccount = gson.fromJson(responseObjAsString, AccountDTO.class);
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (OAuthExpectationFailedException e) {
+            e.printStackTrace();
+        } catch (OAuthCommunicationException e) {
+            e.printStackTrace();
+        } catch (OAuthMessageSignerException e) {
+            e.printStackTrace();
         }
         return responseAccount;
-    }
-
-    @Override
-    public AccountDTO getMyAccount() throws RestConsumerException {
-        return setMyAccountStatus(Status.ONLINE);
     }
 
     @Override
     public AccountDTO setMyAccountStatus(Status status) throws RestConsumerException {
         Log.d(TAG, "getMyAccount");
 
-        HttpUriRequest request = new HttpGet(getConnectionURL(URL_CHANGE_ACCOUNT_STATUS) + status);
+        HttpUriRequest request = new HttpPost(getConnectionURL(URL_CHANGE_ACCOUNT_STATUS) + status.name());
         AccountDTO account = null;
 
         Log.d(TAG, request.getRequestLine().toString());
@@ -151,6 +164,7 @@ public class RestConsumerSingleton implements RestConsumer {
         HttpClient httpclient = new DefaultHttpClient();
         HttpResponse response;
         try {
+            consumer.sign(request);
             response = httpclient.execute(request);
             analyzeHttpStatus(response);
 
@@ -160,6 +174,12 @@ public class RestConsumerSingleton implements RestConsumer {
 
             account = gson.fromJson(responseObjAsString, AccountDTO.class);
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (OAuthExpectationFailedException e) {
+            e.printStackTrace();
+        } catch (OAuthCommunicationException e) {
+            e.printStackTrace();
+        } catch (OAuthMessageSignerException e) {
             e.printStackTrace();
         }
         return account;
@@ -177,6 +197,7 @@ public class RestConsumerSingleton implements RestConsumer {
         HttpClient httpclient = new DefaultHttpClient();
         HttpResponse response;
         try {
+            consumer.sign(request);
             response = httpclient.execute(request);
             analyzeHttpStatus(response);
 
@@ -186,6 +207,12 @@ public class RestConsumerSingleton implements RestConsumer {
 
             account = gson.fromJson(responseObjAsString, AccountDTO.class);
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (OAuthExpectationFailedException e) {
+            e.printStackTrace();
+        } catch (OAuthCommunicationException e) {
+            e.printStackTrace();
+        } catch (OAuthMessageSignerException e) {
             e.printStackTrace();
         }
         return account;
@@ -205,6 +232,7 @@ public class RestConsumerSingleton implements RestConsumer {
         HttpClient httpclient = new DefaultHttpClient();
         HttpResponse response;
         try {
+            consumer.sign(request);
             response = httpclient.execute(request);
             analyzeHttpStatus(response);
 
@@ -215,6 +243,12 @@ public class RestConsumerSingleton implements RestConsumer {
             accountsInRoom = gson.fromJson(responseObjAsString, collectionType);
 
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (OAuthExpectationFailedException e) {
+            e.printStackTrace();
+        } catch (OAuthCommunicationException e) {
+            e.printStackTrace();
+        } catch (OAuthMessageSignerException e) {
             e.printStackTrace();
         }
         return accountsInRoom;
@@ -232,6 +266,7 @@ public class RestConsumerSingleton implements RestConsumer {
         HttpClient httpclient = new DefaultHttpClient();
         HttpResponse response;
         try {
+            consumer.sign(request);
             response = httpclient.execute(request);
             analyzeHttpStatus(response);
 
@@ -241,6 +276,12 @@ public class RestConsumerSingleton implements RestConsumer {
 
             room = gson.fromJson(responseObjAsString, RoomDTO.class);
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (OAuthExpectationFailedException e) {
+            e.printStackTrace();
+        } catch (OAuthCommunicationException e) {
+            e.printStackTrace();
+        } catch (OAuthMessageSignerException e) {
             e.printStackTrace();
         }
         return room;
@@ -263,7 +304,9 @@ public class RestConsumerSingleton implements RestConsumer {
             String responseObjAsString = readInEntity(response);
             Gson gson = new Gson();
 
-            return gson.fromJson(responseObjAsString, TokenDTO.class);
+            TokenDTO token = gson.fromJson(responseObjAsString, TokenDTO.class);
+            consumer = new CommonsHttpOAuthConsumer(token.getConsumerKey(), token.getConsumerSecret());
+            return token;
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -299,6 +342,7 @@ public class RestConsumerSingleton implements RestConsumer {
             String responseObjAsString = readInEntity(response);
             Log.d("json", responseObjAsString);
             Gson gson = new GsonBuilder().registerTypeAdapter(Date.class, new JsonDateDeserializer()).create();
+            //TODO implement registration in app
             return gson.fromJson(responseObjAsString, TokenDTO.class);
         } catch (IOException e) {
             e.printStackTrace();
@@ -321,6 +365,7 @@ public class RestConsumerSingleton implements RestConsumer {
         HttpClient httpclient = new DefaultHttpClient();
         HttpResponse response;
         try {
+            consumer.sign(request);
             response = httpclient.execute(request);
             analyzeHttpStatus(response);
 
@@ -332,6 +377,12 @@ public class RestConsumerSingleton implements RestConsumer {
 
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (OAuthExpectationFailedException e) {
+            e.printStackTrace();
+        } catch (OAuthCommunicationException e) {
+            e.printStackTrace();
+        } catch (OAuthMessageSignerException e) {
+            e.printStackTrace();
         }
         return searchResultList;
     }
@@ -340,6 +391,7 @@ public class RestConsumerSingleton implements RestConsumer {
      * Evaluates the httpStatus of a Request.
      *
      * @param response the response
+     *
      * @throws RestConsumerException
      */
     private void analyzeHttpStatus(HttpResponse response) throws RestConsumerException {
@@ -356,10 +408,42 @@ public class RestConsumerSingleton implements RestConsumer {
         }
     }
 
+//    public void doRequest() {
+//
+//        // create a consumer object and configure it with the access
+//        // token and token secret obtained from the service provider
+//        CommonsHttpOAuthConsumer consumer = new CommonsHttpOAuthConsumer(token.getConsumerKey(), token.getConsumerSecret());
+////        consumer.setTokenWithSecret(ACCESS_TOKEN, TOKEN_SECRET);
+//
+//        // create an HTTP request to a protected resource
+//        try {
+//            HttpUriRequest request = new HttpGet("http://" + AWS_IP + ":8080/PaperFlyServer-web/rest/v1/account/username");
+//
+//            // sign the request
+//            consumer.sign(request);
+//
+//            // send the request
+//            HttpResponse response = application.getHttpClient().execute(request);
+//            Log.d(TAG, readInEntity(response));
+//            Log.d(TAG, "" + response);
+//        } catch (MalformedURLException e) {
+//            e.printStackTrace();
+//        } catch (OAuthExpectationFailedException e) {
+//            e.printStackTrace();
+//        } catch (OAuthCommunicationException e) {
+//            e.printStackTrace();
+//        } catch (OAuthMessageSignerException e) {
+//            e.printStackTrace();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//    }
+
     /**
      * reads in the response String
      *
      * @param response the response
+     *
      * @return
      * @throws IOException
      */
@@ -380,6 +464,7 @@ public class RestConsumerSingleton implements RestConsumer {
      * Builds the connection-url depending of local-setting-value CONNECT_LOCAL.
      *
      * @param restURL the url
+     *
      * @return the complete URL to connect to
      */
     private String getConnectionURL(String restURL) {

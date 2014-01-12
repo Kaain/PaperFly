@@ -12,6 +12,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.TextView;
 
+import de.fhb.mi.paperfly.R;
 import de.fhb.mi.paperfly.room.dummy.DummyContent;
 
 /**

@@ -8,6 +8,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import de.fhb.mi.paperfly.R;
+
 
 /**
  * A simple {@link android.support.v4.app.Fragment} subclass.

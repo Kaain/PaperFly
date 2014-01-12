@@ -46,6 +46,7 @@
                 android:layout_height="wrap_content"
                 android:hint="@string/email"
                 android:maxLines="1"
+                android:editable="false"
                 android:singleLine="true"
                 android:inputType="textEmailAddress"
                 android:maxLength="20" />
@@ -57,6 +58,7 @@
                 android:hint="@string/userName"
                 android:maxLines="1"
                 android:singleLine="true"
+                android:editable="false"
                 android:inputType="text|textPersonName"
                 android:maxLength="20" />
 

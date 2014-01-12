@@ -39,6 +39,7 @@ import de.fhb.mi.paperfly.navigation.NavItemModel;
 import de.fhb.mi.paperfly.navigation.NavKey;
 import de.fhb.mi.paperfly.navigation.NavListAdapter;
 import de.fhb.mi.paperfly.navigation.NavListAdapter.ViewHolder;
+import de.fhb.mi.paperfly.service.RestConsumerSingleton;
 import de.fhb.mi.paperfly.user.FriendListFragment;
 import de.fhb.mi.paperfly.user.UserProfileFragment;
 import de.fhb.mi.paperfly.user.UserSearchActivity;
@@ -607,7 +608,7 @@ public class MainActivity extends Activity {
     private class UserLoginTask extends AsyncTask<String, Void, Boolean> {
         @Override
         protected Boolean doInBackground(String... params) {
-            return ((PaperFlyApp) getApplication()).getToken() != null;
+            return RestConsumerSingleton.getInstance().getConsumer() != null;
         }
 
         @Override
@@ -636,7 +637,7 @@ public class MainActivity extends Activity {
         protected Boolean doInBackground(Void... params) {
             try {
                 AuthHelper.logout();
-                ((PaperFlyApp) getApplication()).setToken(null);
+                RestConsumerSingleton.getInstance().setConsumer(null);
                 return true;
             } catch (IOException e) {
                 e.printStackTrace();

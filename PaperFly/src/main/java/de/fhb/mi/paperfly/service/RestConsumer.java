@@ -21,22 +21,16 @@ public interface RestConsumer {
      * Edits an account
      *
      * @param editedAccount the account to edit
+     *
      * @return the edited account
      */
     AccountDTO editAccount(AccountDTO editedAccount) throws RestConsumerException, UnsupportedEncodingException;
 
     /**
-     * Gets the connected account, could used also instead of setMyAccountStatus
-     * Set the Status of the account to Status.ONLINE
-     *
-     * @return the account
-     */
-    AccountDTO getMyAccount() throws RestConsumerException;
-
-    /**
      * sets the Account status
      *
      * @param status
+     *
      * @return
      * @throws RestConsumerException
      */
@@ -46,6 +40,7 @@ public interface RestConsumer {
      * Gets the account by the given username.
      *
      * @param username the username
+     *
      * @return the account
      * @throws RestConsumerException
      */
@@ -55,6 +50,7 @@ public interface RestConsumer {
      * Gets all accounts in the given room.
      *
      * @param roomID the room
+     *
      * @return a list of accounts in the given room
      */
     List<AccountDTO> getAccountsInRoom(long roomID) throws RestConsumerException;
@@ -63,6 +59,7 @@ public interface RestConsumer {
      * Locates an account.
      *
      * @param username the username of the account
+     *
      * @return the room where the user is located
      */
     RoomDTO locateAccount(String username) throws RestConsumerException;
@@ -72,6 +69,7 @@ public interface RestConsumer {
      *
      * @param mail     the mail address of the account
      * @param password the password of the account
+     *
      * @return the tokens if the login was successful, null if not
      * @throws RestConsumerException
      */
@@ -81,6 +79,7 @@ public interface RestConsumer {
      * Registers an account.
      *
      * @param account the account to register
+     *
      * @return the tokens if the registration was successful, null if not
      * @throws UnsupportedEncodingException
      * @throws RestConsumerException
@@ -91,6 +90,7 @@ public interface RestConsumer {
      * Searches for accounts.
      *
      * @param query the string to search for
+     *
      * @return a list of accounts
      */
     List<AccountDTO> searchAccount(String query) throws RestConsumerException;

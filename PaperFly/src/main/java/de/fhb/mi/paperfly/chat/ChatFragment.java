@@ -249,6 +249,7 @@ public class ChatFragment extends Fragment {
         }
         messagesAdapter = new ArrayAdapter<String>(rootView.getContext(), android.R.layout.simple_list_item_1, chatList);
         messagesList.setAdapter(messagesAdapter);
+
     }
 
     private void initViewsById() {
