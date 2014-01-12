@@ -29,8 +29,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class PaperFlyApp extends Application {
-    private List<String> chatGlobal;
-    private List<String> chatRoom;
+
+    private String chatRoom;
     private AccountDTO account;
 
     private final Object lock = new Object();
@@ -77,9 +77,6 @@ public class PaperFlyApp extends Application {
         if (BackgroundLocationService.servicesAvailable(this)) {
             startService(new Intent(this, BackgroundLocationService.class));
         }
-
-        chatGlobal = new ArrayList<String>();
-        chatRoom = new ArrayList<String>();
 
         RestConsumerSingleton.getInstance().init(this);
     }

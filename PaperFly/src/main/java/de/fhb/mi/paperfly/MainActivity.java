@@ -11,6 +11,7 @@ import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -35,10 +36,12 @@ import java.util.List;
 import de.fhb.mi.paperfly.auth.AuthHelper;
 import de.fhb.mi.paperfly.auth.LoginActivity;
 import de.fhb.mi.paperfly.chat.ChatFragment;
+import de.fhb.mi.paperfly.dto.AccountDTO;
 import de.fhb.mi.paperfly.navigation.NavItemModel;
 import de.fhb.mi.paperfly.navigation.NavKey;
 import de.fhb.mi.paperfly.navigation.NavListAdapter;
 import de.fhb.mi.paperfly.navigation.NavListAdapter.ViewHolder;
+import de.fhb.mi.paperfly.service.RestConsumerException;
 import de.fhb.mi.paperfly.service.RestConsumerSingleton;
 import de.fhb.mi.paperfly.user.FriendListFragment;
 import de.fhb.mi.paperfly.user.UserProfileFragment;
@@ -63,14 +66,15 @@ public class MainActivity extends Activity {
     private ActionBarDrawerToggle drawerToggle;
     private CharSequence mTitle;
     private UserLoginTask mAuthTask = null;
-    private UserLogoutTask logoutTask = null;
+    private UserLogoutTask mLogoutTask = null;
+    private GetAccountsInRoomTask mGetAccountsInRoomTask = null;
     private View progressLayout;
     private boolean roomAdded = false;
     private int roomNavID;
     private String actualRoom;
+    private List<AccountDTO> usersInRoom = null;
 
-//    public final static String FRAGMENT_BEFORE="fragment_before";
-//    private NavKey before;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -322,8 +326,8 @@ public class MainActivity extends Activity {
                 return true;
             case R.id.action_logout:
                 deleteFile(AuthHelper.FILE_NAME);
-                logoutTask = new UserLogoutTask();
-                logoutTask.execute();
+                mLogoutTask = new UserLogoutTask();
+                mLogoutTask.execute();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -423,6 +427,8 @@ public class MainActivity extends Activity {
                 Log.d(TAG, "onActivityResult: REQUESTCODE_QRSCAN");
                 if (resultCode == RESULT_OK) {
                     String room = intent.getStringExtra("SCAN_RESULT");
+                    //TODO gucken ob Raum existiert via. Restconsumer
+                    ((PaperFlyApp) getApplication()).setChatRoom(room);
                     String format = intent.getStringExtra("SCAN_RESULT_FORMAT");
                     switchToNewChatRoom(room);
                     Toast.makeText(this, room, Toast.LENGTH_SHORT).show();
@@ -554,17 +560,31 @@ public class MainActivity extends Activity {
                 switchToGlobalChat();
                 break;
             case MY_ACCOUNT:
-                // TODO insert actual username (not hardcoded)
-                openUserProfile("username", true);
+                openUserProfile(((PaperFlyApp) getApplication()).getAccount().getUsername(), true);
                 break;
             case CHECK_PRESENCE:
                 new InfoDialog().show(getFragmentManager(), TAG);
+                checkPresence();
                 break;
             case FRIENDLIST:
                 openFriendList();
                 break;
         }
         drawerLayout.closeDrawer(Gravity.LEFT);
+    }
+
+    private void checkPresence() {
+        //TODO
+
+        //TODO Daten holen
+        mGetAccountsInRoomTask= new GetAccountsInRoomTask();
+        mGetAccountsInRoomTask.execute();
+
+
+//        String url = "http://maps.google.com/maps?saddr=" + currentLatitude + "," + currentLongitude + "&daddr=" + latitude + "," + longitude + "&dirflg=w";
+//        Intent intent = new Intent(Intent.ACTION_VIEW);
+//        intent.setData(Uri.parse(url));
+//        return intent;
     }
 
     private void openUserProfile(String user, boolean isMyAccount) {
@@ -651,6 +671,38 @@ public class MainActivity extends Activity {
             if (success) {
                 finish();
             }
+        }
+    }
+
+    /**
+     * Represents an asynchronous AccountEditTask used to set the account data
+     */
+    public class GetAccountsInRoomTask extends AsyncTask<String, Void, Boolean> {
+
+        @Override
+        protected Boolean doInBackground(String... params) {
+            AccountDTO account = null;
+            try {
+
+                String roomID = ((PaperFlyApp) getApplication()).getChatRoom();
+                usersInRoom= RestConsumerSingleton.getInstance().getUsersInRoom(roomID);
+
+            } catch (RestConsumerException e) {
+                e.printStackTrace();
+            }
+
+            return account != null;
+        }
+
+        @Override
+        protected void onPostExecute(final Boolean success) {
+            mGetAccountsInRoomTask = null;
+
+            if (success) {
+                Log.d("onPostExecute", "success");
+                Toast.makeText(getApplicationContext(), "UserInRoom successful!", Toast.LENGTH_SHORT).show();
+            }
+
         }
     }
 }
