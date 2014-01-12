@@ -59,7 +59,7 @@ public class AccountEditFragment extends Fragment {
         return rootView;
     }
 
-    public void pressUpdate() {
+    public void pressUpdate(View view) {
         Log.d(TAG, "pressUpdate");
         Toast.makeText(rootView.getContext(), "Update pressed TODO", Toast.LENGTH_SHORT)
                 .show();
