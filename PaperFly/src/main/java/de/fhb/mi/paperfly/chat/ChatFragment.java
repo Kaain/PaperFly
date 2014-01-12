@@ -34,9 +34,9 @@ import java.util.List;
 
 import de.fhb.mi.paperfly.PaperFlyApp;
 import de.fhb.mi.paperfly.R;
-import de.fhb.mi.paperfly.auth.AuthHelper;
 import de.fhb.mi.paperfly.dto.Message;
 import de.fhb.mi.paperfly.dto.MessageType;
+import de.fhb.mi.paperfly.service.RestConsumerSingleton;
 import de.tavendo.autobahn.WebSocketConnection;
 import de.tavendo.autobahn.WebSocketConnectionHandler;
 import de.tavendo.autobahn.WebSocketException;
@@ -202,7 +202,7 @@ public class ChatFragment extends Fragment {
     public void onStart() {
         super.onStart();
         Log.d(TAG, "onStart");
-        connectToWebsocket(AuthHelper.URL_CHAT_GLOBAL);
+        connectToWebsocket(RestConsumerSingleton.URL_CHAT_GLOBAL);
     }
 
     @Override

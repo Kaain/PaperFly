@@ -45,6 +45,8 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 /**
+ * This is an implementation of {@link de.fhb.mi.paperfly.service.RestConsumer} implemented as singleton.
+ *
  * @author Christoph Ott
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -67,6 +69,7 @@ public class RestConsumerSingleton implements RestConsumer {
     public static final String URL_ACCOUNTS_IN_ROOM = "PaperFlyServer-web/rest/v1/room/accounts/";
     public static final String URL_LOCATE_ACCOUNT = "PaperFlyServer-web/rest/v1/room/locateAccount/";
     public static final String URL_CHANGE_ACCOUNT_STATUS = "PaperFlyServer-web//rest/v1/myaccount/status/";
+    public static final String URL_CHAT_GLOBAL = "ws://" + AWS_IP + ":" + PORT + "/PaperFlyServer-web/ws/chat/global";
 
     private static final String TAG = RestConsumerSingleton.class.getSimpleName();
 
@@ -76,10 +79,20 @@ public class RestConsumerSingleton implements RestConsumer {
         public static final RestConsumerSingleton INSTANCE = new RestConsumerSingleton();
     }
 
+    /**
+     * Gets the Singleton instance of the RestConsumer.
+     *
+     * @return the Instance of the RestConsumer
+     */
     public static RestConsumerSingleton getInstance() {
         return SingletonHolder.INSTANCE;
     }
 
+    /**
+     * Passes the {@link android.app.Application} to the Singleton.
+     *
+     * @param application the {@link android.app.Application}
+     */
     public void init(PaperFlyApp application) {
         this.application = application;
     }
@@ -324,9 +337,9 @@ public class RestConsumerSingleton implements RestConsumer {
     }
 
     /**
-     * evaluates the httpStatus aof a Request
+     * Evaluates the httpStatus of a Request.
      *
-     * @param response
+     * @param response the response
      * @throws RestConsumerException
      */
     private void analyzeHttpStatus(HttpResponse response) throws RestConsumerException {
@@ -346,7 +359,7 @@ public class RestConsumerSingleton implements RestConsumer {
     /**
      * reads in the response String
      *
-     * @param response
+     * @param response the response
      * @return
      * @throws IOException
      */
@@ -364,12 +377,12 @@ public class RestConsumerSingleton implements RestConsumer {
     }
 
     /**
-     * builds the connection-url depency of local-setting-value CONNECT_LOCAL
+     * Builds the connection-url depending of local-setting-value CONNECT_LOCAL.
      *
-     * @param restURL
-     * @return
+     * @param restURL the url
+     * @return the complete URL to connect to
      */
-    public String getConnectionURL(String restURL) {
+    private String getConnectionURL(String restURL) {
 
         StringBuilder urlToBuild = new StringBuilder();
         urlToBuild.append("http://");
