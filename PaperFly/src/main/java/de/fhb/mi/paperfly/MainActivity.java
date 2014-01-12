@@ -74,7 +74,6 @@ public class MainActivity extends Activity {
     private List<AccountDTO> usersInRoom = null;
 
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -575,9 +574,13 @@ public class MainActivity extends Activity {
     private void checkPresence() {
         //TODO
 
+        //TODO only for test
+        ((PaperFlyApp) getApplication()).setChatRoom("1");
         //TODO Daten holen
-        mGetAccountsInRoomTask= new GetAccountsInRoomTask();
-        mGetAccountsInRoomTask.execute();
+        if (((PaperFlyApp) getApplication()).getChatRoom() != null) {
+            mGetAccountsInRoomTask = new GetAccountsInRoomTask();
+            mGetAccountsInRoomTask.execute();
+        }
 
 
 //        String url = "http://maps.google.com/maps?saddr=" + currentLatitude + "," + currentLongitude + "&daddr=" + latitude + "," + longitude + "&dirflg=w";
@@ -683,7 +686,7 @@ public class MainActivity extends Activity {
             try {
 
                 String roomID = ((PaperFlyApp) getApplication()).getChatRoom();
-                usersInRoom= RestConsumerSingleton.getInstance().getUsersInRoom(roomID);
+                usersInRoom = RestConsumerSingleton.getInstance().getUsersInRoom(roomID);
 
             } catch (RestConsumerException e) {
                 e.printStackTrace();
