@@ -59,7 +59,6 @@ android {
     }
 }
 
-def jersey_version = '1.11.1'
 def autobahn_version = '0.5.2-SNAPSHOT'
 def gson_version = '2.2.4'
 
@@ -67,12 +66,10 @@ dependencies {
     compile 'com.android.support:appcompat-v7:18.0.0'
     compile 'com.android.support:support-v4:13.0.0'
     compile 'com.google.zxing:core:2.2'
+    compile 'de.tavendo:autobahn-android:' + autobahn_version
     compile 'com.google.android.gms:play-services:3.1.36'
     compile 'org.projectlombok:lombok:1.12.2'
-    compile 'de.tavendo:autobahn-android:' + autobahn_version
-    
-    
-    compile 'com.sun.jersey.contribs.jersey-oauth:oauth-client:' + jersey_version
-    compile 'com.sun.jersey.contribs.jersey-oauth:oauth-signature:' + jersey_version
+    compile 'oauth.signpost:signpost-core:1.2'
+    compile 'oauth.signpost:signpost-commonshttp4:1.2.1.1'
     compile 'com.google.code.gson:gson:' + gson_version
 }

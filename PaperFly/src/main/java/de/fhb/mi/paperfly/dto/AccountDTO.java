@@ -39,4 +39,15 @@ public class AccountDTO extends BaseDTO {
     private String lastName;
     private String firstName;
     private List<AccountDTO> friendList;
+
+    public AccountDTO(final AccountDTO account) {
+        this.setEmail(account.getEmail());
+        this.setUsername(account.getUsername());
+        this.setLastName(account.getLastName());
+        this.setFirstName(account.getFirstName());
+        this.setFriendList(account.getFriendList());
+        this.setCreated(account.getCreated());
+        this.setLastModified(account.getLastModified());
+        this.setEnabled(account.isEnabled());
+    }
 }

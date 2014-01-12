@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.fhb.mi.paperfly.dto.AccountDTO;
-import de.fhb.mi.paperfly.dto.TokenDTO;
 import de.fhb.mi.paperfly.service.BackgroundLocationService;
 import de.fhb.mi.paperfly.service.RestConsumerSingleton;
 import lombok.Getter;
@@ -32,7 +31,7 @@ import lombok.Setter;
 public class PaperFlyApp extends Application {
     private List<String> chatGlobal;
     private List<String> chatRoom;
-    private TokenDTO token;
+    private AccountDTO account;
 
     private final Object lock = new Object();
     private CookieStore cookieStore = null;
@@ -58,6 +57,7 @@ public class PaperFlyApp extends Application {
      * Checks if the given Service is running.
      *
      * @param serviceToCheck the service to check
+     *
      * @return true if the service is running, false if not
      */
     public boolean isMyServiceRunning(Class<? extends Service> serviceToCheck) {
@@ -82,9 +82,5 @@ public class PaperFlyApp extends Application {
         chatRoom = new ArrayList<String>();
 
         RestConsumerSingleton.getInstance().init(this);
-    }
-
-    public void setAccount(AccountDTO account) {
-        //TODO with lombock
     }
 }

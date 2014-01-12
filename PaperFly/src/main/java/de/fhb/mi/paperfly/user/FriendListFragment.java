@@ -177,8 +177,7 @@ public class FriendListFragment extends Fragment implements AdapterView.OnItemCl
                 account = RestConsumerSingleton.getInstance().getAccountByUsername(username);
             } catch (RestConsumerException e) {
                 e.printStackTrace();
-                Toast.makeText(rootView.getContext(), e.getMessage(), Toast.LENGTH_SHORT)
-                        .show();
+                Log.d(TAG, e.getMessage());
             }
 
             return account != null;

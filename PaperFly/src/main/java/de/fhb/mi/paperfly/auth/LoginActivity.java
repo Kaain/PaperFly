@@ -23,6 +23,7 @@ import java.util.Date;
 import de.fhb.mi.paperfly.MainActivity;
 import de.fhb.mi.paperfly.PaperFlyApp;
 import de.fhb.mi.paperfly.R;
+import de.fhb.mi.paperfly.dto.AccountDTO;
 import de.fhb.mi.paperfly.dto.RegisterAccountDTO;
 import de.fhb.mi.paperfly.dto.TokenDTO;
 import de.fhb.mi.paperfly.service.RestConsumerException;
@@ -220,7 +221,8 @@ public class LoginActivity extends Activity {
 
             try {
                 tokenDTO = RestConsumerSingleton.getInstance().login(mail, pw);
-                ((PaperFlyApp) getApplication()).setToken(tokenDTO);
+                AccountDTO accountDTO = RestConsumerSingleton.getInstance().setMyAccountStatus(de.fhb.mi.paperfly.dto.Status.ONLINE);
+                ((PaperFlyApp) getApplication()).setAccount(accountDTO);
                 if (tokenDTO != null) {
                     return true;
                 }
