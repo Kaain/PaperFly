@@ -241,13 +241,7 @@ public class ChatFragment extends Fragment {
         super.onResume();
         Log.d(TAG, "onResume");
 
-        List<String> chatList;
-        if (globalRoom) {
-            chatList = ((PaperFlyApp) getActivity().getApplication()).getChatGlobal();
-        } else {
-            chatList = ((PaperFlyApp) getActivity().getApplication()).getChatRoom();
-        }
-        messagesAdapter = new ArrayAdapter<String>(rootView.getContext(), android.R.layout.simple_list_item_1, chatList);
+        messagesAdapter = new ArrayAdapter<String>(rootView.getContext(), android.R.layout.simple_list_item_1, new ArrayList<String>());
         messagesList.setAdapter(messagesAdapter);
 
     }
