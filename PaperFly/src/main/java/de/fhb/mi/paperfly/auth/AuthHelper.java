@@ -35,7 +35,6 @@ public class AuthHelper {
     public static final String URL_LOGIN = "http://46.137.173.175:8080/PaperFlyServer-web/rest/v1/auth/login";
     public static final String URL_LOGIN_DIGEST = "http://46.137.173.175:8080/PaperFlyServer-web/rest/service/v1/login";
     public static final String URL_LOGOUT = "http://46.137.173.175:8080/PaperFlyServer-web/rest/service/v1/logout";
-    public static final String URL_CHAT_GLOBAL = "ws://46.137.173.175:8080/PaperFlyServer-web/ws/chat/global";
     public static final String FILE_NAME = "secure";
 
     public static boolean logout() throws IOException {
@@ -56,6 +55,7 @@ public class AuthHelper {
     /**
      * @param mail     the user's mail address
      * @param password the user's password
+     *
      * @return a TokenDTO if login successful, null if not
      * @throws IOException
      */
@@ -139,6 +139,7 @@ public class AuthHelper {
      * Authenticates the user, if he was logged at anytime.
      *
      * @param context the activity context
+     *
      * @return true if the login was successful, false otherwise
      */
     public static boolean authenticate(Context context) {

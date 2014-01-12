@@ -10,7 +10,7 @@ import de.fhb.mi.paperfly.dto.Status;
 import de.fhb.mi.paperfly.dto.TokenDTO;
 
 /**
- * The interface for the consuming the rest service.
+ * The interface for consuming the rest service.
  *
  * @author Christoph Ott
  * @author Andy Klay (klay@fh-brandenburg.de)
