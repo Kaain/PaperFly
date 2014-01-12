@@ -27,6 +27,14 @@ public interface RestConsumer {
     AccountDTO editAccount(AccountDTO editedAccount) throws RestConsumerException, UnsupportedEncodingException;
 
     /**
+     * Gets the acutal account with the actual friends with online status
+     *
+     * @throws RestConsumerException
+     * @throws UnsupportedEncodingException
+     */
+    void updateMyAccount() throws RestConsumerException, UnsupportedEncodingException;
+
+    /**
      * sets the Account status
      *
      * @param status

@@ -69,6 +69,7 @@ public class RestConsumerSingleton implements RestConsumer {
     public static final String URL_LOGOUT = "PaperFlyServer-web/rest/v1/auth/logout";
 
     public static final String URL_REGISTER_ACCOUNT = "PaperFlyServer-web/rest/v1/account/register";
+    public static final String URL_GET_MY_ACCOUNT = "PaperFlyServer-web/rest/v1/myaccount/get";
     public static final String URL_SEARCH_ACCOUNT = "PaperFlyServer-web/rest/v1/account/search/";
     public static final String URL_EDIT_ACCOUNT = "PaperFlyServer-web/rest/v1/myaccount/edit";
     public static final String URL_ADD_FRIEND = "PaperFlyServer-web/rest/v1/myaccount/friend/";
@@ -110,7 +111,7 @@ public class RestConsumerSingleton implements RestConsumer {
 
     @Override
     public AccountDTO editAccount(AccountDTO editedAccount) throws RestConsumerException, UnsupportedEncodingException {
-        Log.d(TAG, "getMyAccount");
+        Log.d(TAG, "editAccount");
 
         AccountDTO responseAccount = null;
         HttpUriRequest request = new HttpPost(getConnectionURL(URL_EDIT_ACCOUNT));
@@ -153,8 +154,39 @@ public class RestConsumerSingleton implements RestConsumer {
     }
 
     @Override
+    public void updateMyAccount() throws RestConsumerException, UnsupportedEncodingException {
+        Log.d(TAG, "updateMyAccount");
+
+        AccountDTO responseAccount = null;
+        HttpUriRequest request = new HttpGet(getConnectionURL(URL_GET_MY_ACCOUNT));
+        Log.d(TAG, request.getRequestLine().toString());
+
+        HttpClient httpclient = new DefaultHttpClient();
+        HttpResponse response;
+        try {
+            consumer.sign(request);
+            response = httpclient.execute(request);
+            analyzeHttpStatus(response);
+
+            String responseObjAsString = readInEntity(response);
+            Log.d("json", responseObjAsString);
+            Gson gson = new GsonBuilder().registerTypeAdapter(Date.class, new JsonDateDeserializer()).create();
+            responseAccount = gson.fromJson(responseObjAsString, AccountDTO.class);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (OAuthExpectationFailedException e) {
+            e.printStackTrace();
+        } catch (OAuthCommunicationException e) {
+            e.printStackTrace();
+        } catch (OAuthMessageSignerException e) {
+            e.printStackTrace();
+        }
+        application.setAccount(responseAccount);
+    }
+
+    @Override
     public AccountDTO setMyAccountStatus(Status status) throws RestConsumerException {
-        Log.d(TAG, "getMyAccount");
+        Log.d(TAG, "setMyAccountStatus");
 
         HttpUriRequest request = new HttpPost(getConnectionURL(URL_CHANGE_ACCOUNT_STATUS) + status.name());
         AccountDTO account = null;

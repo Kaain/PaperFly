@@ -34,9 +34,11 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.fhb.mi.paperfly.PaperFlyApp;
 import de.fhb.mi.paperfly.R;
 import de.fhb.mi.paperfly.dto.AccountDTO;
 import de.fhb.mi.paperfly.service.RestConsumerException;
@@ -54,7 +56,6 @@ public class FriendListFragment extends Fragment implements AdapterView.OnItemCl
     private ListView friendListView;
     private List<String> friendListValues;
     private ArrayAdapter<String> listAdapter;
-    private GetAccountTask mAccountTask = null;
     AccountDTO account = null;
 
     @Override
@@ -74,7 +75,10 @@ public class FriendListFragment extends Fragment implements AdapterView.OnItemCl
         setHasOptionsMenu(true);
         getActivity().setTitle(R.string.nav_item_open_friendlist);
 
+        UpdateAccountTask updateAccountTask = new UpdateAccountTask();
+        updateAccountTask.execute();
         friendListValues = new ArrayList<String>();
+
 
         listAdapter = new ArrayAdapter<String>(rootView.getContext(), android.R.layout.simple_list_item_1, friendListValues);
         friendListView.setAdapter(listAdapter);
@@ -137,10 +141,6 @@ public class FriendListFragment extends Fragment implements AdapterView.OnItemCl
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         Log.d(TAG, "onAttach");
-
-        mAccountTask = new GetAccountTask();
-        //TODO username is only template for actual user
-        mAccountTask.execute("username");
     }
 
     @Override
@@ -167,58 +167,29 @@ public class FriendListFragment extends Fragment implements AdapterView.OnItemCl
     /**
      * Represents an asynchronous GetMyAccountTask used to get an user
      */
-    public class GetAccountTask extends AsyncTask<String, Void, Boolean> {
+    public class UpdateAccountTask extends AsyncTask<String, Void, Boolean> {
 
         @Override
         protected Boolean doInBackground(String... params) {
-            String username = params[0];
 
             try {
-                account = RestConsumerSingleton.getInstance().getAccountByUsername(username);
+                RestConsumerSingleton.getInstance().updateMyAccount();
             } catch (RestConsumerException e) {
                 e.printStackTrace();
                 Log.d(TAG, e.getMessage());
+            } catch (UnsupportedEncodingException e) {
+                Log.d(TAG, e.getMessage());
             }
-
             return account != null;
         }
 
         @Override
         protected void onPostExecute(final Boolean success) {
-            mAccountTask = null;
-
-            //TODO Dummy data of DB...da Friendlist in Json nicht enthalten
-            friendListValues.add("Hans");
-            friendListValues.add("Peter");
-            friendListValues.add("Müller");
-            friendListValues.add("wayne");
-
-            if (success) {
-            /* dont know what this is
-                Log.d("onPostExecute", "success");
-
-                if (mRestConsumerService != null) {
-                    Log.d(TAG, "mRestConsumerService exists");
-
-                    if (account != null && account.getFriendList() != null) {
-                        for (AccountDTO friendAccount : account.getFriendList()) {
-                            friendListValues.add(friendAccount.getUsername());
-                        }
-                    }
-                } else {
-                    friendListValues.add("mRestConsumerService is null");
-                    Log.d(TAG, "create dummy entries");
-
-                    for (int i = 0; i < 5; i++) {
-                        friendListValues.add("Dummy User" + i);
-                    }
-                }
-            */
-
-                listAdapter.notifyDataSetChanged();
-            } else {
-                Log.d("onPostExecute", "no success");
+            account = ((PaperFlyApp) getActivity().getApplication()).getAccount();
+            for (AccountDTO friend : account.getFriendList()) {
+                friendListValues.add(friend.getUsername());
             }
+            ((ArrayAdapter) friendListView.getAdapter()).notifyDataSetChanged();
         }
     }
 
