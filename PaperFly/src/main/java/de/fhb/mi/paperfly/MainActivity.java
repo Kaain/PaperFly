@@ -30,7 +30,10 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 
 import de.fhb.mi.paperfly.auth.AuthHelper;
 import de.fhb.mi.paperfly.auth.LoginActivity;
@@ -572,21 +575,29 @@ public class MainActivity extends Activity {
     }
 
     private void checkPresence() {
-        //TODO
 
-        //TODO only for test
         ((PaperFlyApp) getApplication()).setChatRoom("1");
-        //TODO Daten holen
         if (((PaperFlyApp) getApplication()).getChatRoom() != null) {
             mGetAccountsInRoomTask = new GetAccountsInRoomTask();
             mGetAccountsInRoomTask.execute();
         }
 
+        //Daten umwandeln in String
+        StringBuilder output = new StringBuilder();
+        usersInRoom=new ArrayList<AccountDTO>();
+        usersInRoom.add(((PaperFlyApp) getApplication()).getAccount());
+        for (AccountDTO current : usersInRoom) {
+            output.append(current.getFirstName() + " " + current.getLastName() + "\n");
+        }
 
-//        String url = "http://maps.google.com/maps?saddr=" + currentLatitude + "," + currentLongitude + "&daddr=" + latitude + "," + longitude + "&dirflg=w";
-//        Intent intent = new Intent(Intent.ACTION_VIEW);
-//        intent.setData(Uri.parse(url));
-//        return intent;
+        //Daten weiterleiten an andere App
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.setType("plain/text");
+        intent.putExtra(Intent.EXTRA_EMAIL, new String[] { "some@email.address" });
+        intent.putExtra(Intent.EXTRA_SUBJECT, "Attendance in room " + ((PaperFlyApp) getApplication()).getChatRoom());
+        intent.putExtra(Intent.EXTRA_TEXT, output.toString());
+
+        startActivity(Intent.createChooser(intent, "send Mail"));
     }
 
     private void openUserProfile(String user, boolean isMyAccount) {
@@ -676,15 +687,13 @@ public class MainActivity extends Activity {
     }
 
     /**
-     * Represents an asynchronous AccountEditTask used to set the account data
+     * Represents an asynchronous GetAccountsInRoomTask used to get the accounts in a room
      */
     public class GetAccountsInRoomTask extends AsyncTask<String, Void, Boolean> {
 
         @Override
         protected Boolean doInBackground(String... params) {
-            AccountDTO account = null;
             try {
-
                 String roomID = ((PaperFlyApp) getApplication()).getChatRoom();
                 usersInRoom = RestConsumerSingleton.getInstance().getUsersInRoom(roomID);
 
@@ -692,7 +701,7 @@ public class MainActivity extends Activity {
                 e.printStackTrace();
             }
 
-            return account != null;
+            return usersInRoom != null;
         }
 
         @Override
