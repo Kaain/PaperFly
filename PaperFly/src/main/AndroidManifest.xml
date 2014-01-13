@@ -54,14 +54,6 @@
             android:label="@string/title_activity_login"
             android:windowSoftInputMode="adjustResize|stateVisible"/>
         <activity
-            android:name="de.fhb.mi.paperfly.WebSocketTestMainActivity"
-            android:label="@string/title_activity_web_socket_test_main"
-            android:parentActivityName="de.fhb.mi.paperfly.MainActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="de.fhb.mi.paperfly.MainActivity"/>
-        </activity>
-        <activity
             android:name="de.fhb.mi.paperfly.SettingsActivity"
             android:label="@string/title_activity_settings"/>
         <activity

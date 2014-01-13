@@ -55,7 +55,8 @@ public class ChatFragment extends Fragment implements AsyncDelegate {
     public static final String TAG_GLOBAL = TAG + "_Global";
     public static final String TAG_ROOM = TAG + "Room";
     public static final String ARG_CHAT_ROOM = "chat_room";
-    public static String ROOM_GLOBAL = "1";
+    public static long ROOM_GLOBAL = 1;
+    public static String ROOM_GLOBAL_NAME = "Global";
     private final WebSocketConnection mConnection = new WebSocketConnection();
     private View rootView;
     private ListView messagesList;
@@ -65,6 +66,7 @@ public class ChatFragment extends Fragment implements AsyncDelegate {
     private boolean globalRoom;
     private DrawerLayout drawerLayout;
 
+
     private GetAccountsInRoomTask mGetAccountsInRoomTask = null;
     private ListView drawerRightList;
 
@@ -72,7 +74,6 @@ public class ChatFragment extends Fragment implements AsyncDelegate {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-
     }
 
     @Override
@@ -84,15 +85,15 @@ public class ChatFragment extends Fragment implements AsyncDelegate {
         initViewsById();
 
         String room = getArguments().getString(ARG_CHAT_ROOM);
-        if (room.equals(ROOM_GLOBAL)) {
+        if (room.equals(ROOM_GLOBAL_NAME)) {
             globalRoom = true;
-            getActivity().setTitle(ROOM_GLOBAL);
+            getActivity().setTitle(ROOM_GLOBAL_NAME);
         } else {
             globalRoom = false;
             getActivity().setTitle(room);
         }
-
-        ((PaperFlyApp) getActivity().getApplication()).setCurrentChatRoomID(room);
+        Log.e("onCreateView", "" + room);
+        ((PaperFlyApp) getActivity().getApplication()).setCurrentVisibleChatRoom(room);
         mGetAccountsInRoomTask = new GetAccountsInRoomTask(this);
         mGetAccountsInRoomTask.execute();
 
@@ -214,7 +215,7 @@ public class ChatFragment extends Fragment implements AsyncDelegate {
     public void onStart() {
         super.onStart();
         Log.d(TAG, "onStart");
-        connectToWebsocket(RestConsumerSingleton.URL_CHAT_GLOBAL);
+        connectToWebsocket(RestConsumerSingleton.URL_CHAT_BASE + ((PaperFlyApp) getActivity().getApplication()).getCurrentVisibleChatRoom());
     }
 
     @Override
@@ -290,7 +291,11 @@ public class ChatFragment extends Fragment implements AsyncDelegate {
                     Message message = null;
                     try {
                         message = gson.fromJson(payload, Message.class);
-                        messagesAdapter.add(message.getBody());
+                        if (message.getUsername() != null) {
+                            messagesAdapter.add(message.getUsername() + ": " + message.getBody());
+                        } else {
+                            messagesAdapter.add(message.getBody());
+                        }
                         messagesAdapter.notifyDataSetChanged();
                     } catch (JsonSyntaxException e) {
                         Log.e(TAG, e.getMessage());
@@ -334,8 +339,11 @@ public class ChatFragment extends Fragment implements AsyncDelegate {
             List<AccountDTO> usersInRoom = null;
 
             try {
-                String roomID = ((PaperFlyApp) getActivity().getApplication()).getCurrentChatRoomID();
-                usersInRoom = RestConsumerSingleton.getInstance().getUsersInRoom(roomID);
+                if (((PaperFlyApp) getActivity().getApplication()).getCurrentVisibleChatRoom().equals(ROOM_GLOBAL_NAME)) {
+                    usersInRoom = RestConsumerSingleton.getInstance().getUsersInRoom(ROOM_GLOBAL);
+                } else {
+                    usersInRoom = RestConsumerSingleton.getInstance().getUsersInRoom(((PaperFlyApp) getActivity().getApplication()).getActualRoom().getId());
+                }
 
                 ((PaperFlyApp) getActivity().getApplication()).setUsersInRoom(usersInRoom);
 

@@ -221,10 +221,12 @@ public class LoginActivity extends Activity {
 
             try {
                 tokenDTO = RestConsumerSingleton.getInstance().login(mail, pw);
-                AccountDTO accountDTO = RestConsumerSingleton.getInstance().setMyAccountStatus(de.fhb.mi.paperfly.dto.Status.ONLINE);
-                ((PaperFlyApp) getApplication()).setAccount(accountDTO);
                 if (tokenDTO != null) {
+                    AccountDTO accountDTO = RestConsumerSingleton.getInstance().setMyAccountStatus(de.fhb.mi.paperfly.dto.Status.ONLINE);
+                    ((PaperFlyApp) getApplication()).setAccount(accountDTO);
                     return true;
+                } else {
+                    return false;
                 }
             } catch (RestConsumerException e) {
                 e.printStackTrace();

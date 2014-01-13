@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.fhb.mi.paperfly.dto.AccountDTO;
+import de.fhb.mi.paperfly.dto.RoomDTO;
 import de.fhb.mi.paperfly.service.BackgroundLocationService;
 import de.fhb.mi.paperfly.service.RestConsumerSingleton;
 import lombok.Getter;
@@ -31,7 +32,8 @@ import lombok.Setter;
 public class PaperFlyApp extends Application {
 
     private final static String ROOM_ID_GLOBAL="1";
-    private String currentChatRoomID ="";
+    private String currentVisibleChatRoom = "";
+    private RoomDTO actualRoom = null;
     private AccountDTO account;
     private List<AccountDTO> usersInRoom = new ArrayList<AccountDTO>();
 

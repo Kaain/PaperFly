@@ -20,11 +20,14 @@ public interface RestConsumer {
     /**
      * Get all accounts in room
      *
+     *
      * @param roomID the room
      *
      * @return all accounts in room
      */
-    List<AccountDTO> getUsersInRoom(String roomID) throws RestConsumerException;
+    List<AccountDTO> getUsersInRoom(Long roomID) throws RestConsumerException;
+
+    RoomDTO getRoom(String roomID) throws RestConsumerException;
 
     /**
      * Edits an account

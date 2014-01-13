@@ -279,9 +279,10 @@ public class UserProfileFragment extends Fragment implements AsyncDelegate {
                     profileFirstname.append(userAccount.getFirstName());
                     profileLastname.append(userAccount.getLastName());
                 }
-
-                LocateAccountTask locateAccountTask = new LocateAccountTask();
-                locateAccountTask.execute();
+                if (!isMyAccount) {
+                    LocateAccountTask locateAccountTask = new LocateAccountTask();
+                    locateAccountTask.execute();
+                }
 
             } else {
                 Toast.makeText(rootView.getContext(), "Failed to load userAccount!", Toast.LENGTH_SHORT)
@@ -356,7 +357,11 @@ public class UserProfileFragment extends Fragment implements AsyncDelegate {
 
             try {
                 actualRoomOfUser = RestConsumerSingleton.getInstance().locateAccount(userAccount.getUsername());
-                Log.d(TAG, "UserAccount " + userAccount.getUsername() + " in " + actualRoomOfUser.getName());
+                if (actualRoomOfUser != null) {
+                    Log.d(TAG, "UserAccount " + userAccount.getUsername() + " in " + actualRoomOfUser.getName());
+                } else {
+                    Log.d(TAG, "UserAccount " + userAccount.getUsername() + " in no room");
+                }
             } catch (RestConsumerException e) {
                 Log.d(TAG, e.getMessage());
             }

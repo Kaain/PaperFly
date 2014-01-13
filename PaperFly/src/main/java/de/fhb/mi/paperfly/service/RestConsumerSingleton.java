@@ -75,9 +75,11 @@ public class RestConsumerSingleton implements RestConsumer {
     public static final String URL_EDIT_ACCOUNT = "PaperFlyServer-web/rest/v1/myaccount/edit";
     public static final String URL_ADD_OR_REMOVE_FRIEND = "PaperFlyServer-web/rest/v1/myaccount/friend/";
     public static final String URL_ACCOUNTS_IN_ROOM = "PaperFlyServer-web/rest/v1/room/accounts/";
+    public static final String URL_GET_ROOM = "PaperFlyServer-web/rest/v1/room/";
     public static final String URL_LOCATE_ACCOUNT = "PaperFlyServer-web/rest/v1/room/locateAccount/";
     public static final String URL_CHANGE_ACCOUNT_STATUS = "PaperFlyServer-web/rest/v1/myaccount/status/";
-    public static final String URL_CHAT_GLOBAL = "ws://" + AWS_IP + ":" + PORT + "/PaperFlyServer-web/ws/chat/global";
+    public static final String URL_CHAT_BASE = "ws://" + AWS_IP + ":" + PORT + "/PaperFlyServer-web/ws/chat/";
+    public static final String URL_CHAT_GLOBAL = URL_CHAT_BASE + "global";
 
     public static final String URL_GET_ALL_ACCOUNTS_IN_ROOM = "PaperFlyServer-web/rest/v1/room/accounts/";
 
@@ -114,11 +116,11 @@ public class RestConsumerSingleton implements RestConsumer {
     }
 
     @Override
-    public List<AccountDTO> getUsersInRoom(String roomID) throws RestConsumerException {
+    public List<AccountDTO> getUsersInRoom(Long roomID) throws RestConsumerException {
         Log.d(TAG, "getUsersInRoom");
 
         HttpUriRequest request = new HttpGet(getConnectionURL(URL_ACCOUNTS_IN_ROOM) + roomID);
-        List<AccountDTO> usersInRoom = null;
+        List<AccountDTO> usersInRoom = new ArrayList<AccountDTO>();
         Type collectionType = new TypeToken<ArrayList<AccountDTO>>() {
         }.getType();
 
@@ -146,6 +148,37 @@ public class RestConsumerSingleton implements RestConsumer {
             e.printStackTrace();
         }
         return usersInRoom;
+    }
+
+    @Override
+    public RoomDTO getRoom(String roomID) throws RestConsumerException {
+        Log.d(TAG, "getUsersInRoom");
+
+        HttpUriRequest request = new HttpGet(getConnectionURL(URL_GET_ROOM) + roomID);
+        Log.d(TAG, request.getRequestLine().toString());
+
+        HttpClient httpclient = application.getHttpClient();
+        HttpResponse response;
+        try {
+            consumer.sign(request);
+            response = httpclient.execute(request);
+            analyzeHttpStatus(response);
+
+            String responseObjAsString = readInEntity(response);
+            Gson gson = new GsonBuilder().registerTypeAdapter(Date.class, new JsonDateDeserializer()).create();
+            Log.d(TAG, "json: " + responseObjAsString);
+
+            return gson.fromJson(responseObjAsString, RoomDTO.class);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (OAuthExpectationFailedException e) {
+            e.printStackTrace();
+        } catch (OAuthCommunicationException e) {
+            e.printStackTrace();
+        } catch (OAuthMessageSignerException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     @Override

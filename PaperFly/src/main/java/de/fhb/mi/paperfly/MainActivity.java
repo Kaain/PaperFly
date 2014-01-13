@@ -35,6 +35,7 @@ import de.fhb.mi.paperfly.auth.AuthHelper;
 import de.fhb.mi.paperfly.auth.LoginActivity;
 import de.fhb.mi.paperfly.chat.ChatFragment;
 import de.fhb.mi.paperfly.dto.AccountDTO;
+import de.fhb.mi.paperfly.dto.RoomDTO;
 import de.fhb.mi.paperfly.navigation.NavItemModel;
 import de.fhb.mi.paperfly.navigation.NavKey;
 import de.fhb.mi.paperfly.navigation.NavListAdapter;
@@ -44,6 +45,7 @@ import de.fhb.mi.paperfly.service.RestConsumerSingleton;
 import de.fhb.mi.paperfly.user.FriendListFragment;
 import de.fhb.mi.paperfly.user.UserProfileFragment;
 import de.fhb.mi.paperfly.user.UserSearchActivity;
+import de.fhb.mi.paperfly.util.GetRoomAsyncDelegate;
 
 /**
  * The Activity with the navigation and some Fragments.
@@ -51,7 +53,7 @@ import de.fhb.mi.paperfly.user.UserSearchActivity;
  * @author Christoph Ott
  * @author Andy Klay   klay@fh-brandenburg.de
  */
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements GetRoomAsyncDelegate {
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final String TITLE_LEFT_DRAWER = "Navigation";
     private static final String TITLE_RIGHT_DRAWER = "Status";
@@ -100,7 +102,7 @@ public class MainActivity extends Activity {
         getActionBar().setHomeButtonEnabled(true);
 
         // Set the adapter for the list view
-        listViewRightAdapter= new ArrayAdapter<String>(this,
+        listViewRightAdapter = new ArrayAdapter<String>(this,
                 R.layout.drawer_list_item, drawerRightValues);
         drawerRightList.setAdapter(listViewRightAdapter);
 
@@ -342,10 +344,6 @@ public class MainActivity extends Activity {
             case android.R.id.home:
                 drawerToggle.onOptionsItemSelected(item);
                 return true;
-            case R.id.action_websockettest:
-                Intent intent = new Intent(this, WebSocketTestMainActivity.class);
-                startActivity(intent);
-                return true;
             case R.id.action_settings:
                 startActivity(new Intent(this, SettingsActivity.class));
                 return true;
@@ -457,10 +455,11 @@ public class MainActivity extends Activity {
                     String room = intent.getStringExtra("SCAN_RESULT");
                     //TODO gucken ob Raum existiert via. Restconsumer
 
-                    ((PaperFlyApp) getApplication()).setCurrentChatRoomID(room);
+                    GetRoomTask getRoomTask = new GetRoomTask(this);
+                    getRoomTask.execute(room);
 
                     String format = intent.getStringExtra("SCAN_RESULT_FORMAT");
-                    switchToNewChatRoom(room);
+
                     Toast.makeText(this, room, Toast.LENGTH_SHORT).show();
                 } else if (resultCode == RESULT_CANCELED) {
                     Toast.makeText(this, "Cancel", Toast.LENGTH_SHORT).show();
@@ -508,17 +507,11 @@ public class MainActivity extends Activity {
             enterRoomNav.setIconID(-1);
             adapter.notifyDataSetChanged();
         }
-        actualRoom = room;
-//        } else {
-//            // there already was a room selected, that's why there is no need to add a new navItem
-//            // but remove the old fragment
-//            fragmentManager.beginTransaction()
-//                    .remove(fragmentByTag)
-//                    .replace(R.id.content_frame, newFragment, ChatFragment.TAG_ROOM)
-//                    .commit();
-//        }
+        Log.e("switchToNewChatRoom", " " + room);
+        ((PaperFlyApp) getApplication()).setCurrentVisibleChatRoom(room);
+        ;
 
-        this.updateUsersInRoomOnDrawer(actualRoom);
+        this.updateUsersInRoomOnDrawer(((PaperFlyApp) getApplication()).getCurrentVisibleChatRoom());
     }
 
     /**
@@ -536,7 +529,7 @@ public class MainActivity extends Activity {
         } else {
             Fragment newFragment = new ChatFragment();
             Bundle args = new Bundle();
-            args.putString(ChatFragment.ARG_CHAT_ROOM, actualRoom);
+            args.putString(ChatFragment.ARG_CHAT_ROOM, ((PaperFlyApp) getApplication()).getCurrentVisibleChatRoom());
             newFragment.setArguments(args);
 
 //        if (fragmentByTag == null) {
@@ -545,7 +538,7 @@ public class MainActivity extends Activity {
                     .replace(R.id.content_frame, newFragment, ChatFragment.TAG_ROOM)
                     .commit();
         }
-        this.updateUsersInRoomOnDrawer(ChatFragment.ARG_CHAT_ROOM);
+        this.updateUsersInRoomOnDrawer(((PaperFlyApp) getApplication()).getCurrentVisibleChatRoom());
     }
 
     /**
@@ -558,7 +551,7 @@ public class MainActivity extends Activity {
         if (fragmentByTag == null) {
             Fragment fragment = new ChatFragment();
             Bundle args = new Bundle();
-            args.putString(ChatFragment.ARG_CHAT_ROOM, ChatFragment.ROOM_GLOBAL);
+            args.putString(ChatFragment.ARG_CHAT_ROOM, ChatFragment.ROOM_GLOBAL_NAME);
             fragment.setArguments(args);
 
             // Insert the fragment by replacing any existing fragment
@@ -573,11 +566,12 @@ public class MainActivity extends Activity {
                     .commit();
         }
 
-        this.updateUsersInRoomOnDrawer(ChatFragment.ROOM_GLOBAL);
+        this.updateUsersInRoomOnDrawer(ChatFragment.ROOM_GLOBAL_NAME);
     }
 
     public void updateUsersInRoomOnDrawer(String roomID) {
-        ((PaperFlyApp) getApplication()).setCurrentChatRoomID(roomID);
+        Log.e("updateUsersInRoomOnDrawer", "" + roomID);
+        ((PaperFlyApp) getApplication()).setCurrentVisibleChatRoom(roomID);
         mGetAccountsInRoomTask = new GetAccountsInRoomTask();
         mGetAccountsInRoomTask.execute();
 
@@ -628,6 +622,8 @@ public class MainActivity extends Activity {
         mGetAccountsInRoomTask = new GetAccountsInRoomTask();
         mGetAccountsInRoomTask.execute();
 
+        // TODO asynctak ist vlt noch nicht fertig an der dieser stelle
+
         //Daten umwandeln in String
         StringBuilder output = new StringBuilder();
         ArrayList<AccountDTO> usersInRoom = new ArrayList<AccountDTO>();
@@ -640,7 +636,7 @@ public class MainActivity extends Activity {
         Intent intent = new Intent(Intent.ACTION_SEND);
         intent.setType("plain/text");
         intent.putExtra(Intent.EXTRA_EMAIL, new String[]{"some@email.address"});
-        intent.putExtra(Intent.EXTRA_SUBJECT, "Attendance in room " + ((PaperFlyApp) getApplication()).getCurrentChatRoomID());
+        intent.putExtra(Intent.EXTRA_SUBJECT, "Attendance in room " + ((PaperFlyApp) getApplication()).getCurrentVisibleChatRoom());
         intent.putExtra(Intent.EXTRA_TEXT, output.toString());
 
         startActivity(Intent.createChooser(intent, "send Mail"));
@@ -665,6 +661,16 @@ public class MainActivity extends Activity {
     public void setTitle(CharSequence title) {
         mTitle = title;
         getActionBar().setTitle(mTitle);
+    }
+
+    @Override
+    public void getRoomAsyncComplete(boolean success) {
+        if (success) {
+            switchToNewChatRoom(((PaperFlyApp) getApplication()).getActualRoom().getName());
+        } else {
+            Toast.makeText(this, "cannot switch to room", Toast.LENGTH_SHORT).show();
+        }
+
     }
 
     /**
@@ -740,11 +746,14 @@ public class MainActivity extends Activity {
 
         @Override
         protected Boolean doInBackground(String... params) {
-            List<AccountDTO> usersInRoom = null;
+            List<AccountDTO> usersInRoom = new ArrayList<AccountDTO>();
 
             try {
-                String roomID = ((PaperFlyApp) getApplication()).getCurrentChatRoomID();
-                usersInRoom = RestConsumerSingleton.getInstance().getUsersInRoom(roomID);
+                if (((PaperFlyApp) getApplication()).getCurrentVisibleChatRoom().equals(ChatFragment.ROOM_GLOBAL_NAME)) {
+                    usersInRoom = RestConsumerSingleton.getInstance().getUsersInRoom(ChatFragment.ROOM_GLOBAL);
+                } else {
+                    usersInRoom = RestConsumerSingleton.getInstance().getUsersInRoom(((PaperFlyApp) getApplication()).getActualRoom().getId());
+                }
 
                 ((PaperFlyApp) getApplication()).setUsersInRoom(usersInRoom);
 
@@ -752,7 +761,7 @@ public class MainActivity extends Activity {
                 e.printStackTrace();
             }
 
-            return usersInRoom != null;
+            return !usersInRoom.isEmpty();
         }
 
         @Override
@@ -764,6 +773,37 @@ public class MainActivity extends Activity {
                 Toast.makeText(getApplicationContext(), "UserInRoom successful!", Toast.LENGTH_SHORT).show();
             }
 
+        }
+    }
+
+    /**
+     * Represents an asynchronous GetRoomTask used to get a room
+     */
+    public class GetRoomTask extends AsyncTask<String, Void, Boolean> {
+
+        private GetRoomAsyncDelegate delegate;
+
+        public GetRoomTask(GetRoomAsyncDelegate delegate) {
+            this.delegate = delegate;
+        }
+
+        @Override
+        protected Boolean doInBackground(String... params) {
+            RoomDTO roomDTO = null;
+            try {
+                roomDTO = RestConsumerSingleton.getInstance().getRoom(params[0]);
+                ((PaperFlyApp) getApplication()).setActualRoom(roomDTO);
+            } catch (RestConsumerException e) {
+                e.printStackTrace();
+            }
+
+            return roomDTO != null;
+        }
+
+        @Override
+        protected void onPostExecute(final Boolean success) {
+            delegate.getRoomAsyncComplete(success);
+            mGetAccountsInRoomTask = null;
         }
     }
 
