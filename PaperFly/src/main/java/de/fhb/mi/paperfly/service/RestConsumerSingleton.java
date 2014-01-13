@@ -119,7 +119,8 @@ public class RestConsumerSingleton implements RestConsumer {
 
         HttpUriRequest request = new HttpGet(getConnectionURL(URL_ACCOUNTS_IN_ROOM) + roomID);
         List<AccountDTO> usersInRoom = null;
-        Type collectionType = new TypeToken<ArrayList<AccountDTO>>() {}.getType();
+        Type collectionType = new TypeToken<ArrayList<AccountDTO>>() {
+        }.getType();
 
         Log.d(TAG, request.getRequestLine().toString());
 
@@ -515,7 +516,6 @@ public class RestConsumerSingleton implements RestConsumer {
 
     @Override
     public List<AccountDTO> searchAccount(String query) throws RestConsumerException {
-
         Log.d(TAG, "searchAccount");
 
         HttpUriRequest request = new HttpGet(getConnectionURL(URL_SEARCH_ACCOUNT) + query);

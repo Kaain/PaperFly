@@ -3,6 +3,7 @@ package de.fhb.mi.paperfly.user;
 import android.app.ListActivity;
 import android.app.SearchManager;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -13,17 +14,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.fhb.mi.paperfly.R;
+import de.fhb.mi.paperfly.dto.AccountDTO;
+import de.fhb.mi.paperfly.service.RestConsumerException;
+import de.fhb.mi.paperfly.service.RestConsumerSingleton;
 
 /**
  * The activity to show if the user searches for another user.
  */
-public class UserSearchActivity extends ListActivity {
+public class UserSearchActivity extends ListActivity implements AsyncDelegate {
     private static final String TAG = UserSearchActivity.class.getSimpleName();
+    ArrayAdapter<String> arrayAdapter;
+    List<AccountDTO> searchResults;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search_user);
+        arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, new ArrayList<String>());
+        setListAdapter(arrayAdapter);
         handleIntent(getIntent());
     }
 
@@ -37,7 +45,7 @@ public class UserSearchActivity extends ListActivity {
     public void onListItemClick(ListView l, View v, int position, long id) {
         Log.d(TAG, "onListItemClick");
         Intent intent = new Intent();
-        intent.putExtra(UserProfileFragment.ARGS_USER, getListAdapter().getItem(position).toString());
+        intent.putExtra(UserProfileFragment.ARGS_USER, arrayAdapter.getItem(position));
         setResult(RESULT_OK, intent);
         finish();
     }
@@ -62,10 +70,43 @@ public class UserSearchActivity extends ListActivity {
      */
     private void doSearch(String queryStr) {
         Log.d(TAG, "doSearch: " + queryStr);
-        List<String> list = new ArrayList<String>();
-        for (int i = 0; i < 20; i++) {
-            list.add("UserResult" + i + "for" + queryStr);
+        SearchUserTask searchUserTask = new SearchUserTask(this);
+        searchUserTask.execute(queryStr);
+    }
+
+    @Override
+    public void asyncComplete(boolean success) {
+        for (AccountDTO accountDTO : searchResults) {
+            arrayAdapter.add(accountDTO.getUsername());
         }
-        setListAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, list));
+        arrayAdapter.notifyDataSetChanged();
+    }
+
+    /**
+     * Represents an asynchronous SearchUserTask used to search for user.
+     */
+    public class SearchUserTask extends AsyncTask<String, Void, Boolean> {
+
+        private AsyncDelegate delegate;
+
+        public SearchUserTask(AsyncDelegate delegate) {
+            this.delegate = delegate;
+        }
+
+        @Override
+        protected Boolean doInBackground(String... params) {
+
+            try {
+                searchResults = RestConsumerSingleton.getInstance().searchAccount(params[0]);
+            } catch (RestConsumerException e) {
+                Log.d(TAG, e.getMessage());
+            }
+            return true;
+        }
+
+        @Override
+        protected void onPostExecute(final Boolean success) {
+            delegate.asyncComplete(true);
+        }
     }
 }

@@ -11,7 +11,6 @@ import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -30,10 +29,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 
 import de.fhb.mi.paperfly.auth.AuthHelper;
 import de.fhb.mi.paperfly.auth.LoginActivity;
@@ -75,6 +71,7 @@ public class MainActivity extends Activity {
     private int roomNavID;
     private String actualRoom;
     private List<AccountDTO> usersInRoom = null;
+    private boolean appStarted = false;
 
 
     @Override
@@ -146,9 +143,11 @@ public class MainActivity extends Activity {
                 bundle.clear();
                 mAuthTask = new UserLoginTask();
                 mAuthTask.execute();
-            } else {
+            } else if (!appStarted) {
+                // if the app was started select GlobalChat
                 navigateTo(NavKey.GLOBAL);
-//                // TODO select global
+                appStarted = true;
+                // TODO select global
             }
         } else {
             showProgress(true);
@@ -601,6 +600,7 @@ public class MainActivity extends Activity {
     }
 
     private void openUserProfile(String user, boolean isMyAccount) {
+        Log.d(TAG, "openUserProfile");
         Fragment fragment = new UserProfileFragment();
         Bundle args = new Bundle();
         args.putString(UserProfileFragment.ARGS_USER, user);
