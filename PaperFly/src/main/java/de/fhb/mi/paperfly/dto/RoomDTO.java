@@ -4,7 +4,11 @@
  */
 package de.fhb.mi.paperfly.dto;
 
-import lombok.*;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 /**
  * @author MacYser
@@ -15,4 +19,9 @@ import lombok.*;
 @EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor
 public class RoomDTO {
+
+    private Long id;
+    private String name;
+    private CoordinateDTO coordinate;
+    private String building;
 }

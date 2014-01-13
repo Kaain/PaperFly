@@ -33,6 +33,7 @@ import de.fhb.mi.paperfly.PaperFlyApp;
 import de.fhb.mi.paperfly.R;
 import de.fhb.mi.paperfly.SettingsActivity;
 import de.fhb.mi.paperfly.dto.AccountDTO;
+import de.fhb.mi.paperfly.dto.RoomDTO;
 import de.fhb.mi.paperfly.service.BackgroundLocationService;
 import de.fhb.mi.paperfly.service.RestConsumerException;
 import de.fhb.mi.paperfly.service.RestConsumerSingleton;
@@ -59,6 +60,7 @@ public class UserProfileFragment extends Fragment implements AsyncDelegate {
 
     private GetAccountTask mAccountTask = null;
     private AccountDTO userAccount = null;
+    private RoomDTO actualRoomOfUser = null;
     private boolean isMyAccount;
     private boolean userIsFriend;
     AddRemoveFriendTask addRemoveFriendTask = new AddRemoveFriendTask(this);
@@ -97,8 +99,8 @@ public class UserProfileFragment extends Fragment implements AsyncDelegate {
 
     private Intent getMapsIntent() {
         //TODO java.lang.Object irgendwo an der FH
-        double latitude = 52.411433;
-        double longitude = 12.536933;
+        double latitude = actualRoomOfUser.getCoordinate().getLatitude();
+        double longitude = actualRoomOfUser.getCoordinate().getLonglitutde();
 
         Location currentLocation = mBackgroundLocationService.getCurrentLocation();
 
@@ -278,6 +280,9 @@ public class UserProfileFragment extends Fragment implements AsyncDelegate {
                     profileLastname.append(userAccount.getLastName());
                 }
 
+                LocateAccountTask locateAccountTask = new LocateAccountTask();
+                locateAccountTask.execute();
+
             } else {
                 Toast.makeText(rootView.getContext(), "Failed to load userAccount!", Toast.LENGTH_SHORT)
                         .show();
@@ -338,6 +343,29 @@ public class UserProfileFragment extends Fragment implements AsyncDelegate {
         @Override
         protected void onPostExecute(final Boolean success) {
             delegate.asyncComplete(true);
+        }
+    }
+
+    /**
+     * Represents an asynchronous GetMyAccountTask used to get an user
+     */
+    public class LocateAccountTask extends AsyncTask<String, Void, Boolean> {
+
+        @Override
+        protected Boolean doInBackground(String... params) {
+
+            try {
+                actualRoomOfUser = RestConsumerSingleton.getInstance().locateAccount(userAccount.getUsername());
+                Log.d(TAG, "UserAccount " + userAccount.getUsername() + " in " + actualRoomOfUser.getName());
+            } catch (RestConsumerException e) {
+                Log.d(TAG, e.getMessage());
+            }
+            return true;
+        }
+
+        @Override
+        protected void onPostExecute(final Boolean success) {
+
         }
     }
 }
