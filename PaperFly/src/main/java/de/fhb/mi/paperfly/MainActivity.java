@@ -30,10 +30,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 
 import de.fhb.mi.paperfly.auth.AuthHelper;
 import de.fhb.mi.paperfly.auth.LoginActivity;
@@ -76,6 +73,8 @@ public class MainActivity extends Activity {
     private int roomNavID;
     private String actualRoom;
     private GetAccountsInRoomTask mGetAccountsInRoomTask = null;
+    private List<AccountDTO> usersInRoom = null;
+    private boolean appStarted = false;
 
 
     @Override
@@ -149,12 +148,15 @@ public class MainActivity extends Activity {
                 bundle.clear();
                 mAuthTask = new UserLoginTask();
                 mAuthTask.execute();
-            } else {
+            } else if (!appStarted) {
+                // if the app was started select GlobalChat
                 navigateTo(NavKey.GLOBAL);
 //                // TODO select global
                 //fill accounts in room, standard is global
 //                mGetAccountsInRoomTask = new GetAccountsInRoomTask();
 //                mGetAccountsInRoomTask.execute();
+                appStarted = true;
+                // TODO select global
             }
         } else {
             showProgress(true);
@@ -628,6 +630,7 @@ public class MainActivity extends Activity {
     }
 
     private void openUserProfile(String user, boolean isMyAccount) {
+        Log.d(TAG, "openUserProfile");
         Fragment fragment = new UserProfileFragment();
         Bundle args = new Bundle();
         args.putString(UserProfileFragment.ARGS_USER, user);
@@ -746,5 +749,4 @@ public class MainActivity extends Activity {
 
         }
     }
-
 }
