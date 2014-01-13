@@ -153,6 +153,7 @@ public class FriendListFragment extends Fragment implements AdapterView.OnItemCl
         Fragment fragment = new UserProfileFragment();
         Bundle args = new Bundle();
         args.putString(UserProfileFragment.ARGS_USER, listAdapter.getItem(position).getUsername());
+        args.putBoolean(UserProfileFragment.ARGS_USER_IS_FRIEND, true);
         fragment.setArguments(args);
         // Insert the fragment by replacing any existing fragment
         FragmentManager fragmentManager = getFragmentManager();

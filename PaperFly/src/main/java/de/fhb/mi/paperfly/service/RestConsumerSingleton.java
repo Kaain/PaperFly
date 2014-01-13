@@ -247,6 +247,40 @@ public class RestConsumerSingleton implements RestConsumer {
     }
 
     @Override
+    public AccountDTO addFriend(String friendUsername) throws RestConsumerException {
+        Log.d(TAG, "addFriend");
+
+        AccountDTO responseAccount = null;
+        HttpUriRequest request = new HttpGet(getConnectionURL(URL_ADD_FRIEND + friendUsername));
+        Log.d(TAG, request.getRequestLine().toString());
+
+        HttpClient httpclient = new DefaultHttpClient();
+        HttpResponse response;
+        try {
+            consumer.sign(request);
+            response = httpclient.execute(request);
+            analyzeHttpStatus(response);
+
+            String responseObjAsString = readInEntity(response);
+
+            Gson gson = new GsonBuilder().registerTypeAdapter(Date.class, new JsonDateDeserializer()).create();
+
+            responseAccount = gson.fromJson(responseObjAsString, AccountDTO.class);
+            application.setAccount(responseAccount);
+            return responseAccount;
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (OAuthExpectationFailedException e) {
+            e.printStackTrace();
+        } catch (OAuthCommunicationException e) {
+            e.printStackTrace();
+        } catch (OAuthMessageSignerException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
     public AccountDTO setMyAccountStatus(Status status) throws RestConsumerException {
         Log.d(TAG, "setMyAccountStatus");
 

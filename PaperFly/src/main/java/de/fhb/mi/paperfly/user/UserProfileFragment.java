@@ -48,6 +48,7 @@ public class UserProfileFragment extends Fragment {
     private static final int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
     public static final String ARGS_USER = "user";
     public static final String ARGS_MY_ACCOUNT = "myaccount";
+    public static final String ARGS_USER_IS_FRIEND = "USER_IS_FRIEND";
 
     private View rootView;
     private Switch friendSwitch;
@@ -58,6 +59,7 @@ public class UserProfileFragment extends Fragment {
     private GetAccountTask mAccountTask = null;
     private AccountDTO account = null;
     private boolean isMyAccount;
+    private boolean userIsFriend;
 
     private String username = null;
     private BackgroundLocationService mBackgroundLocationService;
@@ -84,8 +86,8 @@ public class UserProfileFragment extends Fragment {
         Log.d(TAG, "onCreate");
         setHasOptionsMenu(true);
         isMyAccount = getArguments().getBoolean(ARGS_MY_ACCOUNT, false);
+        userIsFriend = getArguments().getBoolean(ARGS_USER_IS_FRIEND, false);
         username = getArguments().getString(ARGS_USER);
-        getActivity().setTitle(username);
 
         mAccountTask = new GetAccountTask();
         mAccountTask.execute(username);
@@ -188,6 +190,8 @@ public class UserProfileFragment extends Fragment {
                              Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_user_profile, container, false);
         initViews(rootView);
+        friendSwitch.setChecked(userIsFriend);
+        getActivity().setTitle(username);
         if (isMyAccount) {
             friendSwitch.setVisibility(View.INVISIBLE);
         } else {
