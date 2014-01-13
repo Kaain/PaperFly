@@ -30,8 +30,10 @@ import lombok.Setter;
 @Setter
 public class PaperFlyApp extends Application {
 
-    private String chatRoom;
+    private final static String ROOM_ID_GLOBAL="1";
+    private String currentChatRoomID ="";
     private AccountDTO account;
+    private List<AccountDTO> usersInRoom = new ArrayList<AccountDTO>();
 
     private final Object lock = new Object();
     private CookieStore cookieStore = null;
