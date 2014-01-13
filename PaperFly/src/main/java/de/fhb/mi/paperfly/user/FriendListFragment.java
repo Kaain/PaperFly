@@ -20,10 +20,12 @@ package de.fhb.mi.paperfly.user;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.app.SearchManager;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -34,6 +36,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -57,6 +60,7 @@ public class FriendListFragment extends Fragment implements AdapterView.OnItemCl
     private ListView friendListView;
     private FriendListAdapter listAdapter;
     AccountDTO account = null;
+    private DrawerLayout drawerLayout;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -71,7 +75,7 @@ public class FriendListFragment extends Fragment implements AdapterView.OnItemCl
 
         this.rootView = inflater.inflate(R.layout.fragment_friends, container, false);
         initViewsById();
-
+        this.drawerLayout = (DrawerLayout) container.getParent();
         setHasOptionsMenu(true);
         getActivity().setTitle(R.string.nav_item_open_friendlist);
 
@@ -93,6 +97,31 @@ public class FriendListFragment extends Fragment implements AdapterView.OnItemCl
         if (menu != null) {
             inflater.inflate(R.menu.user_friends, menu);
         }
+
+
+        SearchManager searchManager = (SearchManager) getActivity().getSystemService(Context.SEARCH_SERVICE);
+        SearchView searchView = (SearchView) menu.findItem(R.id.action_search_user).getActionView();
+
+        // Get the menu item from the action bar
+        MenuItem menuItem = menu.findItem(R.id.action_search_user);
+        menuItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
+
+            @Override
+            public boolean onMenuItemActionExpand(MenuItem item) {
+                Log.d(TAG, "Search activated. Locking drawers.");
+                drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+                return true;
+            }
+
+            @Override
+            public boolean onMenuItemActionCollapse(MenuItem item) {
+                Log.d(TAG, "Search deactivated. Unlocking drawers.");
+                drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+                return true;
+            }
+        });
+        // Assumes current activity is the searchable activity
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(getActivity().getComponentName()));
     }
 
     @Override
