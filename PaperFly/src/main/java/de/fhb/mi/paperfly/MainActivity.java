@@ -56,6 +56,7 @@ import de.fhb.mi.paperfly.user.UserSearchActivity;
  * @author Andy Klay   klay@fh-brandenburg.de
  */
 public class MainActivity extends Activity {
+
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final String TITLE_LEFT_DRAWER = "Navigation";
     private static final String TITLE_RIGHT_DRAWER = "Status";
@@ -69,12 +70,12 @@ public class MainActivity extends Activity {
     private CharSequence mTitle;
     private UserLoginTask mAuthTask = null;
     private UserLogoutTask mLogoutTask = null;
-    private GetAccountsInRoomTask mGetAccountsInRoomTask = null;
+
     private View progressLayout;
     private boolean roomAdded = false;
     private int roomNavID;
     private String actualRoom;
-    private List<AccountDTO> usersInRoom = null;
+    private GetAccountsInRoomTask mGetAccountsInRoomTask = null;
 
 
     @Override
@@ -86,9 +87,11 @@ public class MainActivity extends Activity {
 
         // DUMMY DATA
         drawerRightValues = new ArrayList<String>();
-        for (int i = 0; i < 50; i++) {
-            drawerRightValues.add("User" + i + TITLE_RIGHT_DRAWER);
-        }
+//        for (int i = 0; i < 50; i++) {
+//            drawerRightValues.add("User" + i + TITLE_RIGHT_DRAWER);
+//        }
+
+        //fill accounts in room, standard is global
         mTitle = getTitle();
 
         drawerToggle = createActionBarDrawerToggle();
@@ -149,6 +152,9 @@ public class MainActivity extends Activity {
             } else {
                 navigateTo(NavKey.GLOBAL);
 //                // TODO select global
+                //fill accounts in room, standard is global
+//                mGetAccountsInRoomTask = new GetAccountsInRoomTask();
+//                mGetAccountsInRoomTask.execute();
             }
         } else {
             showProgress(true);
@@ -226,6 +232,15 @@ public class MainActivity extends Activity {
 
         return super.onCreateOptionsMenu(menu);
     }
+//    @Override
+//    public void onResume(){
+//        super.onResume();
+//
+//        if (((PaperFlyApp) getApplication()).getCurrentChatRoomID() != null) {
+//            mGetAccountsInRoomTask = new GetAccountsInRoomTask();
+//            mGetAccountsInRoomTask.execute();
+//        }
+//    }
 
     /**
      * Initializes all views in the layout.
@@ -267,11 +282,24 @@ public class MainActivity extends Activity {
             public void onDrawerOpened(View drawerView) {
                 if (drawerLayout.isDrawerOpen(Gravity.RIGHT)) {
                     getActionBar().setTitle(TITLE_RIGHT_DRAWER);
+//                    this.changeDrawerRight();
                 }
                 if (drawerLayout.isDrawerOpen(Gravity.LEFT)) {
                     getActionBar().setTitle(TITLE_LEFT_DRAWER);
                 }
                 invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+            }
+
+            /**
+             * change values in drawer right, set actual users in room
+             */
+            private void changeDrawerRight() {
+
+                drawerRightValues.clear();
+                List<AccountDTO> usersInRoom = ((PaperFlyApp) getApplication()).getUsersInRoom();
+                for (AccountDTO current : usersInRoom) {
+                    drawerRightValues.add(current.getUsername());
+                }
             }
         };
     }
@@ -429,7 +457,9 @@ public class MainActivity extends Activity {
                 if (resultCode == RESULT_OK) {
                     String room = intent.getStringExtra("SCAN_RESULT");
                     //TODO gucken ob Raum existiert via. Restconsumer
-                    ((PaperFlyApp) getApplication()).setChatRoom(room);
+
+                    ((PaperFlyApp) getApplication()).setCurrentChatRoomID(room);
+
                     String format = intent.getStringExtra("SCAN_RESULT_FORMAT");
                     switchToNewChatRoom(room);
                     Toast.makeText(this, room, Toast.LENGTH_SHORT).show();
@@ -576,15 +606,12 @@ public class MainActivity extends Activity {
 
     private void checkPresence() {
 
-        ((PaperFlyApp) getApplication()).setChatRoom("1");
-        if (((PaperFlyApp) getApplication()).getChatRoom() != null) {
-            mGetAccountsInRoomTask = new GetAccountsInRoomTask();
-            mGetAccountsInRoomTask.execute();
-        }
+        mGetAccountsInRoomTask = new GetAccountsInRoomTask();
+        mGetAccountsInRoomTask.execute();
 
         //Daten umwandeln in String
         StringBuilder output = new StringBuilder();
-        usersInRoom=new ArrayList<AccountDTO>();
+        ArrayList<AccountDTO> usersInRoom = new ArrayList<AccountDTO>();
         usersInRoom.add(((PaperFlyApp) getApplication()).getAccount());
         for (AccountDTO current : usersInRoom) {
             output.append(current.getFirstName() + " " + current.getLastName() + "\n");
@@ -593,8 +620,8 @@ public class MainActivity extends Activity {
         //Daten weiterleiten an andere App
         Intent intent = new Intent(Intent.ACTION_SEND);
         intent.setType("plain/text");
-        intent.putExtra(Intent.EXTRA_EMAIL, new String[] { "some@email.address" });
-        intent.putExtra(Intent.EXTRA_SUBJECT, "Attendance in room " + ((PaperFlyApp) getApplication()).getChatRoom());
+        intent.putExtra(Intent.EXTRA_EMAIL, new String[]{"some@email.address"});
+        intent.putExtra(Intent.EXTRA_SUBJECT, "Attendance in room " + ((PaperFlyApp) getApplication()).getCurrentChatRoomID());
         intent.putExtra(Intent.EXTRA_TEXT, output.toString());
 
         startActivity(Intent.createChooser(intent, "send Mail"));
@@ -693,9 +720,13 @@ public class MainActivity extends Activity {
 
         @Override
         protected Boolean doInBackground(String... params) {
+            List<AccountDTO> usersInRoom = null;
+
             try {
-                String roomID = ((PaperFlyApp) getApplication()).getChatRoom();
+                String roomID = ((PaperFlyApp) getApplication()).getCurrentChatRoomID();
                 usersInRoom = RestConsumerSingleton.getInstance().getUsersInRoom(roomID);
+
+                ((PaperFlyApp) getApplication()).setUsersInRoom(usersInRoom);
 
             } catch (RestConsumerException e) {
                 e.printStackTrace();
@@ -715,4 +746,5 @@ public class MainActivity extends Activity {
 
         }
     }
+
 }
