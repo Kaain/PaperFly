@@ -22,7 +22,6 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.SearchView;
-import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
@@ -34,7 +33,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import de.fhb.mi.paperfly.MainActivity;
 import de.fhb.mi.paperfly.PaperFlyApp;
 import de.fhb.mi.paperfly.R;
 import de.fhb.mi.paperfly.dto.AccountDTO;
@@ -42,6 +40,7 @@ import de.fhb.mi.paperfly.dto.Message;
 import de.fhb.mi.paperfly.dto.MessageType;
 import de.fhb.mi.paperfly.service.RestConsumerException;
 import de.fhb.mi.paperfly.service.RestConsumerSingleton;
+import de.fhb.mi.paperfly.util.AsyncDelegate;
 import de.tavendo.autobahn.WebSocketConnection;
 import de.tavendo.autobahn.WebSocketConnectionHandler;
 import de.tavendo.autobahn.WebSocketException;
@@ -50,7 +49,7 @@ import de.tavendo.autobahn.WebSocketOptions;
 /**
  * @author Christoph Ott
  */
-public class ChatFragment extends Fragment {
+public class ChatFragment extends Fragment implements AsyncDelegate {
 
     public static final String TAG = ChatFragment.class.getSimpleName();
     public static final String TAG_GLOBAL = TAG + "_Global";
@@ -67,13 +66,13 @@ public class ChatFragment extends Fragment {
     private DrawerLayout drawerLayout;
 
     private GetAccountsInRoomTask mGetAccountsInRoomTask = null;
-    private String room = ROOM_GLOBAL;
-
+    private ListView drawerRightList;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+
     }
 
     @Override
@@ -84,8 +83,7 @@ public class ChatFragment extends Fragment {
         this.drawerLayout = (DrawerLayout) container.getParent();
         initViewsById();
 
-        room = getArguments().getString(ARG_CHAT_ROOM);
-
+        String room = getArguments().getString(ARG_CHAT_ROOM);
         if (room.equals(ROOM_GLOBAL)) {
             globalRoom = true;
             getActivity().setTitle(ROOM_GLOBAL);
@@ -93,6 +91,10 @@ public class ChatFragment extends Fragment {
             globalRoom = false;
             getActivity().setTitle(room);
         }
+
+        ((PaperFlyApp) getActivity().getApplication()).setCurrentChatRoomID(room);
+        mGetAccountsInRoomTask = new GetAccountsInRoomTask(this);
+        mGetAccountsInRoomTask.execute();
 
         messagesAdapter = new ArrayAdapter<String>(rootView.getContext(), android.R.layout.simple_list_item_1);
 
@@ -183,7 +185,6 @@ public class ChatFragment extends Fragment {
      */
     private void openDrawerAndCloseOther(int drawerGravity) {
         Log.d(TAG, "openDrawerAndCloseOther");
-
         // TODO duplicated from MainActivity
         switch (drawerGravity) {
             case Gravity.LEFT:
@@ -255,13 +256,13 @@ public class ChatFragment extends Fragment {
         messagesAdapter = new ArrayAdapter<String>(rootView.getContext(), android.R.layout.simple_list_item_1, new ArrayList<String>());
         messagesList.setAdapter(messagesAdapter);
 
-        ((MainActivity)this.getActivity()).updateUsersInRoomOnDrawer(room);
     }
 
     private void initViewsById() {
         messagesList = (ListView) this.rootView.findViewById(R.id.messagesList);
         messageInput = (EditText) this.rootView.findViewById(R.id.messageInput);
         buSend = (ImageButton) this.rootView.findViewById(R.id.buSend);
+        drawerRightList = (ListView) this.drawerLayout.findViewById(R.id.right_drawer);
     }
 
     private void connectToWebsocket(final String wsuri) {
@@ -307,10 +308,26 @@ public class ChatFragment extends Fragment {
         }
     }
 
+    @Override
+    public void asyncComplete(boolean success) {
+        ArrayAdapter adapter = (ArrayAdapter) drawerRightList.getAdapter();
+        adapter.clear();
+        for (AccountDTO accountDTO : ((PaperFlyApp) getActivity().getApplication()).getUsersInRoom()) {
+            adapter.add(accountDTO.getUsername());
+        }
+        adapter.notifyDataSetChanged();
+    }
+
     /**
      * Represents an asynchronous GetAccountsInRoomTask used to get the accounts in a room
      */
     public class GetAccountsInRoomTask extends AsyncTask<String, Void, Boolean> {
+
+        private AsyncDelegate delegate;
+
+        public GetAccountsInRoomTask(AsyncDelegate delegate) {
+            this.delegate = delegate;
+        }
 
         @Override
         protected Boolean doInBackground(String... params) {
@@ -335,7 +352,7 @@ public class ChatFragment extends Fragment {
 
             if (success) {
                 Log.d("onPostExecute", "success");
-                Toast.makeText(getActivity().getApplicationContext(), "UserInRoom successful!", Toast.LENGTH_SHORT).show();
+                delegate.asyncComplete(true);
             }
 
         }
