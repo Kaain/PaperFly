@@ -53,7 +53,6 @@ import de.fhb.mi.paperfly.user.UserSearchActivity;
  * @author Andy Klay   klay@fh-brandenburg.de
  */
 public class MainActivity extends Activity {
-
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final String TITLE_LEFT_DRAWER = "Navigation";
     private static final String TITLE_RIGHT_DRAWER = "Status";
@@ -67,11 +66,13 @@ public class MainActivity extends Activity {
     private CharSequence mTitle;
     private UserLoginTask mAuthTask = null;
     private UserLogoutTask mLogoutTask = null;
-
+    private GetAccountsInRoomTask mGetAccountsInRoomTask = null;
     private View progressLayout;
     private boolean roomAdded = false;
     private int roomNavID;
     private String actualRoom;
+    private List<AccountDTO> usersInRoom = null;
+    private boolean appStarted = false;
     private GetAccountsInRoomTask mGetAccountsInRoomTask = null;
     private List<AccountDTO> usersInRoom = null;
     private boolean appStarted = false;
@@ -150,11 +151,15 @@ public class MainActivity extends Activity {
                 mAuthTask.execute();
             } else if (!appStarted) {
                 // if the app was started select GlobalChat
+            } else if (!appStarted) {
+                // if the app was started select GlobalChat
                 navigateTo(NavKey.GLOBAL);
 //                // TODO select global
                 //fill accounts in room, standard is global
 //                mGetAccountsInRoomTask = new GetAccountsInRoomTask();
 //                mGetAccountsInRoomTask.execute();
+                appStarted = true;
+                // TODO select global
                 appStarted = true;
                 // TODO select global
             }
@@ -749,4 +754,5 @@ public class MainActivity extends Activity {
 
         }
     }
+
 }
