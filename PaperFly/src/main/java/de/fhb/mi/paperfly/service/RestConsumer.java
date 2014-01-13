@@ -44,13 +44,24 @@ public interface RestConsumer {
     void updateMyAccount() throws RestConsumerException, UnsupportedEncodingException;
 
     /**
-     * Adds a friend to the actual logged in account
+     * Adds a friend to the actual logged in account.
+     *
+     * @param friendUsername the user to be added as friend
+     * @return the actual logged in account with the updated friend list
+     * @throws RestConsumerException
+     */
+    AccountDTO addFriend(String friendUsername) throws RestConsumerException;
+
+
+    /**
+     * Removes a friend from the actual logged in account.
+     *
+     * @param friendUsername the user to be removed from the friend list
      *
      * @return the actual logged in account with the updated friend list
      * @throws RestConsumerException
-     * @param friendUsername
      */
-    AccountDTO addFriend(String friendUsername) throws RestConsumerException;
+    AccountDTO removeFriend(String friendUsername) throws RestConsumerException;
 
     /**
      * sets the Account status

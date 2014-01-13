@@ -16,6 +16,7 @@ import com.google.gson.reflect.TypeToken;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
@@ -72,7 +73,7 @@ public class RestConsumerSingleton implements RestConsumer {
     public static final String URL_GET_MY_ACCOUNT = "PaperFlyServer-web/rest/v1/myaccount/get";
     public static final String URL_SEARCH_ACCOUNT = "PaperFlyServer-web/rest/v1/account/search/";
     public static final String URL_EDIT_ACCOUNT = "PaperFlyServer-web/rest/v1/myaccount/edit";
-    public static final String URL_ADD_FRIEND = "PaperFlyServer-web/rest/v1/myaccount/friend/";
+    public static final String URL_ADD_OR_REMOVE_FRIEND = "PaperFlyServer-web/rest/v1/myaccount/friend/";
     public static final String URL_ACCOUNTS_IN_ROOM = "PaperFlyServer-web/rest/v1/room/accounts/";
     public static final String URL_LOCATE_ACCOUNT = "PaperFlyServer-web/rest/v1/room/locateAccount/";
     public static final String URL_CHANGE_ACCOUNT_STATUS = "PaperFlyServer-web/rest/v1/myaccount/status/";
@@ -251,7 +252,41 @@ public class RestConsumerSingleton implements RestConsumer {
         Log.d(TAG, "addFriend");
 
         AccountDTO responseAccount = null;
-        HttpUriRequest request = new HttpGet(getConnectionURL(URL_ADD_FRIEND + friendUsername));
+        HttpUriRequest request = new HttpPost(getConnectionURL(URL_ADD_OR_REMOVE_FRIEND + friendUsername));
+        Log.d(TAG, request.getRequestLine().toString());
+
+        HttpClient httpclient = new DefaultHttpClient();
+        HttpResponse response;
+        try {
+            consumer.sign(request);
+            response = httpclient.execute(request);
+            analyzeHttpStatus(response);
+
+            String responseObjAsString = readInEntity(response);
+
+            Gson gson = new GsonBuilder().registerTypeAdapter(Date.class, new JsonDateDeserializer()).create();
+
+            responseAccount = gson.fromJson(responseObjAsString, AccountDTO.class);
+            application.setAccount(responseAccount);
+            return responseAccount;
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (OAuthExpectationFailedException e) {
+            e.printStackTrace();
+        } catch (OAuthCommunicationException e) {
+            e.printStackTrace();
+        } catch (OAuthMessageSignerException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
+    public AccountDTO removeFriend(String friendUsername) throws RestConsumerException {
+        Log.d(TAG, "removeFriend");
+
+        AccountDTO responseAccount = null;
+        HttpUriRequest request = new HttpDelete(getConnectionURL(URL_ADD_OR_REMOVE_FRIEND + friendUsername));
         Log.d(TAG, request.getRequestLine().toString());
 
         HttpClient httpclient = new DefaultHttpClient();

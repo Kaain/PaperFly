@@ -42,7 +42,7 @@ import lombok.NoArgsConstructor;
  * A {@link android.app.Fragment} for showing a user profile.
  */
 @NoArgsConstructor
-public class UserProfileFragment extends Fragment {
+public class UserProfileFragment extends Fragment implements AsyncDelegate {
 
     public static final String TAG = UserProfileFragment.class.getSimpleName();
     private static final int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
@@ -57,9 +57,10 @@ public class UserProfileFragment extends Fragment {
     private TextView profileLastname;
 
     private GetAccountTask mAccountTask = null;
-    private AccountDTO account = null;
+    private AccountDTO userAccount = null;
     private boolean isMyAccount;
     private boolean userIsFriend;
+    AddRemoveFriendTask addRemoveFriendTask = new AddRemoveFriendTask(this);
 
     private String username = null;
     private BackgroundLocationService mBackgroundLocationService;
@@ -198,12 +199,17 @@ public class UserProfileFragment extends Fragment {
             friendSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    // TODO update account
                     if (isChecked) {
                         Toast.makeText(getActivity(), "is now your friend", Toast.LENGTH_SHORT).show();
                     } else {
                         Toast.makeText(getActivity(), "is not your friend", Toast.LENGTH_SHORT).show();
                     }
+                }
+            });
+            friendSwitch.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    addRemoveFriendTask.execute();
                 }
             });
         }
@@ -235,6 +241,11 @@ public class UserProfileFragment extends Fragment {
         Log.d(TAG, "onAttach");
     }
 
+    @Override
+    public void asyncComplete(boolean success) {
+        friendSwitch.setChecked(userIsFriend);
+    }
+
     /**
      * Represents an asynchronous GetMyAccountTask used to get an user
      */
@@ -246,11 +257,11 @@ public class UserProfileFragment extends Fragment {
 
             try {
                 Log.d(TAG, "Searching for user:" + username);
-                account = RestConsumerSingleton.getInstance().getAccountByUsername(username);
+                userAccount = RestConsumerSingleton.getInstance().getAccountByUsername(username);
             } catch (RestConsumerException e) {
                 Log.e(TAG, e.getMessage(), e);
             }
-            return account != null;
+            return userAccount != null;
         }
 
         @Override
@@ -260,14 +271,14 @@ public class UserProfileFragment extends Fragment {
             if (success) {
                 Log.d("onPostExecute", "success");
 
-                if (account != null) {
-                    profileUsername.append(account.getUsername());
-                    profileFirstname.append(account.getFirstName());
-                    profileLastname.append(account.getLastName());
+                if (userAccount != null) {
+                    profileUsername.append(userAccount.getUsername());
+                    profileFirstname.append(userAccount.getFirstName());
+                    profileLastname.append(userAccount.getLastName());
                 }
 
             } else {
-                Toast.makeText(rootView.getContext(), "Failed to load account!", Toast.LENGTH_SHORT)
+                Toast.makeText(rootView.getContext(), "Failed to load userAccount!", Toast.LENGTH_SHORT)
                         .show();
             }
         }
@@ -292,6 +303,40 @@ public class UserProfileFragment extends Fragment {
         // Set the dialog to display
         public void setDialog(Dialog dialog) {
             mDialog = dialog;
+        }
+    }
+
+    /**
+     * Represents an asynchronous GetMyAccountTask used to get an user
+     */
+    public class AddRemoveFriendTask extends AsyncTask<String, Void, Boolean> {
+
+        private AsyncDelegate delegate;
+
+        public AddRemoveFriendTask(AsyncDelegate delegate) {
+            this.delegate = delegate;
+        }
+
+        @Override
+        protected Boolean doInBackground(String... params) {
+
+            try {
+                if (userIsFriend) {
+                    ((PaperFlyApp) getActivity().getApplication()).setAccount(RestConsumerSingleton.getInstance().removeFriend(username));
+                    userIsFriend = false;
+                } else {
+                    ((PaperFlyApp) getActivity().getApplication()).setAccount(RestConsumerSingleton.getInstance().addFriend(username));
+                    userIsFriend = true;
+                }
+            } catch (RestConsumerException e) {
+                Log.d(TAG, e.getMessage());
+            }
+            return true;
+        }
+
+        @Override
+        protected void onPostExecute(final Boolean success) {
+            delegate.asyncComplete(true);
         }
     }
 }
