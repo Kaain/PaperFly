@@ -38,7 +38,6 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.io.UnsupportedEncodingException;
 
@@ -127,12 +126,6 @@ public class FriendListFragment extends Fragment implements AdapterView.OnItemCl
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_add_friend:
-                // TODO add friend
-                Toast.makeText(rootView.getContext(), "TODO add friend", Toast.LENGTH_SHORT).show();
-                return true;
-        }
         return super.onOptionsItemSelected(item);
     }
 
