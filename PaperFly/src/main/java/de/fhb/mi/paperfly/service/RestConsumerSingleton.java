@@ -59,7 +59,7 @@ import oauth.signpost.exception.OAuthMessageSignerException;
 public class RestConsumerSingleton implements RestConsumer {
 
     public static final String LOCAL_IP = "10.0.2.2";
-    public static final String AWS_IP = "77.188.19.141:80";
+    public static final String AWS_IP = "77.188.19.141";
     public static final boolean CONNECT_LOCAL = false;
     public static final String PORT = "8080";
 
