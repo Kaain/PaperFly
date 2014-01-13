@@ -147,17 +147,12 @@ public class MainActivity extends Activity {
                 mAuthTask.execute();
             } else if (!appStarted) {
                 // if the app was started select GlobalChat
-            } else if (!appStarted) {
-                // if the app was started select GlobalChat
                 navigateTo(NavKey.GLOBAL);
-//                // TODO select global
-                //fill accounts in room, standard is global
+                appStarted = true;
+//                TODO select global
+//                fill accounts in room, standard is global
 //                mGetAccountsInRoomTask = new GetAccountsInRoomTask();
 //                mGetAccountsInRoomTask.execute();
-                appStarted = true;
-                // TODO select global
-                appStarted = true;
-                // TODO select global
             }
         } else {
             showProgress(true);
