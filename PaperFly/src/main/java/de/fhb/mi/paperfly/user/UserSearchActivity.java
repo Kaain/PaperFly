@@ -17,6 +17,7 @@ import de.fhb.mi.paperfly.R;
 import de.fhb.mi.paperfly.dto.AccountDTO;
 import de.fhb.mi.paperfly.service.RestConsumerException;
 import de.fhb.mi.paperfly.service.RestConsumerSingleton;
+import de.fhb.mi.paperfly.util.AsyncDelegate;
 
 /**
  * The activity to show if the user searches for another user.

@@ -36,6 +36,7 @@ import de.fhb.mi.paperfly.dto.AccountDTO;
 import de.fhb.mi.paperfly.service.BackgroundLocationService;
 import de.fhb.mi.paperfly.service.RestConsumerException;
 import de.fhb.mi.paperfly.service.RestConsumerSingleton;
+import de.fhb.mi.paperfly.util.AsyncDelegate;
 import lombok.NoArgsConstructor;
 
 /**
