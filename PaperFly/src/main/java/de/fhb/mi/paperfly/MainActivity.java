@@ -72,6 +72,7 @@ public class MainActivity extends Activity {
     private GetAccountsInRoomTask mGetAccountsInRoomTask = null;
     private List<AccountDTO> usersInRoom = new ArrayList<AccountDTO>();
     private boolean appStarted = false;
+    private ArrayAdapter<String> listViewRightAdapter;
 
 
     @Override
@@ -99,8 +100,9 @@ public class MainActivity extends Activity {
         getActionBar().setHomeButtonEnabled(true);
 
         // Set the adapter for the list view
-        drawerRightList.setAdapter(new ArrayAdapter<String>(this,
-                R.layout.drawer_list_item, drawerRightValues));
+        listViewRightAdapter= new ArrayAdapter<String>(this,
+                R.layout.drawer_list_item, drawerRightValues);
+        drawerRightList.setAdapter(listViewRightAdapter);
 
         // Set the list's click listener
         drawerRightList.setOnItemClickListener(new OnItemClickListener() {
@@ -579,7 +581,7 @@ public class MainActivity extends Activity {
         this.updateUsersInRoomOnDrawer(ChatFragment.ROOM_GLOBAL);
     }
 
-    private void updateUsersInRoomOnDrawer(String roomID) {
+    public void updateUsersInRoomOnDrawer(String roomID) {
         ((PaperFlyApp) getApplication()).setCurrentChatRoomID(roomID);
         mGetAccountsInRoomTask = new GetAccountsInRoomTask();
         mGetAccountsInRoomTask.execute();
@@ -589,6 +591,10 @@ public class MainActivity extends Activity {
         for (AccountDTO current : usersInRoom) {
             drawerRightValues.add(current.getUsername());
         }
+
+        ArrayAdapter<String> adapter = (ArrayAdapter<String>) drawerRightList.getAdapter();
+        adapter.notifyDataSetChanged();
+//        listViewRightAdapter.notifyDataSetChanged();
     }
 
     /**

@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import de.fhb.mi.paperfly.MainActivity;
 import de.fhb.mi.paperfly.PaperFlyApp;
 import de.fhb.mi.paperfly.R;
 import de.fhb.mi.paperfly.dto.AccountDTO;
@@ -254,9 +255,7 @@ public class ChatFragment extends Fragment {
         messagesAdapter = new ArrayAdapter<String>(rootView.getContext(), android.R.layout.simple_list_item_1, new ArrayList<String>());
         messagesList.setAdapter(messagesAdapter);
 
-        ((PaperFlyApp) getActivity().getApplication()).setCurrentChatRoomID(room);
-        mGetAccountsInRoomTask = new GetAccountsInRoomTask();
-        mGetAccountsInRoomTask.execute();
+        ((MainActivity)this.getActivity()).updateUsersInRoomOnDrawer(room);
     }
 
     private void initViewsById() {
