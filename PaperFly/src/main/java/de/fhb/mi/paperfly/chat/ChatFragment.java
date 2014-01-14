@@ -66,12 +66,13 @@ public class ChatFragment extends Fragment {
     private DrawerLayout drawerLayout;
 
     private GetAccountsInRoomTask mGetAccountsInRoomTask = null;
+    private String room = ROOM_GLOBAL;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-
     }
 
     @Override
@@ -82,7 +83,8 @@ public class ChatFragment extends Fragment {
         this.drawerLayout = (DrawerLayout) container.getParent();
         initViewsById();
 
-        String room = getArguments().getString(ARG_CHAT_ROOM);
+        room = getArguments().getString(ARG_CHAT_ROOM);
+
         if (room.equals(ROOM_GLOBAL)) {
             globalRoom = true;
             getActivity().setTitle(ROOM_GLOBAL);
@@ -90,10 +92,6 @@ public class ChatFragment extends Fragment {
             globalRoom = false;
             getActivity().setTitle(room);
         }
-
-        ((PaperFlyApp) getActivity().getApplication()).setCurrentChatRoomID(room);
-        mGetAccountsInRoomTask = new GetAccountsInRoomTask();
-        mGetAccountsInRoomTask.execute();
 
         messagesAdapter = new ArrayAdapter<String>(rootView.getContext(), android.R.layout.simple_list_item_1);
 
@@ -184,6 +182,7 @@ public class ChatFragment extends Fragment {
      */
     private void openDrawerAndCloseOther(int drawerGravity) {
         Log.d(TAG, "openDrawerAndCloseOther");
+
         // TODO duplicated from MainActivity
         switch (drawerGravity) {
             case Gravity.LEFT:
@@ -255,6 +254,9 @@ public class ChatFragment extends Fragment {
         messagesAdapter = new ArrayAdapter<String>(rootView.getContext(), android.R.layout.simple_list_item_1, new ArrayList<String>());
         messagesList.setAdapter(messagesAdapter);
 
+        ((PaperFlyApp) getActivity().getApplication()).setCurrentChatRoomID(room);
+        mGetAccountsInRoomTask = new GetAccountsInRoomTask();
+        mGetAccountsInRoomTask.execute();
     }
 
     private void initViewsById() {
