@@ -60,9 +60,9 @@ import oauth.signpost.exception.OAuthMessageSignerException;
 public class RestConsumerSingleton implements RestConsumer {
 
     public static final String LOCAL_IP = "10.0.2.2";
-    public static final String AWS_IP = "77.188.19.141";
+    public static final String AWS_IP = "46.137.173.175";
     public static final boolean CONNECT_LOCAL = false;
-    public static final String PORT = "80";
+    public static final String PORT = "8080";
 
     public static final String URL_LOGIN_BASIC = "PaperFlyServer-web/secure/";
     public static final String URL_LOGIN = "PaperFlyServer-web/rest/v1/auth/login";
