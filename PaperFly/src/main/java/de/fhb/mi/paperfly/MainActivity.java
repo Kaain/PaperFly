@@ -70,7 +70,7 @@ public class MainActivity extends Activity {
     private int roomNavID;
     private String actualRoom;
     private GetAccountsInRoomTask mGetAccountsInRoomTask = null;
-    private List<AccountDTO> usersInRoom = null;
+    private List<AccountDTO> usersInRoom = new ArrayList<AccountDTO>();
     private boolean appStarted = false;
 
 
@@ -235,15 +235,6 @@ public class MainActivity extends Activity {
 
         return super.onCreateOptionsMenu(menu);
     }
-//    @Override
-//    public void onResume(){
-//        super.onResume();
-//
-//        if (((PaperFlyApp) getApplication()).getCurrentChatRoomID() != null) {
-//            mGetAccountsInRoomTask = new GetAccountsInRoomTask();
-//            mGetAccountsInRoomTask.execute();
-//        }
-//    }
 
     /**
      * Initializes all views in the layout.
@@ -263,8 +254,16 @@ public class MainActivity extends Activity {
      */
     private ActionBarDrawerToggle createActionBarDrawerToggle() {
         Log.d(TAG, "createActionBarDrawerToggle");
+
+        drawerRightValues.clear();
+        List<AccountDTO> usersInRoom = ((PaperFlyApp) getApplication()).getUsersInRoom();
+        for (AccountDTO current : usersInRoom) {
+            drawerRightValues.add(current.getUsername());
+        }
+
         return new ActionBarDrawerToggle(this, drawerLayout,
                 R.drawable.ic_drawer, R.string.drawer_open, R.string.drawer_close) {
+
             @Override
             public boolean onOptionsItemSelected(MenuItem item) {
                 if (item != null && item.getItemId() == android.R.id.home && drawerToggle.isDrawerIndicatorEnabled()) {
@@ -293,17 +292,17 @@ public class MainActivity extends Activity {
                 invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
             }
 
-            /**
-             * change values in drawer right, set actual users in room
-             */
-            private void changeDrawerRight() {
-
-                drawerRightValues.clear();
-                List<AccountDTO> usersInRoom = ((PaperFlyApp) getApplication()).getUsersInRoom();
-                for (AccountDTO current : usersInRoom) {
-                    drawerRightValues.add(current.getUsername());
-                }
-            }
+//            /**
+//             * change values in drawer right, set actual users in room
+//             */
+//            private void changeDrawerRight() {
+//
+//                drawerRightValues.clear();
+//                List<AccountDTO> usersInRoom = ((PaperFlyApp) getApplication()).getUsersInRoom();
+//                for (AccountDTO current : usersInRoom) {
+//                    drawerRightValues.add(current.getUsername());
+//                }
+//            }
         };
     }
 
@@ -502,7 +501,6 @@ public class MainActivity extends Activity {
             enterRoomNav.setTitle(room);
             enterRoomNav.setIconID(-1);
 
-
             adapter.addItem(NavKey.ENTER_ROOM, this.getResources().getString(R.string.nav_item_enter_room), android.R.drawable.ic_menu_camera);
             drawerLeftList.setAdapter(adapter);
             roomAdded = true;
@@ -522,6 +520,8 @@ public class MainActivity extends Activity {
 //                    .replace(R.id.content_frame, newFragment, ChatFragment.TAG_ROOM)
 //                    .commit();
 //        }
+
+        this.updateUsersInRoomOnDrawer(actualRoom);
     }
 
     /**
@@ -548,6 +548,7 @@ public class MainActivity extends Activity {
                     .replace(R.id.content_frame, newFragment, ChatFragment.TAG_ROOM)
                     .commit();
         }
+        this.updateUsersInRoomOnDrawer(ChatFragment.ARG_CHAT_ROOM);
     }
 
     /**
@@ -573,6 +574,20 @@ public class MainActivity extends Activity {
             fragmentManager.beginTransaction()
                     .attach(fragmentByTag)
                     .commit();
+        }
+
+        this.updateUsersInRoomOnDrawer(ChatFragment.ROOM_GLOBAL);
+    }
+
+    private void updateUsersInRoomOnDrawer(String roomID) {
+        ((PaperFlyApp) getApplication()).setCurrentChatRoomID(roomID);
+        mGetAccountsInRoomTask = new GetAccountsInRoomTask();
+        mGetAccountsInRoomTask.execute();
+
+        drawerRightValues.clear();
+        List<AccountDTO> usersInRoom = ((PaperFlyApp) getApplication()).getUsersInRoom();
+        for (AccountDTO current : usersInRoom) {
+            drawerRightValues.add(current.getUsername());
         }
     }
 
