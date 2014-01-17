@@ -32,6 +32,7 @@ public class AccountEditFragment extends Fragment {
     private EditText accountFirstname;
     private EditText accountLastname;
     private EditText accountMail;
+    private Button updateButton;
 
     private AccountEditTask mMyAccountEditTask = null;
 
@@ -45,6 +46,7 @@ public class AccountEditFragment extends Fragment {
         accountFirstname = (EditText) rootView.findViewById(R.id.accountFirstName);
         accountLastname = (EditText) rootView.findViewById(R.id.accountLastName);
         accountMail = (EditText) rootView.findViewById(R.id.accountMail);
+        updateButton = (Button) rootView.findViewById(R.id.update_button);
     }
 
     @Override
@@ -57,22 +59,19 @@ public class AccountEditFragment extends Fragment {
         accountFirstname.setText(account.getFirstName());
         accountLastname.setText(account.getLastName());
         accountMail.setText(account.getEmail());
+        mMyAccountEditTask = new AccountEditTask();
 
-        final Button button = (Button) rootView.findViewById(R.id.update_button);
-        button.setOnClickListener(new View.OnClickListener() {
+        final Button updateButton = (Button) rootView.findViewById(R.id.update_button);
+        updateButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                pressUpdate();
+                if (mMyAccountEditTask.getStatus() != AsyncTask.Status.RUNNING) {
+                    mMyAccountEditTask.execute();
+                    updateButton.setEnabled(false);
+                }
             }
         });
 
         return rootView;
-    }
-
-    public void pressUpdate() {
-        Log.d(TAG, "pressUpdate");
-
-        mMyAccountEditTask = new AccountEditTask();
-        mMyAccountEditTask.execute();
     }
 
     @Override
@@ -114,7 +113,7 @@ public class AccountEditFragment extends Fragment {
 
         @Override
         protected void onPostExecute(final Boolean success) {
-            mMyAccountEditTask = null;
+
 
             if (success) {
                 Log.d("onPostExecute", "success");
@@ -124,10 +123,11 @@ public class AccountEditFragment extends Fragment {
                     accountFirstname.setText(account.getFirstName());
                     accountLastname.setText(account.getLastName());
                     accountMail.setText(account.getEmail());
+                    updateButton.setEnabled(true);
                 }
                 Toast.makeText(rootView.getContext(), "Update successful!", Toast.LENGTH_SHORT).show();
             }
-
+            mMyAccountEditTask = new AccountEditTask();
         }
     }
 }
