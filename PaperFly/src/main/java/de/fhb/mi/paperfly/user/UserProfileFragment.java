@@ -63,7 +63,7 @@ public class UserProfileFragment extends Fragment implements AsyncDelegate {
     private RoomDTO actualRoomOfUser = null;
     private boolean isMyAccount;
     private boolean userIsFriend;
-    AddRemoveFriendTask addRemoveFriendTask = new AddRemoveFriendTask(this);
+    private AddRemoveFriendTask addRemoveFriendTask = new AddRemoveFriendTask(this);
 
     private String username = null;
     private BackgroundLocationService mBackgroundLocationService;
@@ -213,10 +213,12 @@ public class UserProfileFragment extends Fragment implements AsyncDelegate {
 
                 @Override
                 public void onClick(View v) {
-                    addRemoveFriendTask.execute();
-                    // to avoid executing multiple tasks in a short time, the friendSwitch is set not clickable
-                    // and has to be set to clickable if the task is finished
-                    friendSwitch.setClickable(false);
+                    if (addRemoveFriendTask.getStatus() != AsyncTask.Status.RUNNING) {
+                        addRemoveFriendTask.execute();
+                        // to avoid executing multiple tasks in a short time, the friendSwitch is set not clickable
+                        // and has to be set to clickable if the task is finished
+                        friendSwitch.setEnabled(false);
+                    }
                 }
             });
         }
@@ -251,8 +253,7 @@ public class UserProfileFragment extends Fragment implements AsyncDelegate {
     @Override
     public void asyncComplete(boolean success) {
         friendSwitch.setChecked(userIsFriend);
-        addRemoveFriendTask = new AddRemoveFriendTask(this);
-        friendSwitch.setClickable(true);
+        friendSwitch.setEnabled(true);
     }
 
     /**
@@ -349,8 +350,8 @@ public class UserProfileFragment extends Fragment implements AsyncDelegate {
 
         @Override
         protected void onPostExecute(final Boolean success) {
-            addRemoveFriendTask = null;
             delegate.asyncComplete(true);
+            addRemoveFriendTask = new AddRemoveFriendTask(delegate);
         }
     }
 
