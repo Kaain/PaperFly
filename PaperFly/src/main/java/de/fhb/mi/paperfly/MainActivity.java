@@ -570,7 +570,7 @@ public class MainActivity extends Activity implements GetRoomAsyncDelegate {
     }
 
     public void updateUsersInRoomOnDrawer(String roomID) {
-        Log.e("updateUsersInRoomOnDrawer", "" + roomID);
+        Log.d("updateUsersInRoomOnDrawer", "" + roomID);
         ((PaperFlyApp) getApplication()).setCurrentVisibleChatRoom(roomID);
         mGetAccountsInRoomTask = new GetAccountsInRoomTask();
         mGetAccountsInRoomTask.execute();

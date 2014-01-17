@@ -92,7 +92,6 @@ public class ChatFragment extends Fragment implements AsyncDelegate {
             globalRoom = false;
             getActivity().setTitle(room);
         }
-        Log.e("onCreateView", "" + room);
         ((PaperFlyApp) getActivity().getApplication()).setCurrentVisibleChatRoom(room);
         mGetAccountsInRoomTask = new GetAccountsInRoomTask(this);
         mGetAccountsInRoomTask.execute();
