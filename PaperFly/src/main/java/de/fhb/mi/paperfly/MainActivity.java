@@ -85,11 +85,7 @@ public class MainActivity extends Activity implements GetRoomAsyncDelegate {
         setContentView(R.layout.activity_main);
         initViewsById();
 
-        // DUMMY DATA
         drawerRightValues = new ArrayList<String>();
-//        for (int i = 0; i < 50; i++) {
-//            drawerRightValues.add("User" + i + TITLE_RIGHT_DRAWER);
-//        }
 
         //fill accounts in room, standard is global
         mTitle = getTitle();
