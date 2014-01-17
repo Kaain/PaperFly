@@ -210,9 +210,13 @@ public class UserProfileFragment extends Fragment implements AsyncDelegate {
                 }
             });
             friendSwitch.setOnClickListener(new View.OnClickListener() {
+
                 @Override
                 public void onClick(View v) {
                     addRemoveFriendTask.execute();
+                    // to avoid executing multiple tasks in a short time, the friendSwitch is set not clickable
+                    // and has to be set to clickable if the task is finished
+                    friendSwitch.setClickable(false);
                 }
             });
         }
@@ -247,6 +251,8 @@ public class UserProfileFragment extends Fragment implements AsyncDelegate {
     @Override
     public void asyncComplete(boolean success) {
         friendSwitch.setChecked(userIsFriend);
+        addRemoveFriendTask = new AddRemoveFriendTask(this);
+        friendSwitch.setClickable(true);
     }
 
     /**
@@ -343,6 +349,7 @@ public class UserProfileFragment extends Fragment implements AsyncDelegate {
 
         @Override
         protected void onPostExecute(final Boolean success) {
+            addRemoveFriendTask = null;
             delegate.asyncComplete(true);
         }
     }
