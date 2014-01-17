@@ -629,7 +629,7 @@ public class MainActivity extends Activity implements GetRoomAsyncDelegate {
         ArrayList<AccountDTO> usersInRoom = new ArrayList<AccountDTO>();
         usersInRoom.add(((PaperFlyApp) getApplication()).getAccount());
         for (AccountDTO current : usersInRoom) {
-            output.append(current.getFirstName() + " " + current.getLastName() + "\n");
+            output.append("- "+ current.getUsername() + " - " + current.getFirstName() + " " + current.getLastName() + "\n");
         }
 
         //Daten weiterleiten an andere App
