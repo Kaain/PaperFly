@@ -162,7 +162,11 @@ public class UserProfileFragment extends Fragment implements AsyncDelegate {
                 return true;
             case R.id.action_maps:
                 if (BackgroundLocationService.servicesAvailable(getActivity())) {
-                    startActivity(getMapsIntent());
+                    if (actualRoomOfUser == null) {
+                        Toast.makeText(getActivity(), "User is in no specific room", Toast.LENGTH_LONG).show();
+                    } else {
+                        startActivity(getMapsIntent());
+                    }
                 } else {
                     int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(getActivity());
 

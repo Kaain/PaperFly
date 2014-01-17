@@ -592,7 +592,7 @@ public class RestConsumerSingleton implements RestConsumer {
      */
     private void analyzeHttpStatus(HttpResponse response) throws RestConsumerException {
         if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-            Log.d(TAG, "" + response.getStatusLine().getStatusCode());
+            Log.d(TAG, "" + response.getStatusLine());
             switch (response.getStatusLine().getStatusCode()) {
                 case 412:
                     throw new RestConsumerException(RestConsumerException.INVALID_INPUT_MESSAGE);
