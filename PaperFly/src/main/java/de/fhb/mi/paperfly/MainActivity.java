@@ -608,7 +608,6 @@ public class MainActivity extends Activity implements GetRoomAsyncDelegate {
                 openUserProfile(((PaperFlyApp) getApplication()).getAccount().getUsername(), true);
                 break;
             case CHECK_PRESENCE:
-                new InfoDialog().show(getFragmentManager(), TAG);
                 checkPresence();
                 break;
             case FRIENDLIST:
