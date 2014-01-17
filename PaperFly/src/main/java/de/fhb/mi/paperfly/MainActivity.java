@@ -54,6 +54,7 @@ import de.fhb.mi.paperfly.util.GetRoomAsyncDelegate;
  * @author Andy Klay   klay@fh-brandenburg.de
  */
 public class MainActivity extends Activity implements GetRoomAsyncDelegate {
+
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final String TITLE_LEFT_DRAWER = "Navigation";
     private static final String TITLE_RIGHT_DRAWER = "Status";
@@ -617,20 +618,21 @@ public class MainActivity extends Activity implements GetRoomAsyncDelegate {
         drawerLayout.closeDrawer(Gravity.LEFT);
     }
 
+    /**
+     * updates the UsersInRoom information and sends this information structured to mail-App
+     */
     private void checkPresence() {
 
         mGetAccountsInRoomTask = new GetAccountsInRoomTask();
         mGetAccountsInRoomTask.execute();
 
-        // TODO asynctak ist vlt noch nicht fertig an der dieser stelle
-
         //Daten umwandeln in String
         StringBuilder output = new StringBuilder();
-        ArrayList<AccountDTO> usersInRoom = new ArrayList<AccountDTO>();
-        usersInRoom.add(((PaperFlyApp) getApplication()).getAccount());
-        for (AccountDTO current : usersInRoom) {
-            output.append("- "+ current.getUsername() + " - " + current.getFirstName() + " " + current.getLastName() + "\n");
+        for (AccountDTO current : ((PaperFlyApp) getApplication()).getUsersInRoom()) {
+            output.append(current.getUsername() + " - " + current.getFirstName() + " " + current.getLastName() + "\n");
         }
+
+        Log.d("checkPresence output: ", "" + output.toString());
 
         //Daten weiterleiten an andere App
         Intent intent = new Intent(Intent.ACTION_SEND);
