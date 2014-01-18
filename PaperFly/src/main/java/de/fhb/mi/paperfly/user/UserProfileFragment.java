@@ -74,7 +74,7 @@ public class UserProfileFragment extends Fragment implements AsyncDelegate {
         public void onServiceConnected(ComponentName className, IBinder service) {
             // We've bound to LocalService, cast the IBinder and get LocalService instance
             BackgroundLocationService.LocationBinder binder = (BackgroundLocationService.LocationBinder) service;
-            mBackgroundLocationService = binder.getServerInstance();
+            mBackgroundLocationService = binder.getServiceInstance();
             mBoundLocationService = true;
         }
 

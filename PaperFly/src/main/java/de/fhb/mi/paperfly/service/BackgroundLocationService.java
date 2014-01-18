@@ -178,7 +178,7 @@ public class BackgroundLocationService extends Service implements GooglePlayServ
      * @see android.os.Binder
      */
     public class LocationBinder extends Binder {
-        public BackgroundLocationService getServerInstance() {
+        public BackgroundLocationService getServiceInstance() {
             return BackgroundLocationService.this;
         }
     }

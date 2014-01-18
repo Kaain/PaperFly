@@ -766,7 +766,8 @@ public class MainActivity extends Activity implements GetRoomAsyncDelegate {
             mGetAccountsInRoomTask = null;
 
             if (success) {
-                Log.d("onPostExecute", "success");
+                Log.d(TAG, "UsersInRoomTask: success");
+                Log.d(TAG, "Number of users in room:" + usersInRoom.size());
                 Toast.makeText(getApplicationContext(), "UserInRoom successful!", Toast.LENGTH_SHORT).show();
             }
 

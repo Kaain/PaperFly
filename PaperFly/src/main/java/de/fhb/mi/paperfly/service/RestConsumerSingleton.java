@@ -22,7 +22,6 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.protocol.HTTP;
 
@@ -71,6 +70,7 @@ public class RestConsumerSingleton implements RestConsumer {
 
     public static final String URL_REGISTER_ACCOUNT = "PaperFlyServer-web/rest/v1/account/register";
     public static final String URL_GET_MY_ACCOUNT = "PaperFlyServer-web/rest/v1/myaccount/get";
+    public static final String URL_GET_MY_FRIENDLIST = "PaperFlyServer-web/rest/v1/myaccount/friendlist";
     public static final String URL_SEARCH_ACCOUNT = "PaperFlyServer-web/rest/v1/account/search/";
     public static final String URL_EDIT_ACCOUNT = "PaperFlyServer-web/rest/v1/myaccount/edit";
     public static final String URL_ADD_OR_REMOVE_FRIEND = "PaperFlyServer-web/rest/v1/myaccount/friend/";
@@ -125,7 +125,7 @@ public class RestConsumerSingleton implements RestConsumer {
 
         Log.d(TAG, request.getRequestLine().toString());
 
-        HttpClient httpclient = new DefaultHttpClient();
+        HttpClient httpclient = application.getHttpClient();
         HttpResponse response;
         try {
             consumer.sign(request);
@@ -201,7 +201,7 @@ public class RestConsumerSingleton implements RestConsumer {
 
         Log.d(TAG, request.getRequestLine().toString());
 
-        HttpClient httpclient = new DefaultHttpClient();
+        HttpClient httpclient = application.getHttpClient();
         HttpResponse response;
         try {
             consumer.sign(request);
@@ -250,14 +250,14 @@ public class RestConsumerSingleton implements RestConsumer {
     }
 
     @Override
-    public void updateMyAccount() throws RestConsumerException, UnsupportedEncodingException {
+    public void updateMyAccount() throws RestConsumerException {
         Log.d(TAG, "updateMyAccount");
 
         AccountDTO responseAccount = null;
         HttpUriRequest request = new HttpGet(getConnectionURL(URL_GET_MY_ACCOUNT));
         Log.d(TAG, request.getRequestLine().toString());
 
-        HttpClient httpclient = new DefaultHttpClient();
+        HttpClient httpclient = application.getHttpClient();
         HttpResponse response;
         try {
             consumer.sign(request);
@@ -280,6 +280,39 @@ public class RestConsumerSingleton implements RestConsumer {
         application.setAccount(responseAccount);
     }
 
+    public List<AccountDTO> getMyFriendList() throws RestConsumerException {
+        Log.d(TAG, "getMyFriendList");
+
+        HttpUriRequest request = new HttpGet(getConnectionURL(URL_GET_MY_FRIENDLIST));
+        List<AccountDTO> myFriendlist = new ArrayList<AccountDTO>();
+        Type collectionType = new TypeToken<ArrayList<AccountDTO>>() {
+        }.getType();
+        Log.d(TAG, request.getRequestLine().toString());
+
+        HttpClient httpclient = application.getHttpClient();
+        HttpResponse response;
+        try {
+            consumer.sign(request);
+            response = httpclient.execute(request);
+            analyzeHttpStatus(response);
+
+            String responseObjAsString = readInEntity(response);
+            Log.d("json", "" + responseObjAsString);
+            Gson gson = new GsonBuilder().registerTypeAdapter(Date.class, new JsonDateDeserializer()).create();
+            myFriendlist = gson.fromJson(responseObjAsString, collectionType);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (OAuthExpectationFailedException e) {
+            e.printStackTrace();
+        } catch (OAuthCommunicationException e) {
+            e.printStackTrace();
+        } catch (OAuthMessageSignerException e) {
+            e.printStackTrace();
+        }
+        return (myFriendlist == null) ? new ArrayList<AccountDTO>() : myFriendlist;
+    }
+
     @Override
     public AccountDTO addFriend(String friendUsername) throws RestConsumerException {
         Log.d(TAG, "addFriend");
@@ -288,7 +321,7 @@ public class RestConsumerSingleton implements RestConsumer {
         HttpUriRequest request = new HttpPost(getConnectionURL(URL_ADD_OR_REMOVE_FRIEND + friendUsername));
         Log.d(TAG, request.getRequestLine().toString());
 
-        HttpClient httpclient = new DefaultHttpClient();
+        HttpClient httpclient = application.getHttpClient();
         HttpResponse response;
         try {
             consumer.sign(request);
@@ -322,7 +355,7 @@ public class RestConsumerSingleton implements RestConsumer {
         HttpUriRequest request = new HttpDelete(getConnectionURL(URL_ADD_OR_REMOVE_FRIEND + friendUsername));
         Log.d(TAG, request.getRequestLine().toString());
 
-        HttpClient httpclient = new DefaultHttpClient();
+        HttpClient httpclient = application.getHttpClient();
         HttpResponse response;
         try {
             consumer.sign(request);
@@ -357,7 +390,7 @@ public class RestConsumerSingleton implements RestConsumer {
 
         Log.d(TAG, request.getRequestLine().toString());
 
-        HttpClient httpclient = new DefaultHttpClient();
+        HttpClient httpclient = application.getHttpClient();
         HttpResponse response;
         try {
             consumer.sign(request);
@@ -390,7 +423,7 @@ public class RestConsumerSingleton implements RestConsumer {
 
         Log.d(TAG, request.getRequestLine().toString());
 
-        HttpClient httpclient = new DefaultHttpClient();
+        HttpClient httpclient = application.getHttpClient();
         HttpResponse response;
         try {
             consumer.sign(request);
@@ -425,7 +458,7 @@ public class RestConsumerSingleton implements RestConsumer {
 
         Log.d(TAG, request.getRequestLine().toString());
 
-        HttpClient httpclient = new DefaultHttpClient();
+        HttpClient httpclient = application.getHttpClient();
         HttpResponse response;
         try {
             consumer.sign(request);
@@ -459,7 +492,7 @@ public class RestConsumerSingleton implements RestConsumer {
 
         Log.d(TAG, request.getRequestLine().toString());
 
-        HttpClient httpclient = new DefaultHttpClient();
+        HttpClient httpclient = application.getHttpClient();
         HttpResponse response;
         try {
             consumer.sign(request);
@@ -468,7 +501,7 @@ public class RestConsumerSingleton implements RestConsumer {
 
             String responseObjAsString = readInEntity(response);
             Gson gson = new GsonBuilder().registerTypeAdapter(Date.class, new JsonDateDeserializer()).create();
-            Log.e(TAG, "json: " + responseObjAsString);
+            Log.d(TAG, "json: " + responseObjAsString);
 
             room = gson.fromJson(responseObjAsString, RoomDTO.class);
         } catch (IOException e) {
@@ -529,7 +562,7 @@ public class RestConsumerSingleton implements RestConsumer {
 
         Log.d(TAG, request.getRequestLine().toString());
 
-        HttpClient httpclient = new DefaultHttpClient();
+        HttpClient httpclient = application.getHttpClient();
         HttpResponse response;
         try {
             response = httpclient.execute(request);
@@ -557,7 +590,7 @@ public class RestConsumerSingleton implements RestConsumer {
 
         Log.d(TAG, request.getRequestLine().toString());
 
-        HttpClient httpclient = new DefaultHttpClient();
+        HttpClient httpclient = application.getHttpClient();
         HttpResponse response;
         try {
             consumer.sign(request);
@@ -602,37 +635,6 @@ public class RestConsumerSingleton implements RestConsumer {
             }
         }
     }
-
-//    public void doRequest() {
-//
-//        // create a consumer object and configure it with the access
-//        // token and token secret obtained from the service provider
-//        CommonsHttpOAuthConsumer consumer = new CommonsHttpOAuthConsumer(token.getConsumerKey(), token.getConsumerSecret());
-////        consumer.setTokenWithSecret(ACCESS_TOKEN, TOKEN_SECRET);
-//
-//        // create an HTTP request to a protected resource
-//        try {
-//            HttpUriRequest request = new HttpGet("http://" + AWS_IP + ":8080/PaperFlyServer-web/rest/v1/account/username");
-//
-//            // sign the request
-//            consumer.sign(request);
-//
-//            // send the request
-//            HttpResponse response = application.getHttpClient().execute(request);
-//            Log.d(TAG, readInEntity(response));
-//            Log.d(TAG, "" + response);
-//        } catch (MalformedURLException e) {
-//            e.printStackTrace();
-//        } catch (OAuthExpectationFailedException e) {
-//            e.printStackTrace();
-//        } catch (OAuthCommunicationException e) {
-//            e.printStackTrace();
-//        } catch (OAuthMessageSignerException e) {
-//            e.printStackTrace();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//    }
 
     /**
      * reads in the response String

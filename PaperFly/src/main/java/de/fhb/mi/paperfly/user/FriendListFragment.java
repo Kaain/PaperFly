@@ -38,10 +38,10 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import java.io.UnsupportedEncodingException;
+import java.util.List;
 
-import de.fhb.mi.paperfly.PaperFlyApp;
 import de.fhb.mi.paperfly.R;
 import de.fhb.mi.paperfly.dto.AccountDTO;
 import de.fhb.mi.paperfly.service.RestConsumerException;
@@ -59,14 +59,12 @@ public class FriendListFragment extends Fragment implements AdapterView.OnItemCl
     private View rootView;
     private ListView friendListView;
     private FriendListAdapter listAdapter;
-    AccountDTO account = null;
     private DrawerLayout drawerLayout;
+    private List<AccountDTO> myFriendList;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setRetainInstance(true);
-
     }
 
     @Override
@@ -187,8 +185,7 @@ public class FriendListFragment extends Fragment implements AdapterView.OnItemCl
 
     @Override
     public void asyncComplete(boolean success) {
-        account = ((PaperFlyApp) getActivity().getApplication()).getAccount();
-        listAdapter.addAll(account.getFriendList());
+        listAdapter.addAll(myFriendList);
         listAdapter.notifyDataSetChanged();
     }
 
@@ -207,18 +204,22 @@ public class FriendListFragment extends Fragment implements AdapterView.OnItemCl
         protected Boolean doInBackground(String... params) {
 
             try {
-                RestConsumerSingleton.getInstance().updateMyAccount();
+                myFriendList = RestConsumerSingleton.getInstance().getMyFriendList();
             } catch (RestConsumerException e) {
                 Log.d(TAG, e.getMessage());
-            } catch (UnsupportedEncodingException e) {
-                Log.d(TAG, e.getMessage());
+                return false;
             }
-            return account != null;
+            return true;
         }
 
         @Override
         protected void onPostExecute(final Boolean success) {
-            delegate.asyncComplete(true);
+
+            if (success) {
+                delegate.asyncComplete(true);
+            } else {
+                Toast.makeText(getActivity(), "Friendlist could not be loaded.", Toast.LENGTH_LONG).show();
+            }
         }
     }
 
@@ -237,10 +238,10 @@ public class FriendListFragment extends Fragment implements AdapterView.OnItemCl
             View rowView = inflater.inflate(android.R.layout.simple_list_item_2, parent, false);
             TextView textView = (TextView) rowView.findViewById(android.R.id.text1);
             TextView textView2 = (TextView) rowView.findViewById(android.R.id.text2);
-            final AccountDTO actualAccount = this.getItem(position);
-            textView.setText(actualAccount.getUsername());
-            textView2.setText(actualAccount.getStatus().name());
-            switch (actualAccount.getStatus()) {
+            final AccountDTO friendAccount = this.getItem(position);
+            textView.setText(friendAccount.getUsername());
+            textView2.setText(friendAccount.getStatus().name());
+            switch (friendAccount.getStatus()) {
                 case ONLINE:
                     textView2.setTextColor(Color.GREEN);
                     break;
