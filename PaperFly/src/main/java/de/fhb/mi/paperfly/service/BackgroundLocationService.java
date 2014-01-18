@@ -161,7 +161,6 @@ public class BackgroundLocationService extends Service implements GooglePlayServ
     public void onLocationChanged(Location location) {
         String msg = Double.toString(location.getLatitude()) + "," +
                 Double.toString(location.getLongitude());
-        Log.d(TAG, msg);
     }
 
     /**
