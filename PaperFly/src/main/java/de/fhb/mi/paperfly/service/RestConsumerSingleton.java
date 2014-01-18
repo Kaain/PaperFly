@@ -78,8 +78,7 @@ public class RestConsumerSingleton implements RestConsumer {
     public static final String URL_GET_ROOM = "PaperFlyServer-web/rest/v1/room/";
     public static final String URL_LOCATE_ACCOUNT = "PaperFlyServer-web/rest/v1/room/locateAccount/";
     public static final String URL_CHANGE_ACCOUNT_STATUS = "PaperFlyServer-web/rest/v1/myaccount/status/";
-    public static final String URL_CHAT_BASE = "ws://" + AWS_IP + ":" + PORT + "/PaperFlyServer-web/ws/chat/";
-    public static final String URL_CHAT_GLOBAL = URL_CHAT_BASE + "global";
+    public static final String URL_CHAT_GLOBAL = ChatService.URL_CHAT_BASE + "global";
 
     public static final String URL_GET_ALL_ACCOUNTS_IN_ROOM = "PaperFlyServer-web/rest/v1/room/accounts/";
 
@@ -469,7 +468,7 @@ public class RestConsumerSingleton implements RestConsumer {
 
             String responseObjAsString = readInEntity(response);
             Gson gson = new GsonBuilder().registerTypeAdapter(Date.class, new JsonDateDeserializer()).create();
-            Log.d(TAG, "json: " + responseObjAsString);
+            Log.e(TAG, "json: " + responseObjAsString);
 
             room = gson.fromJson(responseObjAsString, RoomDTO.class);
         } catch (IOException e) {

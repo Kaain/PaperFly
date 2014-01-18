@@ -60,7 +60,7 @@
             android:name="de.fhb.mi.paperfly.HelpActivity"
             android:label="@string/title_activity_help"/>
         <activity
-            android:name=".user.UserSearchActivity"
+            android:name="de.fhb.mi.paperfly.user.UserSearchActivity"
             android:label="@string/title_activity_search_user">
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH"/>
@@ -75,7 +75,11 @@
         </activity>
 
         <service android:name="de.fhb.mi.paperfly.service.BackgroundLocationService"/>
-
+        <service
+            android:name="de.fhb.mi.paperfly.service.ChatService"
+            android:enabled="true"
+            android:exported="false">
+        </service>
     </application>
 
 </manifest>

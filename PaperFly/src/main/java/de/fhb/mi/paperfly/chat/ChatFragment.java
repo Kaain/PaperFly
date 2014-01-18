@@ -40,6 +40,7 @@ import de.fhb.mi.paperfly.R;
 import de.fhb.mi.paperfly.dto.AccountDTO;
 import de.fhb.mi.paperfly.dto.Message;
 import de.fhb.mi.paperfly.dto.MessageType;
+import de.fhb.mi.paperfly.service.ChatService;
 import de.fhb.mi.paperfly.service.RestConsumerException;
 import de.fhb.mi.paperfly.service.RestConsumerSingleton;
 import de.fhb.mi.paperfly.util.AsyncDelegate;
@@ -233,7 +234,7 @@ public class ChatFragment extends Fragment implements AsyncDelegate {
     public void onStart() {
         super.onStart();
         Log.d(TAG, "onStart");
-        connectToWebsocket(RestConsumerSingleton.URL_CHAT_BASE + ((PaperFlyApp) getActivity().getApplication()).getCurrentVisibleChatRoom());
+        connectToWebsocket(ChatService.URL_CHAT_BASE + ((PaperFlyApp) getActivity().getApplication()).getCurrentVisibleChatRoom());
     }
 
     @Override
