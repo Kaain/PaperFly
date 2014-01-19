@@ -3,10 +3,16 @@ package de.fhb.mi.paperfly.chat;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.SearchManager;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.graphics.Rect;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.IBinder;
+import android.os.Messenger;
 import android.support.v4.widget.DrawerLayout;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -52,7 +58,7 @@ import de.tavendo.autobahn.WebSocketOptions;
 /**
  * @author Christoph Ott
  */
-public class ChatFragment extends Fragment implements AsyncDelegate {
+public class ChatFragment extends Fragment implements AsyncDelegate, ChatService.MessageReceiverGlobal, ChatService.MessageReceiverSpecific {
 
     public static final String TAG = ChatFragment.class.getSimpleName();
     public static final String TAG_GLOBAL = TAG + "_Global";
@@ -69,9 +75,87 @@ public class ChatFragment extends Fragment implements AsyncDelegate {
     private boolean globalRoom;
     private DrawerLayout drawerLayout;
 
-
     private GetAccountsInRoomTask mGetAccountsInRoomTask = null;
     private ListView drawerRightList;
+
+    private ChatService chatService;
+    private boolean boundChatService = false;
+    private final Messenger messenger = new Messenger(new IncomingHandler());
+    private ServiceConnection connectionChatService = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            // We've bound to LocalService, cast the IBinder and get LocalService instance
+            ChatService.ChatServiceBinder binder = (ChatService.ChatServiceBinder) service;
+            chatService = binder.getServiceInstance();
+            boundChatService = true;
+            String currentVisibleChatRoom = ((PaperFlyApp) getActivity().getApplication()).getCurrentVisibleChatRoom();
+            if (currentVisibleChatRoom.equalsIgnoreCase(ChatService.RoomType.GLOBAL.name())) {
+//                chatService.registerMessenger(messenger, ChatService.RoomType.GLOBAL);
+                chatService.setCurrentMessageReceiverGlobal(ChatFragment.this);
+                chatService.setCurrentMessageReceiverSpecific(null);
+            } else {
+                chatService.connectToRoomChat(currentVisibleChatRoom);
+//                chatService.registerMessenger(messenger, ChatService.RoomType.SPECIFIC);
+                chatService.setCurrentMessageReceiverSpecific(ChatFragment.this);
+                chatService.setCurrentMessageReceiverGlobal(null);
+            }
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            boundChatService = false;
+        }
+    };
+
+    @Override
+    public void receiveMessageGlobal(String messageFromService) {
+        Log.d(TAG, "receiveMessageGlobal");
+        Gson gson = new Gson();
+        Message message = gson.fromJson(messageFromService, Message.class);
+        if (message.getUsername() != null) {
+            messagesAdapter.add(message.getUsername() + ": " + message.getBody());
+        } else {
+            messagesAdapter.add(message.getBody());
+        }
+        messagesAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void receiveMessageSpecific(String messageFromService) {
+        Log.d(TAG, "receiveMessageGlobal");
+        Gson gson = new Gson();
+        Message message = gson.fromJson(messageFromService, Message.class);
+        if (message.getUsername() != null) {
+            messagesAdapter.add(message.getUsername() + ": " + message.getBody());
+        } else {
+            messagesAdapter.add(message.getBody());
+        }
+        messagesAdapter.notifyDataSetChanged();
+    }
+
+    class IncomingHandler extends Handler {
+        @Override
+        public void handleMessage(android.os.Message msg) {
+            this.obtainMessage(msg.what);
+            switch (msg.what) {
+                case ChatService.MSG_SEND_TO_UI:
+                    String jsonMessage = msg.getData().getString(ChatService.ARGS_FROM_SERVICE);
+                    Gson gson = new Gson();
+                    Message message = gson.fromJson(jsonMessage, Message.class);
+                    if (message.getUsername() != null) {
+                        messagesAdapter.add(message.getUsername() + ": " + message.getBody());
+                    } else {
+                        messagesAdapter.add(message.getBody());
+                    }
+                    messagesAdapter.notifyDataSetChanged();
+
+                    break;
+                default:
+                    super.handleMessage(msg);
+            }
+        }
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -146,7 +230,13 @@ public class ChatFragment extends Fragment implements AsyncDelegate {
             public void onClick(View v) {
                 Gson gson = new Gson();
                 Message message = new Message("heinz", MessageType.TEXT, new Date(), messageInput.getText().toString());
-                mConnection.sendTextMessage(gson.toJson(message));
+                String currentVisibleRoom = ((PaperFlyApp) getActivity().getApplication()).getCurrentVisibleChatRoom();
+                if (currentVisibleRoom.equalsIgnoreCase(ChatService.RoomType.GLOBAL.name())) {
+                    chatService.sendTextMessage(gson.toJson(message), ChatService.RoomType.GLOBAL);
+                } else {
+                    chatService.sendTextMessage(gson.toJson(message), ChatService.RoomType.SPECIFIC);
+                }
+
                 messageInput.setText("");
             }
         });
@@ -234,7 +324,10 @@ public class ChatFragment extends Fragment implements AsyncDelegate {
     public void onStart() {
         super.onStart();
         Log.d(TAG, "onStart");
-        connectToWebsocket(ChatService.URL_CHAT_BASE + ((PaperFlyApp) getActivity().getApplication()).getCurrentVisibleChatRoom());
+//        connectToWebsocket(ChatService.URL_CHAT_BASE + ((PaperFlyApp) getActivity().getApplication()).getCurrentVisibleChatRoom());
+
+        Intent serviceIntent = new Intent(getActivity(), ChatService.class);
+        getActivity().bindService(serviceIntent, connectionChatService, Context.BIND_AUTO_CREATE);
     }
 
     @Override
@@ -254,6 +347,10 @@ public class ChatFragment extends Fragment implements AsyncDelegate {
     public void onStop() {
         super.onStop();
         Log.d(TAG, "onStop");
+        if (boundChatService) {
+            getActivity().unbindService(connectionChatService);
+            boundChatService = false;
+        }
     }
 
     @Override

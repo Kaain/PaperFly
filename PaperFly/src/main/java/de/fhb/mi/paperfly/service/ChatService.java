@@ -20,6 +20,7 @@ import de.tavendo.autobahn.WebSocketConnection;
 import de.tavendo.autobahn.WebSocketConnectionHandler;
 import de.tavendo.autobahn.WebSocketException;
 import de.tavendo.autobahn.WebSocketOptions;
+import lombok.Setter;
 
 /**
  * A Service which holds the connections to two chats. These chats are connected through a webSocket.
@@ -36,22 +37,39 @@ public class ChatService extends Service {
     private static final String GLOBAL = "Global";
     private static final String TAG = ChatService.class.getSimpleName();
     public static final String ARGS_WS_URI = "ARGS_WS_URI";
-    private static final String ARGS_FROM_SERVICE = "ARGS_FROM_SERVICE";
-    private static final int MSG_SEND_TO_UI = 1;
+    public static final String ARGS_FROM_SERVICE = "ARGS_FROM_SERVICE";
+    public static final int MSG_SEND_TO_UI = 1;
     private WebSocketConnection globalConnection = new WebSocketConnection();
     private WebSocketConnection roomConnection = new WebSocketConnection();
     IBinder binder = new ChatServiceBinder();
+    private String webSocketUriSpecificRoom = "";
 
-    private enum RoomType {GLOBAL, SPECIFIC}
+    @Setter
+    private MessageReceiverGlobal currentMessageReceiverGlobal;
+    @Setter
+    private MessageReceiverSpecific currentMessageReceiverSpecific;
 
-    private ArrayList<Messenger> mClientsRoom = new ArrayList<Messenger>(); // Keeps track of all current registered clients.
-    private ArrayList<Messenger> mClientsGlobal = new ArrayList<Messenger>();
+    public void sendTextMessage(String jsonString, RoomType roomType) {
+        switch (roomType) {
+            case GLOBAL:
+                globalConnection.sendTextMessage(jsonString);
+                break;
+            case SPECIFIC:
+                roomConnection.sendTextMessage(jsonString);
+                break;
+        }
+    }
+
+    public enum RoomType {GLOBAL, SPECIFIC}
+
+    private ArrayList<Messenger> clientsRoom = new ArrayList<Messenger>(); // Keeps track of all current registered clients.
+    private ArrayList<Messenger> clientsGlobal = new ArrayList<Messenger>();
 
 //    final Messenger mMessenger = new Messenger(new IncomingHandler()); // Target we publish for clients to send messages to IncomingHandler.
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-
+        Log.d(TAG, "onStartCommand");
         try {
             String webSocketUri = URL_CHAT_BASE + GLOBAL;
             WebSocketConnectionHandler webSocketHandler = createWebSocketHandler(GLOBAL, RoomType.GLOBAL);
@@ -65,15 +83,16 @@ public class ChatService extends Service {
 
     public boolean connectToRoomChat(final String room) {
         String webSocketUri = URL_CHAT_BASE + room;
-        try {
-            roomConnection.connect(webSocketUri, null, createWebSocketHandler(room, RoomType.SPECIFIC), new WebSocketOptions(), createHeaders());
-        } catch (WebSocketException e) {
-            e.printStackTrace();
-            return false;
+        if (!webSocketUriSpecificRoom.equals(webSocketUri)) {
+            try {
+                roomConnection.connect(webSocketUri, null, createWebSocketHandler(room, RoomType.SPECIFIC), new WebSocketOptions(), createHeaders());
+            } catch (WebSocketException e) {
+                e.printStackTrace();
+                return false;
+            }
         }
         return true;
     }
-
 
     /**
      * Sends Messages to clients depending on roomType
@@ -82,6 +101,7 @@ public class ChatService extends Service {
      * @param roomType the roomType of the message
      */
     private void sendMessageToUI(String message, RoomType roomType) {
+        Log.d(TAG, "sendMessageToUI: " + message);
         //Send data as a String
         Bundle b = new Bundle();
         b.putString(ARGS_FROM_SERVICE, message);
@@ -90,26 +110,42 @@ public class ChatService extends Service {
 
         switch (roomType) {
             case GLOBAL:
-                for (Messenger messenger : mClientsGlobal) {
+                for (Messenger messenger : clientsGlobal) {
                     try {
                         messenger.send(msg);
                     } catch (RemoteException e) {
                         // The client is dead. Remove it from the list; we are going through the list from back to front so this is safe to do inside the loop.
-                        mClientsGlobal.remove(messenger);
+                        clientsGlobal.remove(messenger);
                     }
                 }
                 break;
             case SPECIFIC:
-                for (Messenger messenger : mClientsRoom) {
+                for (Messenger messenger : clientsRoom) {
                     try {
                         messenger.send(msg);
                     } catch (RemoteException e) {
                         // The client is dead. Remove it from the list; we are going through the list from back to front so this is safe to do inside the loop.
-                        mClientsRoom.remove(messenger);
+                        clientsRoom.remove(messenger);
                     }
                 }
         }
+    }
 
+    /**
+     * Register a {@link android.os.Messenger} to the service to get messages from the service.
+     *
+     * @param messenger the messenger to register
+     * @param roomType  the roomType for which the messenger should be register to
+     */
+    public void registerMessenger(Messenger messenger, RoomType roomType) {
+        switch (roomType) {
+            case GLOBAL:
+                clientsGlobal.add(messenger);
+                break;
+            case SPECIFIC:
+                clientsRoom.add(messenger);
+                break;
+        }
     }
 
     private List<BasicNameValuePair> createHeaders() {
@@ -137,7 +173,19 @@ public class ChatService extends Service {
             @Override
             public void onTextMessage(String message) {
                 Log.d(TAG, "Got message: " + message);
-                sendMessageToUI(message, roomType);
+//                sendMessageToUI(message, roomType);
+                switch (roomType) {
+                    case GLOBAL:
+                        if (currentMessageReceiverGlobal != null) {
+                            currentMessageReceiverGlobal.receiveMessageGlobal(message);
+                        }
+                        break;
+                    case SPECIFIC:
+                        if (currentMessageReceiverSpecific != null) {
+                            currentMessageReceiverSpecific.receiveMessageSpecific(message);
+                        }
+                        break;
+                }
             }
 
             @Override
@@ -154,6 +202,7 @@ public class ChatService extends Service {
 
     @Override
     public void onDestroy() {
+        Log.d(TAG, "onDestroy");
         globalConnection.disconnect();
         if (roomConnection != null) {
             roomConnection.disconnect();
@@ -170,4 +219,15 @@ public class ChatService extends Service {
             return ChatService.this;
         }
     }
+
+    public interface MessageReceiverGlobal {
+
+        void receiveMessageGlobal(String message);
+    }
+
+    public interface MessageReceiverSpecific {
+
+        void receiveMessageSpecific(String message);
+    }
+
 }

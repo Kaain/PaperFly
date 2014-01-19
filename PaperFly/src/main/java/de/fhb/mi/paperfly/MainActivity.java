@@ -40,6 +40,7 @@ import de.fhb.mi.paperfly.navigation.NavItemModel;
 import de.fhb.mi.paperfly.navigation.NavKey;
 import de.fhb.mi.paperfly.navigation.NavListAdapter;
 import de.fhb.mi.paperfly.navigation.NavListAdapter.ViewHolder;
+import de.fhb.mi.paperfly.service.ChatService;
 import de.fhb.mi.paperfly.service.RestConsumerException;
 import de.fhb.mi.paperfly.service.RestConsumerSingleton;
 import de.fhb.mi.paperfly.user.FriendListFragment;
@@ -116,7 +117,6 @@ public class MainActivity extends Activity implements GetRoomAsyncDelegate {
         drawerLeftList.setOnItemClickListener(new DrawerItemClickListener());
 
         generateNavigation();
-//        navigateTo(NavKey.GLOBAL);
     }
 
     @Override
@@ -147,6 +147,9 @@ public class MainActivity extends Activity implements GetRoomAsyncDelegate {
                 mAuthTask = new UserLoginTask();
                 mAuthTask.execute();
             } else if (!appStarted) {
+                if (!((PaperFlyApp) getApplication()).isMyServiceRunning(ChatService.class)) {
+                    startService(new Intent(this, ChatService.class));
+                }
                 // if the app was started select GlobalChat
                 navigateTo(NavKey.GLOBAL);
                 appStarted = true;
@@ -287,18 +290,6 @@ public class MainActivity extends Activity implements GetRoomAsyncDelegate {
                 }
                 invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
             }
-
-//            /**
-//             * change values in drawer right, set actual users in room
-//             */
-//            private void changeDrawerRight() {
-//
-//                drawerRightValues.clear();
-//                List<AccountDTO> usersInRoom = ((PaperFlyApp) getApplication()).getUsersInRoom();
-//                for (AccountDTO current : usersInRoom) {
-//                    drawerRightValues.add(current.getUsername());
-//                }
-//            }
         };
     }
 
