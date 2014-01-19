@@ -12,10 +12,10 @@
         android:orientation="vertical">
 
         <Switch
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/friendSwitch"
-            android:layout_gravity="center_horizontal"
+            android:layout_gravity="right"
             android:checked="false"
             android:textOn="Friend"
             android:textOff="Add Friend"
