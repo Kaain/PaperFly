@@ -16,7 +16,7 @@
  */
 package de.fhb.mi.paperfly.dto;
 
-import java.util.List;
+import java.util.Set;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -39,7 +39,7 @@ public class AccountDTO extends BaseDTO {
     private String lastName;
     private String firstName;
     private Status status;
-    private List<String> friendListUsernames;
+    private Set<String> friendListUsernames;
 
     public AccountDTO(final AccountDTO account) {
         this.setEmail(account.getEmail());

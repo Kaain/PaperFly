@@ -30,6 +30,7 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import de.fhb.mi.paperfly.auth.AuthHelper;
 import de.fhb.mi.paperfly.auth.LoginActivity;
@@ -636,6 +637,13 @@ public class MainActivity extends Activity implements GetRoomAsyncDelegate {
         Bundle args = new Bundle();
         args.putString(UserProfileFragment.ARGS_USER, user);
         args.putBoolean(UserProfileFragment.ARGS_MY_ACCOUNT, isMyAccount);
+        args.putString(UserProfileFragment.ARGS_USER, user);
+
+        Set<String> friendListUsernames = ((PaperFlyApp) getApplication()).getAccount().getFriendListUsernames();
+        if (friendListUsernames.contains(user)) {
+            args.putBoolean(UserProfileFragment.ARGS_USER_IS_FRIEND, true);
+        }
+
         fragment.setArguments(args);
 
         // Insert the fragment by replacing any existing fragment
