@@ -498,7 +498,6 @@ public class MainActivity extends Activity implements GetRoomAsyncDelegate {
         }
         Log.e("switchToNewChatRoom", " " + room);
         ((PaperFlyApp) getApplication()).setCurrentVisibleChatRoom(room);
-        ;
 
         this.updateUsersInRoomOnDrawer(((PaperFlyApp) getApplication()).getCurrentVisibleChatRoom());
     }
@@ -518,7 +517,7 @@ public class MainActivity extends Activity implements GetRoomAsyncDelegate {
         } else {
             Fragment newFragment = new ChatFragment();
             Bundle args = new Bundle();
-            args.putString(ChatFragment.ARG_CHAT_ROOM, ((PaperFlyApp) getApplication()).getCurrentVisibleChatRoom());
+            args.putString(ChatFragment.ARG_CHAT_ROOM, ((PaperFlyApp) getApplication()).getActualRoom().getName());
             newFragment.setArguments(args);
 
 //        if (fragmentByTag == null) {

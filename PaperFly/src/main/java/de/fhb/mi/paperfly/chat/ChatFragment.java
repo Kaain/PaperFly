@@ -189,7 +189,7 @@ public class ChatFragment extends Fragment implements AsyncDelegate, ChatService
         });
 
         String room = getArguments().getString(ARG_CHAT_ROOM);
-        if (room.equals(ROOM_GLOBAL_NAME)) {
+        if (room.equalsIgnoreCase(ROOM_GLOBAL_NAME)) {
             globalRoom = true;
             getActivity().setTitle(ROOM_GLOBAL_NAME);
         } else {
