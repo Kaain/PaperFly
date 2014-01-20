@@ -1,0 +1,14 @@
+<!--<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"--><!--xmlns:tools="http://schemas.android.com/tools"--><!--android:id="@+id/container"--><!--android:layout_width="match_parent"--><!--android:layout_height="match_parent"--><!--tools:context="de.fhb.mi.paperfly.user.UserRegisterActivity"--><!--tools:ignore="MergeRootFrame" />-->
+
+
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".UserRegisterActivity">
+
+    <!-- The main content view --><!-- The main content view -->
+    <FrameLayout
+        android:id="@+id/content_frame"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+</merge>

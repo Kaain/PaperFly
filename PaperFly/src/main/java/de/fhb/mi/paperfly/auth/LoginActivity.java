@@ -4,7 +4,6 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.app.Fragment;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -24,7 +23,7 @@ import de.fhb.mi.paperfly.dto.AccountDTO;
 import de.fhb.mi.paperfly.dto.TokenDTO;
 import de.fhb.mi.paperfly.service.RestConsumerException;
 import de.fhb.mi.paperfly.service.RestConsumerSingleton;
-import de.fhb.mi.paperfly.user.FriendListFragment;
+import de.fhb.mi.paperfly.user.UserRegisterActivity;
 
 /**
  * Activity which displays a login screen to the user, offering registration as
@@ -94,10 +93,9 @@ public class LoginActivity extends Activity {
 
         if (v.getId() == R.id.register_button) {
 
-            Fragment fragment = new FriendListFragment();
-            getFragmentManager().beginTransaction()
-                    .replace(R.id.content_frame, fragment, FriendListFragment.TAG)
-                    .commit();
+            Intent intent = new Intent(LoginActivity.this, UserRegisterActivity.class);
+            startActivity(intent);
+            finish();
         }
 
     }

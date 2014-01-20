@@ -37,5 +37,6 @@
     <string name="action_add_friend">Add Friend</string>
     <string name="please_wait">Please wait</string>
     <string name="no_friends">You have no friends yet</string>
+    <string name="title_activity_user_register">UserRegisterActivity</string>
 
 </resources>
