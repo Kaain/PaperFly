@@ -16,16 +16,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import java.io.UnsupportedEncodingException;
-import java.util.Date;
 
 import de.fhb.mi.paperfly.MainActivity;
 import de.fhb.mi.paperfly.PaperFlyApp;
 import de.fhb.mi.paperfly.R;
 import de.fhb.mi.paperfly.dto.AccountDTO;
-import de.fhb.mi.paperfly.dto.RegisterAccountDTO;
 import de.fhb.mi.paperfly.dto.TokenDTO;
 import de.fhb.mi.paperfly.service.RestConsumerException;
 import de.fhb.mi.paperfly.service.RestConsumerSingleton;
@@ -58,7 +53,7 @@ public class LoginActivity extends Activity {
     private TextView mLoginStatusMessageView;
 
     /**
-     * Attempt to login or register an user depending on which button was clicked.
+     * Attempt to login an user
      *
      * @param v the view which was clicked
      */
@@ -67,9 +62,6 @@ public class LoginActivity extends Activity {
         if (v.getId() == R.id.login_button && mLoginTask != null) {
             return;
         }
-//        if (v.getId() == R.id.register_button && mRegisterTask != null) {
-//            return;
-//        }
 
         // Reset errors.
         mEmailView.setError(null);
@@ -88,19 +80,28 @@ public class LoginActivity extends Activity {
                 mLoginTask = new UserLoginTask();
                 mLoginTask.execute(mEmail, mPassword);
             }
-            if (v.getId() == R.id.register_button) {
-//                mRegisterTask = new UserRegisterTask();
-//                mRegisterTask.execute(mEmail, mPassword);
-
-                //TODO start neues Fragment
-
-                Fragment fragment = new FriendListFragment();
-                getFragmentManager().beginTransaction()
-                        .replace(R.id.content_frame, fragment, FriendListFragment.TAG)
-                        .commit();
-            }
         }
+
+
     }
+
+    /**
+     * Attempt to register an user
+     *
+     * @param v the view which was clicked
+     */
+    public void attemptRegister(View v) {
+
+        if (v.getId() == R.id.register_button) {
+
+            Fragment fragment = new FriendListFragment();
+            getFragmentManager().beginTransaction()
+                    .replace(R.id.content_frame, fragment, FriendListFragment.TAG)
+                    .commit();
+        }
+
+    }
+
 
     /**
      * Checks if the values in the form are valid.
