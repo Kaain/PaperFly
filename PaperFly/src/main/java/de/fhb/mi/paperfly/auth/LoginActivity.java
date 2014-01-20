@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.Fragment;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -28,6 +29,7 @@ import de.fhb.mi.paperfly.dto.RegisterAccountDTO;
 import de.fhb.mi.paperfly.dto.TokenDTO;
 import de.fhb.mi.paperfly.service.RestConsumerException;
 import de.fhb.mi.paperfly.service.RestConsumerSingleton;
+import de.fhb.mi.paperfly.user.FriendListFragment;
 
 /**
  * Activity which displays a login screen to the user, offering registration as
@@ -44,7 +46,7 @@ public class LoginActivity extends Activity {
      * Keep track of the login task to ensure we can cancel it if requested.
      */
     private UserLoginTask mLoginTask = null;
-    private UserRegisterTask mRegisterTask = null;
+
     // Values for email and password at the time of the login attempt.
     private String mEmail;
     private String mPassword;
@@ -65,9 +67,9 @@ public class LoginActivity extends Activity {
         if (v.getId() == R.id.login_button && mLoginTask != null) {
             return;
         }
-        if (v.getId() == R.id.register_button && mRegisterTask != null) {
-            return;
-        }
+//        if (v.getId() == R.id.register_button && mRegisterTask != null) {
+//            return;
+//        }
 
         // Reset errors.
         mEmailView.setError(null);
@@ -87,8 +89,15 @@ public class LoginActivity extends Activity {
                 mLoginTask.execute(mEmail, mPassword);
             }
             if (v.getId() == R.id.register_button) {
-                mRegisterTask = new UserRegisterTask();
-                mRegisterTask.execute(mEmail, mPassword);
+//                mRegisterTask = new UserRegisterTask();
+//                mRegisterTask.execute(mEmail, mPassword);
+
+                //TODO start neues Fragment
+
+                Fragment fragment = new FriendListFragment();
+                getFragmentManager().beginTransaction()
+                        .replace(R.id.content_frame, fragment, FriendListFragment.TAG)
+                        .commit();
             }
         }
     }
@@ -141,7 +150,6 @@ public class LoginActivity extends Activity {
 
         // Set up the login form.
         mEmailView = (EditText) findViewById(R.id.accountMail);
-
         mPasswordView = (EditText) findViewById(R.id.password);
 
         mLoginFormView = findViewById(R.id.login_form);
@@ -257,59 +265,5 @@ public class LoginActivity extends Activity {
         }
     }
 
-    /**
-     * Represents an asynchronous registration task used to authenticate the user.
-     */
-    public class UserRegisterTask extends AsyncTask<String, Void, AuthStatus> {
-        @Override
-        protected AuthStatus doInBackground(String... params) {
-            String mail = params[0];
-            String pw = params[1];
 
-            RegisterAccountDTO nextUser = new RegisterAccountDTO();
-            nextUser.setLastName("Mustermann");
-            nextUser.setFirstName("Max");
-            nextUser.setUsername("neuerUser");
-            nextUser.setLastModified(new Date(System.currentTimeMillis()));
-            nextUser.setCreated(new Date(System.currentTimeMillis()));
-            nextUser.setEmail(mail);
-            nextUser.setPassword(pw);
-            nextUser.setPasswordRpt(pw);
-            nextUser.setEnabled(true);
-
-
-            try {
-                RestConsumerSingleton.getInstance().register(nextUser);
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            } catch (RestConsumerException e) {
-                e.printStackTrace();
-                //TODO kann man nicht immer sagen an der Stelle
-                return AuthStatus.REGISTER_EMAIL_ALREADY_REGISTERED;
-            }
-
-            return AuthStatus.REGISTER_SUCCESSFUL;
-        }
-
-        @Override
-        protected void onCancelled() {
-            mRegisterTask = null;
-            showProgress(false);
-        }
-
-        @Override
-        protected void onPostExecute(final AuthStatus authStatus) {
-            mRegisterTask = null;
-            showProgress(false);
-
-            switch (authStatus) {
-                case REGISTER_EMAIL_ALREADY_REGISTERED:
-                    Toast.makeText(getApplicationContext(), getApplicationContext().getResources().getString(R.string.register_info_error_email), Toast.LENGTH_LONG).show();
-                    break;
-                case REGISTER_SUCCESSFUL:
-                    ((TextView) findViewById(R.id.register_info)).setText(R.string.register_info_success);
-                    break;
-            }
-        }
-    }
 }
