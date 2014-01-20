@@ -84,12 +84,22 @@ public class ChatService extends Service {
     public boolean connectToRoomChat(final String room) {
         String webSocketUri = URL_CHAT_BASE + room;
         if (!webSocketUriSpecificRoom.equals(webSocketUri)) {
+            // connect to new room
             try {
+                if (roomConnection.isConnected()) {
+                    // if there was a connection to another room close it
+                    roomConnection.disconnect();
+                }
+                roomConnection = new WebSocketConnection();
                 roomConnection.connect(webSocketUri, null, createWebSocketHandler(room, RoomType.SPECIFIC), new WebSocketOptions(), createHeaders());
+                webSocketUriSpecificRoom = webSocketUri;
             } catch (WebSocketException e) {
                 e.printStackTrace();
                 return false;
             }
+        } else if (!roomConnection.isConnected()) {
+            // room is the same but connection was lost
+            roomConnection.reconnect();
         }
         return true;
     }
