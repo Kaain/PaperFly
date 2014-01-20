@@ -29,12 +29,8 @@ import de.fhb.mi.paperfly.service.RestConsumerSingleton;
  * @author Andy Klay (klay@fh-brandenburg.de)
  */
 public class UserRegisterFragment extends Fragment {
+
     public static final String TAG = FriendListFragment.class.getSimpleName();
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-    // TODO: Rename and change types of parameters
     private UserRegisterTask mRegisterTask = null;
 
     private String mEmail;
@@ -51,9 +47,6 @@ public class UserRegisterFragment extends Fragment {
     private EditText mFirstnameView;
     private EditText mPasswordRepeatView;
     private EditText mLastnameView;
-
-    private String mParam1;
-    private String mParam2;
 
     private OnFragmentInteractionListener mListener;
     private View rootView;
@@ -75,8 +68,7 @@ public class UserRegisterFragment extends Fragment {
     public static UserRegisterFragment newInstance(String param1, String param2) {
         UserRegisterFragment fragment = new UserRegisterFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
+
         fragment.setArguments(args);
         return fragment;
     }
@@ -84,11 +76,6 @@ public class UserRegisterFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-
 
     }
 
@@ -146,10 +133,6 @@ public class UserRegisterFragment extends Fragment {
         mFirstname = mFirstnameView.getText().toString();
         mLastname = mLastnameView.getText().toString();
         mUsername = mUsernameView.getText().toString();
-
-//        // Reset errors.
-//        mEmailView.setError(null);
-//        mPasswordView.setError(null);
 
         if (checkValues()) {
             mRegisterTask = new UserRegisterTask();
@@ -284,13 +267,11 @@ public class UserRegisterFragment extends Fragment {
         @Override
         protected void onCancelled() {
             mRegisterTask = null;
-//            showProgress(false);
         }
 
         @Override
         protected void onPostExecute(final AuthStatus authStatus) {
             mRegisterTask = null;
-//            showProgress(false);
 
             switch (authStatus) {
                 case REGISTER_EMAIL_ALREADY_REGISTERED:
