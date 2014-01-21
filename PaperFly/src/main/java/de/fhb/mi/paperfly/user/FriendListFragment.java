@@ -20,6 +20,7 @@ package de.fhb.mi.paperfly.user;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.app.ListFragment;
 import android.app.SearchManager;
 import android.content.Context;
 import android.graphics.Color;
@@ -33,7 +34,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.SearchView;
@@ -53,23 +53,24 @@ import de.fhb.mi.paperfly.util.AsyncDelegate;
  *
  * @author Andy Klay (klay@fh-brandenburg.de)
  */
-public class FriendListFragment extends Fragment implements AdapterView.OnItemClickListener, AsyncDelegate {
+public class FriendListFragment extends ListFragment implements AsyncDelegate {
 
     public static final String TAG = FriendListFragment.class.getSimpleName();
     private View rootView;
-    private ListView friendListView;
     private FriendListAdapter listAdapter;
     private DrawerLayout drawerLayout;
     private List<AccountDTO> myFriendList;
+    private TextView emptyView;
 
     @Override
     public void asyncComplete(boolean success) {
         listAdapter.addAll(myFriendList);
         listAdapter.notifyDataSetChanged();
+        emptyView.setText(getResources().getString(R.string.no_friends));
     }
 
     private void initViewsById() {
-        friendListView = (ListView) rootView.findViewById(R.id.friendsList);
+        emptyView = (TextView) rootView.findViewById(android.R.id.empty);
     }
 
     @Override
@@ -128,8 +129,7 @@ public class FriendListFragment extends Fragment implements AdapterView.OnItemCl
         updateAccountTask.execute();
 
         listAdapter = new FriendListAdapter(rootView.getContext());
-        friendListView.setAdapter(listAdapter);
-        friendListView.setOnItemClickListener(this);
+        setListAdapter(listAdapter);
         return rootView;
     }
 
@@ -146,7 +146,7 @@ public class FriendListFragment extends Fragment implements AdapterView.OnItemCl
     }
 
     @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+    public void onListItemClick(ListView l, View v, int position, long id) {
         Log.d(TAG, "onItemClick");
         Fragment fragment = new UserProfileFragment();
         Bundle args = new Bundle();
