@@ -19,5 +19,5 @@
     <string name="error_incorrect_password">This password is incorrect</string>
     <string name="error_field_required">This field is required</string>
     <string name="register_info_success">Registration successful. Please sign in with your email and password.</string>
-    <string name="register_info_error_email">Email already registered.</string>
+    <string name="register_info_error">Registration fail, please check email or passwords!</string>
 </resources>

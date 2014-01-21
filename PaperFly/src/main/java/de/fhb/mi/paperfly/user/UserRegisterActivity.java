@@ -16,7 +16,6 @@ import android.widget.Toast;
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
 
-import de.fhb.mi.paperfly.MainActivity;
 import de.fhb.mi.paperfly.R;
 import de.fhb.mi.paperfly.auth.AuthStatus;
 import de.fhb.mi.paperfly.auth.LoginActivity;
@@ -249,7 +248,7 @@ public class UserRegisterActivity extends Activity {
 
             switch (authStatus) {
                 case REGISTER_EMAIL_ALREADY_REGISTERED:
-                    Toast.makeText(getApplicationContext(), getResources().getString(R.string.register_info_error_email), Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), getResources().getString(R.string.register_info_error), Toast.LENGTH_LONG).show();
                     break;
                 case REGISTER_SUCCESSFUL:
                     Toast.makeText(getApplicationContext(), getResources().getString(R.string.register_info_success), Toast.LENGTH_LONG).show();
