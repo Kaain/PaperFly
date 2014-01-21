@@ -3,31 +3,31 @@ package de.fhb.mi.paperfly.service;
 import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
-import android.os.Bundle;
 import android.os.IBinder;
-import android.os.Messenger;
-import android.os.RemoteException;
 import android.util.Log;
+
+import com.google.gson.Gson;
 
 import org.apache.http.cookie.Cookie;
 import org.apache.http.message.BasicNameValuePair;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import de.fhb.mi.paperfly.PaperFlyApp;
+import de.fhb.mi.paperfly.dto.Message;
+import de.fhb.mi.paperfly.dto.MessageType;
 import de.tavendo.autobahn.WebSocketConnection;
 import de.tavendo.autobahn.WebSocketConnectionHandler;
 import de.tavendo.autobahn.WebSocketException;
 import de.tavendo.autobahn.WebSocketOptions;
-import lombok.Setter;
 
 /**
  * A Service which holds the connections to two chats. These chats are connected through a webSocket.
  * On startup the service will connect to the global chat.
- * If the user joins another chat the service connects to this chat by calling the {@link de.fhb.mi.paperfly.service.ChatService#connectToRoomChat(String)}.
  * <p/>
- * Inspired by http://stackoverflow.com/questions/4300291/example-communication-between-activity-and-service-using-messaging
+ * If the user wants to join another chat you should call {@link de.fhb.mi.paperfly.service.ChatService#connectToRoom(String, de.fhb.mi.paperfly.service.ChatService.MessageReceiver)}.
  *
  * @author Christoph Ott
  */
@@ -35,127 +35,76 @@ public class ChatService extends Service {
 
     public static final String URL_CHAT_BASE = "ws://" + RestConsumerSingleton.AWS_IP + ":" + RestConsumerSingleton.PORT + "/PaperFlyServer-web/ws/chat/";
     private static final String GLOBAL = "Global";
+    public static final String URL_CHAT_GLOBAL = URL_CHAT_BASE + GLOBAL;
     private static final String TAG = ChatService.class.getSimpleName();
-    public static final String ARGS_WS_URI = "ARGS_WS_URI";
-    public static final String ARGS_FROM_SERVICE = "ARGS_FROM_SERVICE";
-    public static final int MSG_SEND_TO_UI = 1;
-    private WebSocketConnection globalConnection = new WebSocketConnection();
-    private WebSocketConnection roomConnection = new WebSocketConnection();
     IBinder binder = new ChatServiceBinder();
+    private WebSocketConnection globalConnection;
+    private WebSocketConnection roomConnection = new WebSocketConnection();
     private String webSocketUriSpecificRoom = "";
 
-    @Setter
-    private MessageReceiverGlobal currentMessageReceiverGlobal;
-    @Setter
-    private MessageReceiverSpecific currentMessageReceiverSpecific;
+    private MessageReceiver currentMessageReceiverGlobal;
+    private MessageReceiver currentMessageReceiverSpecific;
 
-    public void sendTextMessage(String jsonString, RoomType roomType) {
-        switch (roomType) {
-            case GLOBAL:
-                globalConnection.sendTextMessage(jsonString);
-                break;
-            case SPECIFIC:
-                roomConnection.sendTextMessage(jsonString);
-                break;
-        }
-    }
-
-    public enum RoomType {GLOBAL, SPECIFIC}
-
-    private ArrayList<Messenger> clientsRoom = new ArrayList<Messenger>(); // Keeps track of all current registered clients.
-    private ArrayList<Messenger> clientsGlobal = new ArrayList<Messenger>();
-
-//    final Messenger mMessenger = new Messenger(new IncomingHandler()); // Target we publish for clients to send messages to IncomingHandler.
-
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d(TAG, "onStartCommand");
-        try {
-            String webSocketUri = URL_CHAT_BASE + GLOBAL;
-            WebSocketConnectionHandler webSocketHandler = createWebSocketHandler(GLOBAL, RoomType.GLOBAL);
-            globalConnection.connect(webSocketUri, null, webSocketHandler, new WebSocketOptions(), createHeaders());
-        } catch (WebSocketException e) {
-            e.printStackTrace();
-        }
-
-        return super.onStartCommand(intent, flags, startId);
-    }
-
-    public boolean connectToRoomChat(final String room) {
-        String webSocketUri = URL_CHAT_BASE + room;
-        if (!webSocketUriSpecificRoom.equals(webSocketUri)) {
-            // connect to new room
+    private boolean connectToGlobal() {
+        if (globalConnection == null) {
             try {
-                if (roomConnection.isConnected()) {
-                    // if there was a connection to another room close it
-                    roomConnection.disconnect();
-                }
-                roomConnection = new WebSocketConnection();
-                roomConnection.connect(webSocketUri, null, createWebSocketHandler(room, RoomType.SPECIFIC), new WebSocketOptions(), createHeaders());
-                webSocketUriSpecificRoom = webSocketUri;
+                globalConnection = new WebSocketConnection();
+                globalConnection.connect(URL_CHAT_GLOBAL, null, new MyWebSocketConnectionHandler(URL_CHAT_GLOBAL, RoomType.GLOBAL), new WebSocketOptions(), createHeaders());
             } catch (WebSocketException e) {
                 e.printStackTrace();
                 return false;
             }
-        } else if (!roomConnection.isConnected()) {
-            // room is the same but connection was lost
-            roomConnection.reconnect();
+        } else if (!globalConnection.isConnected()) {
+            globalConnection.reconnect();
         }
         return true;
     }
 
     /**
-     * Sends Messages to clients depending on roomType
+     * This method connects the {@link de.fhb.mi.paperfly.service.ChatService} to the given room and
+     * forwards the messages from the connection to the messageReceiver.
      *
-     * @param message  the message to send
-     * @param roomType the roomType of the message
+     * @param room            the room to connect to and get the messages to the {@link de.fhb.mi.paperfly.service.ChatService.MessageReceiver}
+     * @param messageReceiver the messageReceiver which sends the messages to the ui
+     *
+     * @return true if the connection is established, false if not
      */
-    private void sendMessageToUI(String message, RoomType roomType) {
-        Log.d(TAG, "sendMessageToUI: " + message);
-        //Send data as a String
-        Bundle b = new Bundle();
-        b.putString(ARGS_FROM_SERVICE, message);
-        android.os.Message msg = android.os.Message.obtain(null, MSG_SEND_TO_UI);
-        msg.setData(b);
-
+    public boolean connectToRoom(final String room, MessageReceiver messageReceiver) {
+        RoomType roomType = (room.equalsIgnoreCase(RoomType.GLOBAL.name())) ? RoomType.GLOBAL : RoomType.SPECIFIC;
+        boolean success = false;
         switch (roomType) {
             case GLOBAL:
-                for (Messenger messenger : clientsGlobal) {
-                    try {
-                        messenger.send(msg);
-                    } catch (RemoteException e) {
-                        // The client is dead. Remove it from the list; we are going through the list from back to front so this is safe to do inside the loop.
-                        clientsGlobal.remove(messenger);
-                    }
-                }
+                this.currentMessageReceiverGlobal = messageReceiver;
+                success = connectToGlobal();
                 break;
             case SPECIFIC:
-                for (Messenger messenger : clientsRoom) {
-                    try {
-                        messenger.send(msg);
-                    } catch (RemoteException e) {
-                        // The client is dead. Remove it from the list; we are going through the list from back to front so this is safe to do inside the loop.
-                        clientsRoom.remove(messenger);
-                    }
-                }
+                this.currentMessageReceiverSpecific = messageReceiver;
+                success = connectToSpecific(room);
         }
+        return success;
     }
 
-    /**
-     * Register a {@link android.os.Messenger} to the service to get messages from the service.
-     *
-     * @param messenger the messenger to register
-     * @param roomType  the roomType for which the messenger should be register to
-     */
-    public void registerMessenger(Messenger messenger, RoomType roomType) {
-        switch (roomType) {
-            case GLOBAL:
-                clientsGlobal.add(messenger);
-                break;
-            case SPECIFIC:
-                clientsRoom.add(messenger);
-                break;
+    private boolean connectToSpecific(String room) {
+        String webSocketUri = URL_CHAT_BASE + room;
+        if (!webSocketUriSpecificRoom.equals(webSocketUri)) {
+            // connect to new room
+            if (roomConnection.isConnected()) {
+                // if there was a connection to another room close it
+                roomConnection.disconnect();
+            }
+            try {
+                roomConnection = new WebSocketConnection();
+                roomConnection.connect(webSocketUri, null, new MyWebSocketConnectionHandler(webSocketUri, RoomType.SPECIFIC), new WebSocketOptions(), createHeaders());
+            } catch (WebSocketException e) {
+                e.printStackTrace();
+                return false;
+            }
+            webSocketUriSpecificRoom = webSocketUri;
+        } else if (!roomConnection.isConnected()) {
+            // room is the same but connection was lost
+            roomConnection.reconnect();
         }
+        return true;
     }
 
     private List<BasicNameValuePair> createHeaders() {
@@ -170,41 +119,6 @@ public class ChatService extends Service {
         return headers;
     }
 
-    private WebSocketConnectionHandler createWebSocketHandler(final String room, final RoomType roomType) {
-        final String webSocketUri = URL_CHAT_BASE + room;
-
-        return new WebSocketConnectionHandler() {
-
-            @Override
-            public void onOpen() {
-                Log.d(TAG, "Status: Connected to " + webSocketUri);
-            }
-
-            @Override
-            public void onTextMessage(String message) {
-                Log.d(TAG, "Got message: " + message);
-//                sendMessageToUI(message, roomType);
-                switch (roomType) {
-                    case GLOBAL:
-                        if (currentMessageReceiverGlobal != null) {
-                            currentMessageReceiverGlobal.receiveMessageGlobal(message);
-                        }
-                        break;
-                    case SPECIFIC:
-                        if (currentMessageReceiverSpecific != null) {
-                            currentMessageReceiverSpecific.receiveMessageSpecific(message);
-                        }
-                        break;
-                }
-            }
-
-            @Override
-            public void onClose(int code, String reason) {
-                Log.d(TAG, "Connection lost to: " + webSocketUri);
-            }
-        };
-    }
-
     @Override
     public IBinder onBind(Intent intent) {
         return binder;
@@ -213,10 +127,59 @@ public class ChatService extends Service {
     @Override
     public void onDestroy() {
         Log.d(TAG, "onDestroy");
-        globalConnection.disconnect();
-        if (roomConnection != null) {
+        if (globalConnection.isConnected()) {
+            globalConnection.disconnect();
+        }
+        if (roomConnection.isConnected()) {
             roomConnection.disconnect();
         }
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.d(TAG, "onStartCommand");
+        connectToGlobal();
+
+        return super.onStartCommand(intent, flags, startId);
+    }
+
+    /**
+     * Sends a message to the current visible room.
+     *
+     * @param messageFromUI the message to send
+     * @param roomType      the roomType the message should be send
+     */
+    public void sendTextMessage(String messageFromUI, RoomType roomType) {
+        Gson gson = new Gson();
+        Message message = new Message("", MessageType.TEXT, new Date(), messageFromUI);
+        switch (roomType) {
+            case GLOBAL:
+                globalConnection.sendTextMessage(gson.toJson(message));
+                break;
+            case SPECIFIC:
+                roomConnection.sendTextMessage(gson.toJson(message));
+                break;
+        }
+    }
+
+    /**
+     * Represents the type of a room.
+     */
+    public enum RoomType {
+        GLOBAL, SPECIFIC
+    }
+
+    /**
+     * An Interface for receiving messages on the ui.
+     */
+    public interface MessageReceiver {
+
+        /**
+         * Gets a message for further processing. (e.g. Displaying on the UI)
+         *
+         * @param message the message to process
+         */
+        void receiveMessage(String message);
     }
 
     /**
@@ -230,14 +193,49 @@ public class ChatService extends Service {
         }
     }
 
-    public interface MessageReceiverGlobal {
+    private class MyWebSocketConnectionHandler extends WebSocketConnectionHandler {
 
-        void receiveMessageGlobal(String message);
+        private final String webSocketUri;
+        private final RoomType roomType;
+
+        public MyWebSocketConnectionHandler(String webSocketUri, RoomType roomType) {
+            this.webSocketUri = webSocketUri;
+            this.roomType = roomType;
+        }
+
+        @Override
+        public void onClose(int code, String reason) {
+            Log.d(TAG, "Connection lost to: " + webSocketUri);
+        }
+
+        @Override
+        public void onOpen() {
+            Log.d(TAG, "Status: Connected to " + webSocketUri);
+        }
+
+        @Override
+        public void onTextMessage(String messageJSON) {
+            Log.d(TAG, "Got message: " + messageJSON);
+            Gson gson = new Gson();
+            Message message = gson.fromJson(messageJSON, Message.class);
+            String acutalMessageToUI;
+            if (message.getUsername() != null) {
+                acutalMessageToUI = message.getUsername() + ": " + message.getBody();
+            } else {
+                acutalMessageToUI = message.getBody();
+            }
+            switch (roomType) {
+                case GLOBAL:
+                    if (currentMessageReceiverGlobal != null) {
+                        currentMessageReceiverGlobal.receiveMessage(acutalMessageToUI);
+                    }
+                    break;
+                case SPECIFIC:
+                    if (currentMessageReceiverSpecific != null) {
+                        currentMessageReceiverSpecific.receiveMessage(acutalMessageToUI);
+                    }
+                    break;
+            }
+        }
     }
-
-    public interface MessageReceiverSpecific {
-
-        void receiveMessageSpecific(String message);
-    }
-
 }

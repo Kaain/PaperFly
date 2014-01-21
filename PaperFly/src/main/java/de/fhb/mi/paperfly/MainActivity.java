@@ -506,6 +506,9 @@ public class MainActivity extends Activity implements GetRoomAsyncDelegate {
      * Switch to the chat room which was earlier selected
      */
     private void switchToChatRoom() {
+        String roomVisible = ((PaperFlyApp) getApplication()).getActualRoom().getName();
+        ((PaperFlyApp) getApplication()).setCurrentVisibleChatRoom(roomVisible);
+
         FragmentManager fragmentManager = getFragmentManager();
         Fragment fragment = fragmentManager.findFragmentByTag(ChatFragment.TAG);
 
@@ -517,7 +520,7 @@ public class MainActivity extends Activity implements GetRoomAsyncDelegate {
         } else {
             Fragment newFragment = new ChatFragment();
             Bundle args = new Bundle();
-            args.putString(ChatFragment.ARG_CHAT_ROOM, ((PaperFlyApp) getApplication()).getActualRoom().getName());
+            args.putString(ChatFragment.ARG_CHAT_ROOM, roomVisible);
             newFragment.setArguments(args);
 
 //        if (fragmentByTag == null) {
@@ -533,6 +536,7 @@ public class MainActivity extends Activity implements GetRoomAsyncDelegate {
      * Opens the global chat in a new fragment.
      */
     private void switchToGlobalChat() {
+        ((PaperFlyApp) getApplication()).setCurrentVisibleChatRoom(ChatFragment.ROOM_GLOBAL_NAME);
         FragmentManager fragmentManager = getFragmentManager();
         Fragment fragmentByTag = fragmentManager.findFragmentByTag(ChatFragment.TAG_GLOBAL);
 
@@ -559,7 +563,6 @@ public class MainActivity extends Activity implements GetRoomAsyncDelegate {
 
     public void updateUsersInRoomOnDrawer(String roomID) {
         Log.d("updateUsersInRoomOnDrawer", "" + roomID);
-        ((PaperFlyApp) getApplication()).setCurrentVisibleChatRoom(roomID);
         mGetAccountsInRoomTask = new GetAccountsInRoomTask();
         mGetAccountsInRoomTask.execute();
 
@@ -745,7 +748,7 @@ public class MainActivity extends Activity implements GetRoomAsyncDelegate {
 
             try {
                 if (((PaperFlyApp) getApplication()).getCurrentVisibleChatRoom().equals(ChatFragment.ROOM_GLOBAL_NAME)) {
-                    usersInRoom = RestConsumerSingleton.getInstance().getUsersInRoom(ChatFragment.ROOM_GLOBAL);
+                    usersInRoom = RestConsumerSingleton.getInstance().getUsersInRoom(ChatFragment.ROOM_GLOBAL_ID);
                 } else {
                     usersInRoom = RestConsumerSingleton.getInstance().getUsersInRoom(((PaperFlyApp) getApplication()).getActualRoom().getId());
                 }
