@@ -31,6 +31,8 @@ import de.fhb.mi.paperfly.user.UserRegisterActivity;
  */
 public class LoginActivity extends Activity {
 
+    public static final int REQUESTCODE_REGISTER_USER = 101;
+
     /**
      * The default email to populate the email field with.
      */
@@ -94,7 +96,7 @@ public class LoginActivity extends Activity {
         if (v.getId() == R.id.register_button) {
 
             Intent intent = new Intent(LoginActivity.this, UserRegisterActivity.class);
-            startActivity(intent);
+            startActivityForResult(intent, REQUESTCODE_REGISTER_USER);
             finish();
         }
 

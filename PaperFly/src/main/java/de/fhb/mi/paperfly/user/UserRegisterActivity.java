@@ -1,7 +1,6 @@
 package de.fhb.mi.paperfly.user;
 
 import android.app.Activity;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -11,6 +10,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
@@ -75,14 +75,21 @@ public class UserRegisterActivity extends Activity {
 
         setContentView(R.layout.activity_user_register);
 
-//        this.rootView = inflater.inflate(R.layout.fragment_user_register, container, false);
-
         mEmailView = (EditText) findViewById(R.id.accountMail);
         mUsernameView = (EditText) findViewById(R.id.accountUserName);
         mFirstnameView = (EditText) findViewById(R.id.accountFirstName);
         mLastnameView = (EditText) findViewById(R.id.accountLastName);
         mPasswordView = (EditText) findViewById(R.id.password);
         mPasswordRepeatView = (EditText) findViewById(R.id.password_repeat);
+
+
+//        Button backButton = (Button)this.findViewById(R.id.back);
+//        backButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                finish();
+//            }
+//        });
     }
 
     /**
@@ -92,9 +99,6 @@ public class UserRegisterActivity extends Activity {
      */
     public void register(View v) {
         Log.d(TAG, "attemptLoginRegister: " + ((Button) v).getText());
-        if (v.getId() == R.id.register_button && mRegisterTask != null) {
-            return;
-        }
 
         // Store values at the time of the register action
         mEmail = mEmailView.getText().toString();
@@ -109,6 +113,8 @@ public class UserRegisterActivity extends Activity {
             mRegisterTask.execute(mEmail, mPassword, mPasswordRepeat, mFirstname, mLastname, mUsername);
         }
     }
+
+
 
     /**
      * Checks if the values in the form are valid.
@@ -174,21 +180,6 @@ public class UserRegisterActivity extends Activity {
     }
 
     /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p/>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        public void onFragmentInteraction(Uri uri);
-    }
-
-    /**
      * Represents an asynchronous registration task used to authenticate the user.
      */
     public class UserRegisterTask extends AsyncTask<String, Void, AuthStatus> {
@@ -236,10 +227,10 @@ public class UserRegisterActivity extends Activity {
 
             switch (authStatus) {
                 case REGISTER_EMAIL_ALREADY_REGISTERED:
-//                    Toast.makeText(getActivity(), getApplicationContext().getResources().getString(R.string.register_info_error_email), Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), getResources().getString(R.string.register_info_error_email), Toast.LENGTH_LONG).show();
                     break;
                 case REGISTER_SUCCESSFUL:
-//                    ((TextView) findViewById(R.id.register_info)).setText(R.string.register_info_success);
+                    Toast.makeText(getApplicationContext(), getResources().getString(R.string.register_info_success), Toast.LENGTH_LONG).show();
                     break;
             }
         }

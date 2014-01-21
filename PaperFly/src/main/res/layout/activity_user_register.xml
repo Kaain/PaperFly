@@ -1,6 +1,3 @@
-<!--<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"--><!--xmlns:tools="http://schemas.android.com/tools"--><!--android:id="@+id/container"--><!--android:layout_width="match_parent"--><!--android:layout_height="match_parent"--><!--tools:context="de.fhb.mi.paperfly.user.UserRegisterActivity"--><!--tools:ignore="MergeRootFrame" />-->
-
-
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".UserRegisterActivity">
@@ -66,9 +63,8 @@
                 android:hint="@string/prompt_password"
                 android:maxLines="1"
                 android:singleLine="true"
-                android:editable="false"
-                android:focusable="false"
-                android:inputType="text"
+                android:editable="true"
+                android:inputType="textPassword"
                 android:maxLength="20"
                 android:textColor="#939694" />
 
@@ -78,10 +74,9 @@
                 android:layout_height="wrap_content"
                 android:hint="@string/prompt_password"
                 android:maxLines="1"
+                android:editable="true"
                 android:singleLine="true"
-                android:editable="false"
-                android:focusable="false"
-                android:inputType="text"
+                android:inputType="textPassword"
                 android:maxLength="20"
                 android:textColor="#939694" />
 
@@ -100,7 +95,8 @@
                 android:layout_marginTop="16dp"
                 android:paddingLeft="32dp"
                 android:paddingRight="32dp"
-                android:text="register" />
+                android:text="register"
+                android:onClick="register" />
         </LinearLayout>
 
     </ScrollView>
