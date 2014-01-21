@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +27,7 @@ public class UserSearchActivity extends ListActivity implements AsyncDelegate {
     private static final String TAG = UserSearchActivity.class.getSimpleName();
     ArrayAdapter<String> arrayAdapter;
     List<AccountDTO> searchResults;
+    private TextView emptyView;
 
     @Override
     public void asyncComplete(boolean success) {
@@ -33,6 +35,7 @@ public class UserSearchActivity extends ListActivity implements AsyncDelegate {
             arrayAdapter.add(accountDTO.getUsername());
         }
         arrayAdapter.notifyDataSetChanged();
+        emptyView.setText(getResources().getString(R.string.nothing_found));
     }
 
     /**
@@ -63,6 +66,7 @@ public class UserSearchActivity extends ListActivity implements AsyncDelegate {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search_user);
+        emptyView = (TextView) findViewById(android.R.id.empty);
         arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, new ArrayList<String>());
         setListAdapter(arrayAdapter);
         handleIntent(getIntent());
