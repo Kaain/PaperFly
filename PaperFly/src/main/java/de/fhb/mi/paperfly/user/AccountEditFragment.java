@@ -36,17 +36,23 @@ public class AccountEditFragment extends Fragment {
 
     private AccountEditTask mMyAccountEditTask = null;
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
     private void initViews(View rootView) {
         accountUsername = (EditText) rootView.findViewById(R.id.accountUserName);
         accountFirstname = (EditText) rootView.findViewById(R.id.accountFirstName);
         accountLastname = (EditText) rootView.findViewById(R.id.accountLastName);
         accountMail = (EditText) rootView.findViewById(R.id.accountMail);
         updateButton = (Button) rootView.findViewById(R.id.update_button);
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        Log.d(TAG, "onAttach");
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
     }
 
     @Override
@@ -80,12 +86,6 @@ public class AccountEditFragment extends Fragment {
         Log.d(TAG, "onStop");
     }
 
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        Log.d(TAG, "onAttach");
-    }
-
     /**
      * Represents an asynchronous AccountEditTask used to set the account data
      */
@@ -113,7 +113,6 @@ public class AccountEditFragment extends Fragment {
 
         @Override
         protected void onPostExecute(final Boolean success) {
-
 
             if (success) {
                 Log.d("onPostExecute", "success");

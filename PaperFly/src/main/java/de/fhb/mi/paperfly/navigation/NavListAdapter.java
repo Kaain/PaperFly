@@ -41,16 +41,6 @@ public class NavListAdapter extends ArrayAdapter<NavItemModel> {
     }
 
     @Override
-    public int getViewTypeCount() {
-        return 2;
-    }
-
-    @Override
-    public boolean isEnabled(int position) {
-        return !getItem(position).isHeader();
-    }
-
-    @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         NavItemModel item = getItem(position);
         ViewHolder holder = null;
@@ -99,6 +89,16 @@ public class NavListAdapter extends ArrayAdapter<NavItemModel> {
         }
 
         return view;
+    }
+
+    @Override
+    public int getViewTypeCount() {
+        return 2;
+    }
+
+    @Override
+    public boolean isEnabled(int position) {
+        return !getItem(position).isHeader();
     }
 
     public static class ViewHolder {

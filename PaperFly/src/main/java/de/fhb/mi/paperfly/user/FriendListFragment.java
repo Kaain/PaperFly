@@ -63,8 +63,55 @@ public class FriendListFragment extends Fragment implements AdapterView.OnItemCl
     private List<AccountDTO> myFriendList;
 
     @Override
+    public void asyncComplete(boolean success) {
+        listAdapter.addAll(myFriendList);
+        listAdapter.notifyDataSetChanged();
+    }
+
+    private void initViewsById() {
+        friendListView = (ListView) rootView.findViewById(R.id.friendsList);
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        Log.d(TAG, "onAttach");
+    }
+
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        if (menu != null) {
+            inflater.inflate(R.menu.user_friends, menu);
+        }
+
+        SearchManager searchManager = (SearchManager) getActivity().getSystemService(Context.SEARCH_SERVICE);
+        SearchView searchView = (SearchView) menu.findItem(R.id.action_search_user).getActionView();
+
+        // Get the menu item from the action bar
+        MenuItem menuItem = menu.findItem(R.id.action_search_user);
+        menuItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
+
+            @Override
+            public boolean onMenuItemActionCollapse(MenuItem item) {
+                Log.d(TAG, "Search deactivated. Unlocking drawers.");
+                drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+                return true;
+            }
+
+            @Override
+            public boolean onMenuItemActionExpand(MenuItem item) {
+                Log.d(TAG, "Search activated. Locking drawers.");
+                drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+                return true;
+            }
+        });
+        // Assumes current activity is the searchable activity
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(getActivity().getComponentName()));
     }
 
     @Override
@@ -86,52 +133,6 @@ public class FriendListFragment extends Fragment implements AdapterView.OnItemCl
         return rootView;
     }
 
-    private void initViewsById() {
-        friendListView = (ListView) rootView.findViewById(R.id.friendsList);
-    }
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        if (menu != null) {
-            inflater.inflate(R.menu.user_friends, menu);
-        }
-
-
-        SearchManager searchManager = (SearchManager) getActivity().getSystemService(Context.SEARCH_SERVICE);
-        SearchView searchView = (SearchView) menu.findItem(R.id.action_search_user).getActionView();
-
-        // Get the menu item from the action bar
-        MenuItem menuItem = menu.findItem(R.id.action_search_user);
-        menuItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
-
-            @Override
-            public boolean onMenuItemActionExpand(MenuItem item) {
-                Log.d(TAG, "Search activated. Locking drawers.");
-                drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-                return true;
-            }
-
-            @Override
-            public boolean onMenuItemActionCollapse(MenuItem item) {
-                Log.d(TAG, "Search deactivated. Unlocking drawers.");
-                drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
-                return true;
-            }
-        });
-        // Assumes current activity is the searchable activity
-        searchView.setSearchableInfo(searchManager.getSearchableInfo(getActivity().getComponentName()));
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-    }
-
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -139,33 +140,9 @@ public class FriendListFragment extends Fragment implements AdapterView.OnItemCl
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
-        Log.d(TAG, "onPause");
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        Log.d(TAG, "onStop");
-    }
-
-    @Override
     public void onDetach() {
         super.onDetach();
         Log.d(TAG, "onDetach");
-    }
-
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        Log.d(TAG, "onAttach");
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        Log.d(TAG, "onResume");
     }
 
     @Override
@@ -184,9 +161,31 @@ public class FriendListFragment extends Fragment implements AdapterView.OnItemCl
     }
 
     @Override
-    public void asyncComplete(boolean success) {
-        listAdapter.addAll(myFriendList);
-        listAdapter.notifyDataSetChanged();
+    public boolean onOptionsItemSelected(MenuItem item) {
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        Log.d(TAG, "onPause");
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.d(TAG, "onResume");
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        Log.d(TAG, "onStop");
     }
 
     /**

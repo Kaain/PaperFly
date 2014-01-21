@@ -47,11 +47,10 @@ import lombok.NoArgsConstructor;
 public class UserProfileFragment extends Fragment implements AsyncDelegate {
 
     public static final String TAG = UserProfileFragment.class.getSimpleName();
-    private static final int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
     public static final String ARGS_USER = "user";
     public static final String ARGS_MY_ACCOUNT = "myaccount";
     public static final String ARGS_USER_IS_FRIEND = "USER_IS_FRIEND";
-
+    private static final int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
     private View rootView;
     private Switch friendSwitch;
     private TextView profileUsername;
@@ -85,16 +84,9 @@ public class UserProfileFragment extends Fragment implements AsyncDelegate {
     };
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        Log.d(TAG, "onCreate");
-        setHasOptionsMenu(true);
-        isMyAccount = getArguments().getBoolean(ARGS_MY_ACCOUNT, false);
-        userIsFriend = getArguments().getBoolean(ARGS_USER_IS_FRIEND, false);
-        username = getArguments().getString(ARGS_USER);
-
-        mAccountTask = new GetAccountTask();
-        mAccountTask.execute(username);
+    public void asyncComplete(boolean success) {
+        friendSwitch.setChecked(userIsFriend);
+        friendSwitch.setEnabled(true);
     }
 
     private Intent getMapsIntent() {
@@ -113,6 +105,13 @@ public class UserProfileFragment extends Fragment implements AsyncDelegate {
         return intent;
     }
 
+    private void initViews(View rootView) {
+        friendSwitch = (Switch) rootView.findViewById(R.id.friendSwitch);
+        profileUsername = (TextView) rootView.findViewById(R.id.profileUsername);
+        profileFirstname = (TextView) rootView.findViewById(R.id.profileFirstname);
+        profileLastname = (TextView) rootView.findViewById(R.id.profileLastname);
+    }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         // Decide what to do based on the original request code
@@ -129,11 +128,23 @@ public class UserProfileFragment extends Fragment implements AsyncDelegate {
         }
     }
 
-    private void initViews(View rootView) {
-        friendSwitch = (Switch) rootView.findViewById(R.id.friendSwitch);
-        profileUsername = (TextView) rootView.findViewById(R.id.profileUsername);
-        profileFirstname = (TextView) rootView.findViewById(R.id.profileFirstname);
-        profileLastname = (TextView) rootView.findViewById(R.id.profileLastname);
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        Log.d(TAG, "onAttach");
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        Log.d(TAG, "onCreate");
+        setHasOptionsMenu(true);
+        isMyAccount = getArguments().getBoolean(ARGS_MY_ACCOUNT, false);
+        userIsFriend = getArguments().getBoolean(ARGS_USER_IS_FRIEND, false);
+        username = getArguments().getString(ARGS_USER);
+
+        mAccountTask = new GetAccountTask();
+        mAccountTask.execute(username);
     }
 
     @Override
@@ -146,6 +157,42 @@ public class UserProfileFragment extends Fragment implements AsyncDelegate {
                 menu.findItem(R.id.action_edit_account).setVisible(false);
             }
         }
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        rootView = inflater.inflate(R.layout.fragment_user_profile, container, false);
+        initViews(rootView);
+        friendSwitch.setChecked(userIsFriend);
+        getActivity().setTitle(username);
+        if (isMyAccount) {
+            friendSwitch.setVisibility(View.INVISIBLE);
+        } else {
+            friendSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    if (isChecked) {
+                        Toast.makeText(getActivity(), "is now your friend", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(getActivity(), "is not your friend", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+            friendSwitch.setOnClickListener(new View.OnClickListener() {
+
+                @Override
+                public void onClick(View v) {
+                    if (addRemoveFriendTask.getStatus() != AsyncTask.Status.RUNNING) {
+                        addRemoveFriendTask.execute();
+                        // to avoid executing multiple tasks in a short time, the friendSwitch is set not clickable
+                        // and has to be set to clickable if the task is finished
+                        friendSwitch.setEnabled(false);
+                    }
+                }
+            });
+        }
+        return rootView;
     }
 
     @Override
@@ -194,42 +241,6 @@ public class UserProfileFragment extends Fragment implements AsyncDelegate {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        rootView = inflater.inflate(R.layout.fragment_user_profile, container, false);
-        initViews(rootView);
-        friendSwitch.setChecked(userIsFriend);
-        getActivity().setTitle(username);
-        if (isMyAccount) {
-            friendSwitch.setVisibility(View.INVISIBLE);
-        } else {
-            friendSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    if (isChecked) {
-                        Toast.makeText(getActivity(), "is now your friend", Toast.LENGTH_SHORT).show();
-                    } else {
-                        Toast.makeText(getActivity(), "is not your friend", Toast.LENGTH_SHORT).show();
-                    }
-                }
-            });
-            friendSwitch.setOnClickListener(new View.OnClickListener() {
-
-                @Override
-                public void onClick(View v) {
-                    if (addRemoveFriendTask.getStatus() != AsyncTask.Status.RUNNING) {
-                        addRemoveFriendTask.execute();
-                        // to avoid executing multiple tasks in a short time, the friendSwitch is set not clickable
-                        // and has to be set to clickable if the task is finished
-                        friendSwitch.setEnabled(false);
-                    }
-                }
-            });
-        }
-        return rootView;
-    }
-
-    @Override
     public void onStart() {
         super.onStart();
         if (((PaperFlyApp) getActivity().getApplication()).isMyServiceRunning(BackgroundLocationService.class)) {
@@ -248,16 +259,26 @@ public class UserProfileFragment extends Fragment implements AsyncDelegate {
         }
     }
 
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        Log.d(TAG, "onAttach");
-    }
+    public static class ErrorDialogFragment extends DialogFragment {
+        // Global field to contain the error dialog
+        private Dialog mDialog;
 
-    @Override
-    public void asyncComplete(boolean success) {
-        friendSwitch.setChecked(userIsFriend);
-        friendSwitch.setEnabled(true);
+        // Default constructor. Sets the dialog field to null
+        public ErrorDialogFragment() {
+            super();
+            mDialog = null;
+        }
+
+        // Return a Dialog to the DialogFragment.
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            return mDialog;
+        }
+
+        // Set the dialog to display
+        public void setDialog(Dialog dialog) {
+            mDialog = dialog;
+        }
     }
 
     /**
@@ -299,28 +320,6 @@ public class UserProfileFragment extends Fragment implements AsyncDelegate {
                 Toast.makeText(rootView.getContext(), "Failed to load userAccount!", Toast.LENGTH_SHORT)
                         .show();
             }
-        }
-    }
-
-    public static class ErrorDialogFragment extends DialogFragment {
-        // Global field to contain the error dialog
-        private Dialog mDialog;
-
-        // Default constructor. Sets the dialog field to null
-        public ErrorDialogFragment() {
-            super();
-            mDialog = null;
-        }
-
-        // Return a Dialog to the DialogFragment.
-        @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-            return mDialog;
-        }
-
-        // Set the dialog to display
-        public void setDialog(Dialog dialog) {
-            mDialog = dialog;
         }
     }
 

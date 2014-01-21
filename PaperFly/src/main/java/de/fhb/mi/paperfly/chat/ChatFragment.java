@@ -345,7 +345,7 @@ public class ChatFragment extends Fragment implements AsyncDelegate, ChatService
                 ((PaperFlyApp) getActivity().getApplication()).setUsersInRoom(usersInRoom);
 
             } catch (RestConsumerException e) {
-                e.printStackTrace();
+                Log.e(TAG, e.getMessage(), e);
             }
 
             return usersInRoom != null;

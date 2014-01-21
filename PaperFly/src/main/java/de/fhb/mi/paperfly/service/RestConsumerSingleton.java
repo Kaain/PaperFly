@@ -82,7 +82,6 @@ public class RestConsumerSingleton implements RestConsumer {
 
     public static final String URL_GET_ALL_ACCOUNTS_IN_ROOM = "PaperFlyServer-web/rest/v1/room/accounts/";
 
-
     private static final String TAG = RestConsumerSingleton.class.getSimpleName();
 
     private PaperFlyApp application;
@@ -91,10 +90,6 @@ public class RestConsumerSingleton implements RestConsumer {
     @Getter
     @Setter
     private CommonsHttpOAuthConsumer consumer = null;
-
-    private static class SingletonHolder {
-        public static final RestConsumerSingleton INSTANCE = new RestConsumerSingleton();
-    }
 
     /**
      * Gets the Singleton instance of the RestConsumer.
@@ -105,24 +100,12 @@ public class RestConsumerSingleton implements RestConsumer {
         return SingletonHolder.INSTANCE;
     }
 
-    /**
-     * Passes the {@link android.app.Application} to the Singleton.
-     *
-     * @param application the {@link android.app.Application}
-     */
-    public void init(PaperFlyApp application) {
-        this.application = application;
-    }
-
     @Override
-    public List<AccountDTO> getUsersInRoom(Long roomID) throws RestConsumerException {
-        Log.d(TAG, "getUsersInRoom");
+    public AccountDTO addFriend(String friendUsername) throws RestConsumerException {
+        Log.d(TAG, "addFriend");
 
-        HttpUriRequest request = new HttpGet(getConnectionURL(URL_ACCOUNTS_IN_ROOM) + roomID);
-        List<AccountDTO> usersInRoom = new ArrayList<AccountDTO>();
-        Type collectionType = new TypeToken<ArrayList<AccountDTO>>() {
-        }.getType();
-
+        AccountDTO responseAccount = null;
+        HttpUriRequest request = new HttpPost(getConnectionURL(URL_ADD_OR_REMOVE_FRIEND + friendUsername));
         Log.d(TAG, request.getRequestLine().toString());
 
         HttpClient httpclient = application.getHttpClient();
@@ -133,41 +116,12 @@ public class RestConsumerSingleton implements RestConsumer {
             analyzeHttpStatus(response);
 
             String responseObjAsString = readInEntity(response);
+
             Gson gson = new GsonBuilder().registerTypeAdapter(Date.class, new JsonDateDeserializer()).create();
-            Log.d(TAG, "json: " + responseObjAsString);
 
-            usersInRoom = gson.fromJson(responseObjAsString, collectionType);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (OAuthExpectationFailedException e) {
-            e.printStackTrace();
-        } catch (OAuthCommunicationException e) {
-            e.printStackTrace();
-        } catch (OAuthMessageSignerException e) {
-            e.printStackTrace();
-        }
-        return usersInRoom;
-    }
-
-    @Override
-    public RoomDTO getRoom(String roomID) throws RestConsumerException {
-        Log.d(TAG, "getUsersInRoom");
-
-        HttpUriRequest request = new HttpGet(getConnectionURL(URL_GET_ROOM) + roomID);
-        Log.d(TAG, request.getRequestLine().toString());
-
-        HttpClient httpclient = application.getHttpClient();
-        HttpResponse response;
-        try {
-            consumer.sign(request);
-            response = httpclient.execute(request);
-            analyzeHttpStatus(response);
-
-            String responseObjAsString = readInEntity(response);
-            Gson gson = new GsonBuilder().registerTypeAdapter(Date.class, new JsonDateDeserializer()).create();
-            Log.d(TAG, "json: " + responseObjAsString);
-
-            return gson.fromJson(responseObjAsString, RoomDTO.class);
+            responseAccount = gson.fromJson(responseObjAsString, AccountDTO.class);
+            application.setAccount(responseAccount);
+            return responseAccount;
         } catch (IOException e) {
             e.printStackTrace();
         } catch (OAuthExpectationFailedException e) {
@@ -178,6 +132,27 @@ public class RestConsumerSingleton implements RestConsumer {
             e.printStackTrace();
         }
         return null;
+    }
+
+    /**
+     * Evaluates the httpStatus of a Request.
+     *
+     * @param response the response
+     *
+     * @throws RestConsumerException
+     */
+    private void analyzeHttpStatus(HttpResponse response) throws RestConsumerException {
+        if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
+            Log.d(TAG, "" + response.getStatusLine());
+            switch (response.getStatusLine().getStatusCode()) {
+                case 412:
+                    throw new RestConsumerException(RestConsumerException.INVALID_INPUT_MESSAGE);
+                case 500:
+                    throw new RestConsumerException(RestConsumerException.INTERNAL_SERVER_MESSAGE);
+                default:
+                    throw new RestConsumerException("Response:" + response.getStatusLine().getStatusCode());
+            }
+        }
     }
 
     @Override
@@ -222,196 +197,6 @@ public class RestConsumerSingleton implements RestConsumer {
             e.printStackTrace();
         }
         return responseAccount;
-    }
-
-    public void logout() throws RestConsumerException {
-        Log.d(TAG, "logout");
-
-        AccountDTO responseAccount = null;
-        HttpUriRequest request = new HttpGet(getConnectionURL(URL_LOGOUT));
-        Log.d(TAG, request.getRequestLine().toString());
-
-        HttpClient httpclient = application.getHttpClient();
-        HttpResponse response;
-        try {
-            consumer.sign(request);
-            response = httpclient.execute(request);
-            analyzeHttpStatus(response);
-            consumer = null;
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (OAuthExpectationFailedException e) {
-            e.printStackTrace();
-        } catch (OAuthCommunicationException e) {
-            e.printStackTrace();
-        } catch (OAuthMessageSignerException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void updateMyAccount() throws RestConsumerException {
-        Log.d(TAG, "updateMyAccount");
-
-        AccountDTO responseAccount = null;
-        HttpUriRequest request = new HttpGet(getConnectionURL(URL_GET_MY_ACCOUNT));
-        Log.d(TAG, request.getRequestLine().toString());
-
-        HttpClient httpclient = application.getHttpClient();
-        HttpResponse response;
-        try {
-            consumer.sign(request);
-            response = httpclient.execute(request);
-            analyzeHttpStatus(response);
-
-            String responseObjAsString = readInEntity(response);
-            Log.d("json", responseObjAsString);
-            Gson gson = new GsonBuilder().registerTypeAdapter(Date.class, new JsonDateDeserializer()).create();
-            responseAccount = gson.fromJson(responseObjAsString, AccountDTO.class);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (OAuthExpectationFailedException e) {
-            e.printStackTrace();
-        } catch (OAuthCommunicationException e) {
-            e.printStackTrace();
-        } catch (OAuthMessageSignerException e) {
-            e.printStackTrace();
-        }
-        application.setAccount(responseAccount);
-    }
-
-    public List<AccountDTO> getMyFriendList() throws RestConsumerException {
-        Log.d(TAG, "getMyFriendList");
-
-        HttpUriRequest request = new HttpGet(getConnectionURL(URL_GET_MY_FRIENDLIST));
-        List<AccountDTO> myFriendlist = new ArrayList<AccountDTO>();
-        Type collectionType = new TypeToken<ArrayList<AccountDTO>>() {
-        }.getType();
-        Log.d(TAG, request.getRequestLine().toString());
-
-        HttpClient httpclient = application.getHttpClient();
-        HttpResponse response;
-        try {
-            consumer.sign(request);
-            response = httpclient.execute(request);
-            analyzeHttpStatus(response);
-
-            String responseObjAsString = readInEntity(response);
-            Log.d("json", "" + responseObjAsString);
-            Gson gson = new GsonBuilder().registerTypeAdapter(Date.class, new JsonDateDeserializer()).create();
-            myFriendlist = gson.fromJson(responseObjAsString, collectionType);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (OAuthExpectationFailedException e) {
-            e.printStackTrace();
-        } catch (OAuthCommunicationException e) {
-            e.printStackTrace();
-        } catch (OAuthMessageSignerException e) {
-            e.printStackTrace();
-        }
-        return (myFriendlist == null) ? new ArrayList<AccountDTO>() : myFriendlist;
-    }
-
-    @Override
-    public AccountDTO addFriend(String friendUsername) throws RestConsumerException {
-        Log.d(TAG, "addFriend");
-
-        AccountDTO responseAccount = null;
-        HttpUriRequest request = new HttpPost(getConnectionURL(URL_ADD_OR_REMOVE_FRIEND + friendUsername));
-        Log.d(TAG, request.getRequestLine().toString());
-
-        HttpClient httpclient = application.getHttpClient();
-        HttpResponse response;
-        try {
-            consumer.sign(request);
-            response = httpclient.execute(request);
-            analyzeHttpStatus(response);
-
-            String responseObjAsString = readInEntity(response);
-
-            Gson gson = new GsonBuilder().registerTypeAdapter(Date.class, new JsonDateDeserializer()).create();
-
-            responseAccount = gson.fromJson(responseObjAsString, AccountDTO.class);
-            application.setAccount(responseAccount);
-            return responseAccount;
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (OAuthExpectationFailedException e) {
-            e.printStackTrace();
-        } catch (OAuthCommunicationException e) {
-            e.printStackTrace();
-        } catch (OAuthMessageSignerException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    @Override
-    public AccountDTO removeFriend(String friendUsername) throws RestConsumerException {
-        Log.d(TAG, "removeFriend");
-
-        AccountDTO responseAccount = null;
-        HttpUriRequest request = new HttpDelete(getConnectionURL(URL_ADD_OR_REMOVE_FRIEND + friendUsername));
-        Log.d(TAG, request.getRequestLine().toString());
-
-        HttpClient httpclient = application.getHttpClient();
-        HttpResponse response;
-        try {
-            consumer.sign(request);
-            response = httpclient.execute(request);
-            analyzeHttpStatus(response);
-
-            String responseObjAsString = readInEntity(response);
-
-            Gson gson = new GsonBuilder().registerTypeAdapter(Date.class, new JsonDateDeserializer()).create();
-
-            responseAccount = gson.fromJson(responseObjAsString, AccountDTO.class);
-            application.setAccount(responseAccount);
-            return responseAccount;
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (OAuthExpectationFailedException e) {
-            e.printStackTrace();
-        } catch (OAuthCommunicationException e) {
-            e.printStackTrace();
-        } catch (OAuthMessageSignerException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    @Override
-    public AccountDTO setMyAccountStatus(Status status) throws RestConsumerException {
-        Log.d(TAG, "setMyAccountStatus");
-
-        HttpUriRequest request = new HttpPost(getConnectionURL(URL_CHANGE_ACCOUNT_STATUS) + status.name());
-        AccountDTO account = null;
-
-        Log.d(TAG, request.getRequestLine().toString());
-
-        HttpClient httpclient = application.getHttpClient();
-        HttpResponse response;
-        try {
-            consumer.sign(request);
-            response = httpclient.execute(request);
-            analyzeHttpStatus(response);
-
-            String responseObjAsString = readInEntity(response);
-            Gson gson = new GsonBuilder().registerTypeAdapter(Date.class, new JsonDateDeserializer()).create();
-            Log.d(TAG, "json: " + responseObjAsString);
-
-            account = gson.fromJson(responseObjAsString, AccountDTO.class);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (OAuthExpectationFailedException e) {
-            e.printStackTrace();
-        } catch (OAuthCommunicationException e) {
-            e.printStackTrace();
-        } catch (OAuthMessageSignerException e) {
-            e.printStackTrace();
-        }
-        return account;
     }
 
     @Override
@@ -483,6 +268,138 @@ public class RestConsumerSingleton implements RestConsumer {
         return accountsInRoom;
     }
 
+    /**
+     * Builds the connection-url depending of local-setting-value CONNECT_LOCAL.
+     *
+     * @param restURL the url
+     *
+     * @return the complete URL to connect to
+     */
+    private String getConnectionURL(String restURL) {
+
+        StringBuilder urlToBuild = new StringBuilder();
+        urlToBuild.append("http://");
+
+        if (CONNECT_LOCAL) {
+            urlToBuild.append(LOCAL_IP);
+        } else {
+            urlToBuild.append(AWS_IP);
+        }
+
+        urlToBuild.append(":" + PORT + "/");
+        urlToBuild.append(restURL);
+
+        return urlToBuild.toString();
+    }
+
+    public List<AccountDTO> getMyFriendList() throws RestConsumerException {
+        Log.d(TAG, "getMyFriendList");
+
+        HttpUriRequest request = new HttpGet(getConnectionURL(URL_GET_MY_FRIENDLIST));
+        List<AccountDTO> myFriendlist = new ArrayList<AccountDTO>();
+        Type collectionType = new TypeToken<ArrayList<AccountDTO>>() {
+        }.getType();
+        Log.d(TAG, request.getRequestLine().toString());
+
+        HttpClient httpclient = application.getHttpClient();
+        HttpResponse response;
+        try {
+            consumer.sign(request);
+            response = httpclient.execute(request);
+            analyzeHttpStatus(response);
+
+            String responseObjAsString = readInEntity(response);
+            Log.d("json", "" + responseObjAsString);
+            Gson gson = new GsonBuilder().registerTypeAdapter(Date.class, new JsonDateDeserializer()).create();
+            myFriendlist = gson.fromJson(responseObjAsString, collectionType);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (OAuthExpectationFailedException e) {
+            e.printStackTrace();
+        } catch (OAuthCommunicationException e) {
+            e.printStackTrace();
+        } catch (OAuthMessageSignerException e) {
+            e.printStackTrace();
+        }
+        return (myFriendlist == null) ? new ArrayList<AccountDTO>() : myFriendlist;
+    }
+
+    @Override
+    public RoomDTO getRoom(String roomID) throws RestConsumerException {
+        Log.d(TAG, "getUsersInRoom");
+
+        HttpUriRequest request = new HttpGet(getConnectionURL(URL_GET_ROOM) + roomID);
+        Log.d(TAG, request.getRequestLine().toString());
+
+        HttpClient httpclient = application.getHttpClient();
+        HttpResponse response;
+        try {
+            consumer.sign(request);
+            response = httpclient.execute(request);
+            analyzeHttpStatus(response);
+
+            String responseObjAsString = readInEntity(response);
+            Gson gson = new GsonBuilder().registerTypeAdapter(Date.class, new JsonDateDeserializer()).create();
+            Log.d(TAG, "json: " + responseObjAsString);
+
+            return gson.fromJson(responseObjAsString, RoomDTO.class);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (OAuthExpectationFailedException e) {
+            e.printStackTrace();
+        } catch (OAuthCommunicationException e) {
+            e.printStackTrace();
+        } catch (OAuthMessageSignerException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
+    public List<AccountDTO> getUsersInRoom(Long roomID) throws RestConsumerException {
+        Log.d(TAG, "getUsersInRoom");
+
+        HttpUriRequest request = new HttpGet(getConnectionURL(URL_ACCOUNTS_IN_ROOM) + roomID);
+        List<AccountDTO> usersInRoom = new ArrayList<AccountDTO>();
+        Type collectionType = new TypeToken<ArrayList<AccountDTO>>() {
+        }.getType();
+
+        Log.d(TAG, request.getRequestLine().toString());
+
+        HttpClient httpclient = application.getHttpClient();
+        HttpResponse response;
+        try {
+            consumer.sign(request);
+            response = httpclient.execute(request);
+            analyzeHttpStatus(response);
+
+            String responseObjAsString = readInEntity(response);
+            Gson gson = new GsonBuilder().registerTypeAdapter(Date.class, new JsonDateDeserializer()).create();
+            Log.d(TAG, "json: " + responseObjAsString);
+
+            usersInRoom = gson.fromJson(responseObjAsString, collectionType);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (OAuthExpectationFailedException e) {
+            e.printStackTrace();
+        } catch (OAuthCommunicationException e) {
+            e.printStackTrace();
+        } catch (OAuthMessageSignerException e) {
+            e.printStackTrace();
+        }
+        return usersInRoom;
+    }
+
+    /**
+     * Passes the {@link android.app.Application} to the Singleton.
+     *
+     * @param application the {@link android.app.Application}
+     */
+    public void init(PaperFlyApp application) {
+        this.application = application;
+    }
+
     @Override
     public RoomDTO locateAccount(String username) throws RestConsumerException {
         Log.d(TAG, "locateAccount");
@@ -543,6 +460,52 @@ public class RestConsumerSingleton implements RestConsumer {
         return null;
     }
 
+    public void logout() throws RestConsumerException {
+        Log.d(TAG, "logout");
+
+        AccountDTO responseAccount = null;
+        HttpUriRequest request = new HttpGet(getConnectionURL(URL_LOGOUT));
+        Log.d(TAG, request.getRequestLine().toString());
+
+        HttpClient httpclient = application.getHttpClient();
+        HttpResponse response;
+        try {
+            consumer.sign(request);
+            response = httpclient.execute(request);
+            analyzeHttpStatus(response);
+            consumer = null;
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (OAuthExpectationFailedException e) {
+            e.printStackTrace();
+        } catch (OAuthCommunicationException e) {
+            e.printStackTrace();
+        } catch (OAuthMessageSignerException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * reads in the response String
+     *
+     * @param response the response
+     *
+     * @return
+     * @throws IOException
+     */
+    private String readInEntity(HttpResponse response) throws IOException {
+        InputStream is = response.getEntity().getContent();
+        BufferedReader rd = new BufferedReader(new InputStreamReader(is));
+        String line;
+        StringBuilder responseObj = new StringBuilder();
+        while ((line = rd.readLine()) != null) {
+            responseObj.append(line);
+            responseObj.append('\r');
+        }
+        rd.close();
+        return responseObj.toString();
+    }
+
     @Override
     public TokenDTO register(RegisterAccountDTO registerAccount) throws UnsupportedEncodingException, RestConsumerException {
 
@@ -574,6 +537,40 @@ public class RestConsumerSingleton implements RestConsumer {
             //TODO implement registration in app
             return gson.fromJson(responseObjAsString, TokenDTO.class);
         } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
+    public AccountDTO removeFriend(String friendUsername) throws RestConsumerException {
+        Log.d(TAG, "removeFriend");
+
+        AccountDTO responseAccount = null;
+        HttpUriRequest request = new HttpDelete(getConnectionURL(URL_ADD_OR_REMOVE_FRIEND + friendUsername));
+        Log.d(TAG, request.getRequestLine().toString());
+
+        HttpClient httpclient = application.getHttpClient();
+        HttpResponse response;
+        try {
+            consumer.sign(request);
+            response = httpclient.execute(request);
+            analyzeHttpStatus(response);
+
+            String responseObjAsString = readInEntity(response);
+
+            Gson gson = new GsonBuilder().registerTypeAdapter(Date.class, new JsonDateDeserializer()).create();
+
+            responseAccount = gson.fromJson(responseObjAsString, AccountDTO.class);
+            application.setAccount(responseAccount);
+            return responseAccount;
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (OAuthExpectationFailedException e) {
+            e.printStackTrace();
+        } catch (OAuthCommunicationException e) {
+            e.printStackTrace();
+        } catch (OAuthMessageSignerException e) {
             e.printStackTrace();
         }
         return null;
@@ -615,70 +612,72 @@ public class RestConsumerSingleton implements RestConsumer {
         return searchResultList;
     }
 
-    /**
-     * Evaluates the httpStatus of a Request.
-     *
-     * @param response the response
-     *
-     * @throws RestConsumerException
-     */
-    private void analyzeHttpStatus(HttpResponse response) throws RestConsumerException {
-        if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-            Log.d(TAG, "" + response.getStatusLine());
-            switch (response.getStatusLine().getStatusCode()) {
-                case 412:
-                    throw new RestConsumerException(RestConsumerException.INVALID_INPUT_MESSAGE);
-                case 500:
-                    throw new RestConsumerException(RestConsumerException.INTERNAL_SERVER_MESSAGE);
-                default:
-                    throw new RestConsumerException("Response:" + response.getStatusLine().getStatusCode());
-            }
+    @Override
+    public AccountDTO setMyAccountStatus(Status status) throws RestConsumerException {
+        Log.d(TAG, "setMyAccountStatus");
+
+        HttpUriRequest request = new HttpPost(getConnectionURL(URL_CHANGE_ACCOUNT_STATUS) + status.name());
+        AccountDTO account = null;
+
+        Log.d(TAG, request.getRequestLine().toString());
+
+        HttpClient httpclient = application.getHttpClient();
+        HttpResponse response;
+        try {
+            consumer.sign(request);
+            response = httpclient.execute(request);
+            analyzeHttpStatus(response);
+
+            String responseObjAsString = readInEntity(response);
+            Gson gson = new GsonBuilder().registerTypeAdapter(Date.class, new JsonDateDeserializer()).create();
+            Log.d(TAG, "json: " + responseObjAsString);
+
+            account = gson.fromJson(responseObjAsString, AccountDTO.class);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (OAuthExpectationFailedException e) {
+            e.printStackTrace();
+        } catch (OAuthCommunicationException e) {
+            e.printStackTrace();
+        } catch (OAuthMessageSignerException e) {
+            e.printStackTrace();
         }
+        return account;
     }
 
-    /**
-     * reads in the response String
-     *
-     * @param response the response
-     *
-     * @return
-     * @throws IOException
-     */
-    private String readInEntity(HttpResponse response) throws IOException {
-        InputStream is = response.getEntity().getContent();
-        BufferedReader rd = new BufferedReader(new InputStreamReader(is));
-        String line;
-        StringBuilder responseObj = new StringBuilder();
-        while ((line = rd.readLine()) != null) {
-            responseObj.append(line);
-            responseObj.append('\r');
+    @Override
+    public void updateMyAccount() throws RestConsumerException {
+        Log.d(TAG, "updateMyAccount");
+
+        AccountDTO responseAccount = null;
+        HttpUriRequest request = new HttpGet(getConnectionURL(URL_GET_MY_ACCOUNT));
+        Log.d(TAG, request.getRequestLine().toString());
+
+        HttpClient httpclient = application.getHttpClient();
+        HttpResponse response;
+        try {
+            consumer.sign(request);
+            response = httpclient.execute(request);
+            analyzeHttpStatus(response);
+
+            String responseObjAsString = readInEntity(response);
+            Log.d("json", responseObjAsString);
+            Gson gson = new GsonBuilder().registerTypeAdapter(Date.class, new JsonDateDeserializer()).create();
+            responseAccount = gson.fromJson(responseObjAsString, AccountDTO.class);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (OAuthExpectationFailedException e) {
+            e.printStackTrace();
+        } catch (OAuthCommunicationException e) {
+            e.printStackTrace();
+        } catch (OAuthMessageSignerException e) {
+            e.printStackTrace();
         }
-        rd.close();
-        return responseObj.toString();
+        application.setAccount(responseAccount);
     }
 
-    /**
-     * Builds the connection-url depending of local-setting-value CONNECT_LOCAL.
-     *
-     * @param restURL the url
-     *
-     * @return the complete URL to connect to
-     */
-    private String getConnectionURL(String restURL) {
-
-        StringBuilder urlToBuild = new StringBuilder();
-        urlToBuild.append("http://");
-
-        if (CONNECT_LOCAL) {
-            urlToBuild.append(LOCAL_IP);
-        } else {
-            urlToBuild.append(AWS_IP);
-        }
-
-        urlToBuild.append(":" + PORT + "/");
-        urlToBuild.append(restURL);
-
-        return urlToBuild.toString();
+    private static class SingletonHolder {
+        public static final RestConsumerSingleton INSTANCE = new RestConsumerSingleton();
     }
 
     /**
@@ -688,8 +687,7 @@ public class RestConsumerSingleton implements RestConsumer {
         public Date deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
             String dateAsString = json.getAsJsonPrimitive().getAsString();
             long dateAsLong = Long.parseLong(dateAsString.substring(6, dateAsString.length() - 2));
-            Date date = new Date(dateAsLong);
-            return date;
+            return new Date(dateAsLong);
         }
     }
 

@@ -28,27 +28,22 @@ public class UserSearchActivity extends ListActivity implements AsyncDelegate {
     List<AccountDTO> searchResults;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_search_user);
-        arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, new ArrayList<String>());
-        setListAdapter(arrayAdapter);
-        handleIntent(getIntent());
+    public void asyncComplete(boolean success) {
+        for (AccountDTO accountDTO : searchResults) {
+            arrayAdapter.add(accountDTO.getUsername());
+        }
+        arrayAdapter.notifyDataSetChanged();
     }
 
-    @Override
-    public void onNewIntent(Intent intent) {
-        setIntent(intent);
-        handleIntent(intent);
-    }
-
-    @Override
-    public void onListItemClick(ListView l, View v, int position, long id) {
-        Log.d(TAG, "onListItemClick");
-        Intent intent = new Intent();
-        intent.putExtra(UserProfileFragment.ARGS_USER, arrayAdapter.getItem(position));
-        setResult(RESULT_OK, intent);
-        finish();
+    /**
+     * Searches for users and shows the result in the list view
+     *
+     * @param queryStr the string to search for
+     */
+    private void doSearch(String queryStr) {
+        Log.d(TAG, "doSearch: " + queryStr);
+        SearchUserTask searchUserTask = new SearchUserTask(this);
+        searchUserTask.execute(queryStr);
     }
 
     /**
@@ -64,23 +59,28 @@ public class UserSearchActivity extends ListActivity implements AsyncDelegate {
         }
     }
 
-    /**
-     * Searches for users and shows the result in the list view
-     *
-     * @param queryStr the string to search for
-     */
-    private void doSearch(String queryStr) {
-        Log.d(TAG, "doSearch: " + queryStr);
-        SearchUserTask searchUserTask = new SearchUserTask(this);
-        searchUserTask.execute(queryStr);
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_search_user);
+        arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, new ArrayList<String>());
+        setListAdapter(arrayAdapter);
+        handleIntent(getIntent());
     }
 
     @Override
-    public void asyncComplete(boolean success) {
-        for (AccountDTO accountDTO : searchResults) {
-            arrayAdapter.add(accountDTO.getUsername());
-        }
-        arrayAdapter.notifyDataSetChanged();
+    public void onListItemClick(ListView l, View v, int position, long id) {
+        Log.d(TAG, "onListItemClick");
+        Intent intent = new Intent();
+        intent.putExtra(UserProfileFragment.ARGS_USER, arrayAdapter.getItem(position));
+        setResult(RESULT_OK, intent);
+        finish();
+    }
+
+    @Override
+    public void onNewIntent(Intent intent) {
+        setIntent(intent);
+        handleIntent(intent);
     }
 
     /**

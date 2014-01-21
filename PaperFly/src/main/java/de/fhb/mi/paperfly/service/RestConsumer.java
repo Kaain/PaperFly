@@ -18,16 +18,14 @@ import de.fhb.mi.paperfly.dto.TokenDTO;
 public interface RestConsumer {
 
     /**
-     * Get all accounts in room
+     * Adds a friend to the actual logged in account.
      *
+     * @param friendUsername the user to be added as friend
      *
-     * @param roomID the room
-     *
-     * @return all accounts in room
+     * @return the actual logged in account with the updated friend list
+     * @throws RestConsumerException
      */
-    List<AccountDTO> getUsersInRoom(Long roomID) throws RestConsumerException;
-
-    RoomDTO getRoom(String roomID) throws RestConsumerException;
+    AccountDTO addFriend(String friendUsername) throws RestConsumerException;
 
     /**
      * Edits an account
@@ -37,44 +35,6 @@ public interface RestConsumer {
      * @return the edited account
      */
     AccountDTO editAccount(AccountDTO editedAccount) throws RestConsumerException, UnsupportedEncodingException;
-
-    /**
-     * Gets the acutal account with the actual friends with online status
-     *
-     * @throws RestConsumerException
-     * @throws UnsupportedEncodingException
-     */
-    void updateMyAccount() throws RestConsumerException, UnsupportedEncodingException;
-
-    /**
-     * Adds a friend to the actual logged in account.
-     *
-     * @param friendUsername the user to be added as friend
-     * @return the actual logged in account with the updated friend list
-     * @throws RestConsumerException
-     */
-    AccountDTO addFriend(String friendUsername) throws RestConsumerException;
-
-
-    /**
-     * Removes a friend from the actual logged in account.
-     *
-     * @param friendUsername the user to be removed from the friend list
-     *
-     * @return the actual logged in account with the updated friend list
-     * @throws RestConsumerException
-     */
-    AccountDTO removeFriend(String friendUsername) throws RestConsumerException;
-
-    /**
-     * sets the Account status
-     *
-     * @param status
-     *
-     * @return
-     * @throws RestConsumerException
-     */
-    AccountDTO setMyAccountStatus(Status status) throws RestConsumerException;
 
     /**
      * Gets the account by the given username.
@@ -94,6 +54,17 @@ public interface RestConsumer {
      * @return a list of accounts in the given room
      */
     List<AccountDTO> getAccountsInRoom(long roomID) throws RestConsumerException;
+
+    RoomDTO getRoom(String roomID) throws RestConsumerException;
+
+    /**
+     * Get all accounts in room
+     *
+     * @param roomID the room
+     *
+     * @return all accounts in room
+     */
+    List<AccountDTO> getUsersInRoom(Long roomID) throws RestConsumerException;
 
     /**
      * Locates an account.
@@ -127,6 +98,16 @@ public interface RestConsumer {
     TokenDTO register(RegisterAccountDTO account) throws UnsupportedEncodingException, RestConsumerException;
 
     /**
+     * Removes a friend from the actual logged in account.
+     *
+     * @param friendUsername the user to be removed from the friend list
+     *
+     * @return the actual logged in account with the updated friend list
+     * @throws RestConsumerException
+     */
+    AccountDTO removeFriend(String friendUsername) throws RestConsumerException;
+
+    /**
      * Searches for accounts.
      *
      * @param query the string to search for
@@ -134,4 +115,22 @@ public interface RestConsumer {
      * @return a list of accounts
      */
     List<AccountDTO> searchAccount(String query) throws RestConsumerException;
+
+    /**
+     * sets the Account status
+     *
+     * @param status
+     *
+     * @return
+     * @throws RestConsumerException
+     */
+    AccountDTO setMyAccountStatus(Status status) throws RestConsumerException;
+
+    /**
+     * Gets the actual account with the actual friends with online status
+     *
+     * @throws RestConsumerException
+     * @throws UnsupportedEncodingException
+     */
+    void updateMyAccount() throws RestConsumerException, UnsupportedEncodingException;
 }

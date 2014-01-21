@@ -34,6 +34,66 @@ public class BackgroundLocationService extends Service implements GooglePlayServ
     private boolean mInProgress;
     private Boolean servicesAvailable = false;
 
+    /**
+     * Checks if the GooglePlayServices are available.
+     *
+     * @param context the application context
+     *
+     * @return true if the service is available, false if not
+     */
+    public static boolean servicesAvailable(Context context) {
+        // Check that Google Play services is available
+        int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(context);
+
+        // If Google Play services is available
+        if (ConnectionResult.SUCCESS == resultCode) {
+            Log.d(TAG, "PlayServices available");
+            return true;
+        } else {
+            Log.d(TAG, "PlayServices not available");
+            return false;
+        }
+    }
+
+    /**
+     * Gets the last known location of the user.
+     *
+     * @return the last known location of the user
+     */
+    public Location getCurrentLocation() {
+        return mLocationClient.getLastLocation();
+    }
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        return mBinder;
+    }
+
+    @Override
+    public void onConnected(Bundle bundle) {
+        Log.d(TAG, "connected");
+        mLocationClient.requestLocationUpdates(mLocationRequest, this);
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+        Log.d(TAG, "onConnectionFailed");
+        mInProgress = false;
+
+        /*
+         * Google Play services can resolve some errors it detects.
+         * If the error has a resolution, try sending an Intent to
+         * start a Google Play services activity that can resolve
+         * error.
+         */
+        if (connectionResult.hasResolution()) {
+
+            // If no resolution is available, display an error dialog
+        } else {
+
+        }
+    }
+
     @Override
     public void onCreate() {
         Log.d(TAG, "onCreate");
@@ -71,6 +131,19 @@ public class BackgroundLocationService extends Service implements GooglePlayServ
     }
 
     @Override
+    public void onDisconnected() {
+        Log.d(TAG, "onDisconnected");
+        // Turn off the request flag
+        mInProgress = false;
+        // Destroy the current location client
+        mLocationClient = null;
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+    }
+
+    @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "OnStartCommand");
         super.onStartCommand(intent, flags, startId);
@@ -95,81 +168,6 @@ public class BackgroundLocationService extends Service implements GooglePlayServ
     private void setUpLocationClientIfNeeded() {
         if (mLocationClient == null)
             mLocationClient = new LocationClient(this, this, this);
-    }
-
-    @Override
-    public IBinder onBind(Intent intent) {
-        return mBinder;
-    }
-
-    @Override
-    public void onConnected(Bundle bundle) {
-        Log.d(TAG, "connected");
-        mLocationClient.requestLocationUpdates(mLocationRequest, this);
-    }
-
-    @Override
-    public void onDisconnected() {
-        Log.d(TAG, "onDisconnected");
-        // Turn off the request flag
-        mInProgress = false;
-        // Destroy the current location client
-        mLocationClient = null;
-    }
-
-    @Override
-    public void onConnectionFailed(ConnectionResult connectionResult) {
-        Log.d(TAG, "onConnectionFailed");
-        mInProgress = false;
-
-        /*
-         * Google Play services can resolve some errors it detects.
-         * If the error has a resolution, try sending an Intent to
-         * start a Google Play services activity that can resolve
-         * error.
-         */
-        if (connectionResult.hasResolution()) {
-
-            // If no resolution is available, display an error dialog
-        } else {
-
-        }
-    }
-
-    /**
-     * Checks if the GooglePlayServices are available.
-     *
-     * @param context the application context
-     *
-     * @return true if the service is available, false if not
-     */
-    public static boolean servicesAvailable(Context context) {
-        // Check that Google Play services is available
-        int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(context);
-
-        // If Google Play services is available
-        if (ConnectionResult.SUCCESS == resultCode) {
-            Log.d(TAG, "PlayServices available");
-            return true;
-        } else {
-            Log.d(TAG, "PlayServices not available");
-            return false;
-        }
-    }
-
-    @Override
-    public void onLocationChanged(Location location) {
-        String msg = Double.toString(location.getLatitude()) + "," +
-                Double.toString(location.getLongitude());
-    }
-
-    /**
-     * Gets the last known location of the user.
-     *
-     * @return the last known location of the user
-     */
-    public Location getCurrentLocation() {
-        return mLocationClient.getLastLocation();
     }
 
     /**
