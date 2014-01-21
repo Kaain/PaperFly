@@ -22,6 +22,7 @@ import de.fhb.mi.paperfly.auth.LoginActivity;
 import de.fhb.mi.paperfly.dto.RegisterAccountDTO;
 import de.fhb.mi.paperfly.service.RestConsumerException;
 import de.fhb.mi.paperfly.service.RestConsumerSingleton;
+import de.fhb.mi.paperfly.util.ValidateUtil;
 
 /**
  * This activity is for registration of an user
@@ -101,7 +102,7 @@ public class UserRegisterActivity extends Activity {
             mEmailView.setError(getString(R.string.error_field_required));
             focusView = mEmailView;
             cancel = true;
-        } else if (!mEmail.contains("@")) {
+        } else if (!ValidateUtil.isValidEmailAddress(mEmail)) {
             mEmailView.setError(getString(R.string.error_invalid_email));
             focusView = mEmailView;
             cancel = true;
