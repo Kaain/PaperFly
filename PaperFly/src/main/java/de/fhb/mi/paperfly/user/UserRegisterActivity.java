@@ -1,30 +1,53 @@
 package de.fhb.mi.paperfly.user;
 
 import android.app.Activity;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+
+import java.io.UnsupportedEncodingException;
+import java.util.Date;
 
 import de.fhb.mi.paperfly.R;
+import de.fhb.mi.paperfly.auth.AuthStatus;
+import de.fhb.mi.paperfly.dto.RegisterAccountDTO;
+import de.fhb.mi.paperfly.service.RestConsumerException;
+import de.fhb.mi.paperfly.service.RestConsumerSingleton;
 
 /**
  * This activity is for registration
  *
- * @author Andy Klay   klay@fh-brandenburg.de
+ * @author Andy Klay  klay@fh-brandenburg.de
  */
 public class UserRegisterActivity extends Activity {
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_user_register);
 
-        if (savedInstanceState == null) {
-            getFragmentManager().beginTransaction()
-                    .add(R.id.container, new UserRegisterFragment())
-                    .commit();
-        }
-    }
+    public static final String TAG = UserRegisterActivity.class.getSimpleName();
+    private UserRegisterTask mRegisterTask = null;
+
+    private String mEmail;
+    private String mPassword;
+    private String mPasswordRepeat;
+    private String mFirstname;
+    private String mLastname;
+    private String mUsername;
+
+    // UI references.
+    private EditText mEmailView;
+    private EditText mPasswordView;
+    private EditText mUsernameView;
+    private EditText mFirstnameView;
+    private EditText mPasswordRepeatView;
+    private EditText mLastnameView;
+
+//    private View rootView;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -44,5 +67,181 @@ public class UserRegisterActivity extends Activity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        setContentView(R.layout.activity_user_register);
+
+//        this.rootView = inflater.inflate(R.layout.fragment_user_register, container, false);
+
+        mEmailView = (EditText) findViewById(R.id.accountMail);
+        mUsernameView = (EditText) findViewById(R.id.accountUserName);
+        mFirstnameView = (EditText) findViewById(R.id.accountFirstName);
+        mLastnameView = (EditText) findViewById(R.id.accountLastName);
+        mPasswordView = (EditText) findViewById(R.id.password);
+        mPasswordRepeatView = (EditText) findViewById(R.id.password_repeat);
+    }
+
+    /**
+     * Attempt to login or register an user depending on which button was clicked.
+     *
+     * @param v the view which was clicked
+     */
+    public void register(View v) {
+        Log.d(TAG, "attemptLoginRegister: " + ((Button) v).getText());
+        if (v.getId() == R.id.register_button && mRegisterTask != null) {
+            return;
+        }
+
+        // Store values at the time of the register action
+        mEmail = mEmailView.getText().toString();
+        mPassword = mPasswordView.getText().toString();
+        mPasswordRepeat = mPasswordRepeatView.getText().toString();
+        mFirstname = mFirstnameView.getText().toString();
+        mLastname = mLastnameView.getText().toString();
+        mUsername = mUsernameView.getText().toString();
+
+        if (checkValues()) {
+            mRegisterTask = new UserRegisterTask();
+            mRegisterTask.execute(mEmail, mPassword, mPasswordRepeat, mFirstname, mLastname, mUsername);
+        }
+    }
+
+    /**
+     * Checks if the values in the form are valid.
+     *
+     * @return true if the values are valid, false if not
+     */
+    private boolean checkValues() {
+        boolean cancel = false;
+        View focusView = null;
+
+        // Check for a valid password.
+        if (TextUtils.isEmpty(mPassword)) {
+            mPasswordView.setError(getString(R.string.error_field_required));
+            focusView = mPasswordView;
+            cancel = true;
+        } else if (mPassword.length() < 4) {
+            mPasswordView.setError(getString(R.string.error_invalid_password));
+            focusView = mPasswordView;
+            cancel = true;
+        }
+
+        // Check for a valid password.
+        if (TextUtils.isEmpty(mPasswordRepeat)) {
+            mPasswordRepeatView.setError(getString(R.string.error_field_required));
+            focusView = mPasswordRepeatView;
+            cancel = true;
+        } else if (mPasswordRepeatView.length() < 4) {
+            mPasswordRepeatView.setError(getString(R.string.error_invalid_password));
+            focusView = mPasswordRepeatView;
+            cancel = true;
+        }
+
+        // Check for a valid email address.
+        if (TextUtils.isEmpty(mEmail)) {
+            mEmailView.setError(getString(R.string.error_field_required));
+            focusView = mEmailView;
+            cancel = true;
+        } else if (!mEmail.contains("@")) {
+            mEmailView.setError(getString(R.string.error_invalid_email));
+            focusView = mEmailView;
+            cancel = true;
+        }
+
+        // Check for a valid username
+        if (TextUtils.isEmpty(mUsername)) {
+            mUsernameView.setError(getString(R.string.error_field_required));
+            focusView = mUsernameView;
+            cancel = true;
+        } else if (mUsernameView.length() < 4) {
+            mUsernameView.setError(getString(R.string.error_invalid_password));
+            focusView = mUsernameView;
+            cancel = true;
+        }
+
+        if (cancel) {
+            // There was an error; don't attempt login and focus the first
+            // form field with an error.
+            focusView.requestFocus();
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    /**
+     * This interface must be implemented by activities that contain this
+     * fragment to allow an interaction in this fragment to be communicated
+     * to the activity and potentially other fragments contained in that
+     * activity.
+     * <p/>
+     * See the Android Training lesson <a href=
+     * "http://developer.android.com/training/basics/fragments/communicating.html"
+     * >Communicating with Other Fragments</a> for more information.
+     */
+    public interface OnFragmentInteractionListener {
+        // TODO: Update argument type and name
+        public void onFragmentInteraction(Uri uri);
+    }
+
+    /**
+     * Represents an asynchronous registration task used to authenticate the user.
+     */
+    public class UserRegisterTask extends AsyncTask<String, Void, AuthStatus> {
+        @Override
+        protected AuthStatus doInBackground(String... params) {
+            String mail = params[0];
+            String pw = params[1];
+            String pwRpt = params[2];
+            String firstname = params[3];
+            String lastname = params[4];
+            String username = params[5];
+
+            RegisterAccountDTO nextUser = new RegisterAccountDTO();
+            nextUser.setLastName(lastname);
+            nextUser.setFirstName(firstname);
+            nextUser.setUsername(username);
+            nextUser.setLastModified(new Date(System.currentTimeMillis()));
+            nextUser.setCreated(new Date(System.currentTimeMillis()));
+            nextUser.setEmail(mail);
+            nextUser.setPassword(pw);
+            nextUser.setPasswordRpt(pwRpt);
+            nextUser.setEnabled(true);
+
+            try {
+                RestConsumerSingleton.getInstance().register(nextUser);
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            } catch (RestConsumerException e) {
+                e.printStackTrace();
+                //TODO kann man nicht immer sagen an der Stelle
+                return AuthStatus.REGISTER_EMAIL_ALREADY_REGISTERED;
+            }
+
+            return AuthStatus.REGISTER_SUCCESSFUL;
+        }
+
+        @Override
+        protected void onCancelled() {
+            mRegisterTask = null;
+        }
+
+        @Override
+        protected void onPostExecute(final AuthStatus authStatus) {
+            mRegisterTask = null;
+
+            switch (authStatus) {
+                case REGISTER_EMAIL_ALREADY_REGISTERED:
+//                    Toast.makeText(getActivity(), getApplicationContext().getResources().getString(R.string.register_info_error_email), Toast.LENGTH_LONG).show();
+                    break;
+                case REGISTER_SUCCESSFUL:
+//                    ((TextView) findViewById(R.id.register_info)).setText(R.string.register_info_success);
+                    break;
+            }
+        }
     }
 }

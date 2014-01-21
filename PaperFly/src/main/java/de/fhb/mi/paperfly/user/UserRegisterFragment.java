@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
@@ -250,7 +251,6 @@ public class UserRegisterFragment extends Fragment {
             nextUser.setPasswordRpt(pwRpt);
             nextUser.setEnabled(true);
 
-
             try {
                 RestConsumerSingleton.getInstance().register(nextUser);
             } catch (UnsupportedEncodingException e) {
@@ -275,10 +275,10 @@ public class UserRegisterFragment extends Fragment {
 
             switch (authStatus) {
                 case REGISTER_EMAIL_ALREADY_REGISTERED:
-//                    Toast.makeText(getActivity(), getApplicationContext().getResources().getString(R.string.register_info_error_email), Toast.LENGTH_LONG).show();
+                    Toast.makeText(getActivity(), getResources().getString(R.string.register_info_error_email), Toast.LENGTH_LONG).show();
                     break;
                 case REGISTER_SUCCESSFUL:
-//                    ((TextView) findViewById(R.id.register_info)).setText(R.string.register_info_success);
+                    Toast.makeText(getActivity(), getResources().getString(R.string.register_info_success), Toast.LENGTH_LONG).show();
                     break;
             }
         }
