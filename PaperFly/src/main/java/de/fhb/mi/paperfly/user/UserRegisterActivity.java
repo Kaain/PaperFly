@@ -16,6 +16,7 @@ import android.widget.Toast;
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
 
+import de.fhb.mi.paperfly.MainActivity;
 import de.fhb.mi.paperfly.R;
 import de.fhb.mi.paperfly.auth.AuthStatus;
 import de.fhb.mi.paperfly.auth.LoginActivity;
@@ -74,7 +75,6 @@ public class UserRegisterActivity extends Activity {
     private boolean checkValues() {
         boolean cancel = false;
         View focusView = null;
-
 
         // Check for required firstname.
         if (TextUtils.isEmpty(mFirstname)) {
@@ -254,6 +254,10 @@ public class UserRegisterActivity extends Activity {
                 case REGISTER_SUCCESSFUL:
                     Toast.makeText(getApplicationContext(), getResources().getString(R.string.register_info_success), Toast.LENGTH_LONG).show();
                     registerSuccessful = true;
+                    Intent intent = new Intent();
+                    intent.putExtra(LoginActivity.ARGS_REGISTER_EMAIL, mEmailView.getText().toString());
+                    setResult(RESULT_OK, intent);
+                    finish();
                     break;
             }
         }
