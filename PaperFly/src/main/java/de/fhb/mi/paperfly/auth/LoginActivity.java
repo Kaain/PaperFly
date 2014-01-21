@@ -26,8 +26,9 @@ import de.fhb.mi.paperfly.service.RestConsumerSingleton;
 import de.fhb.mi.paperfly.user.UserRegisterActivity;
 
 /**
- * Activity which displays a login screen to the user, offering registration as
- * well.
+ * Activity which displays a login screen to the user
+ *
+ *
  */
 public class LoginActivity extends Activity {
 

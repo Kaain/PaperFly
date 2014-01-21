@@ -24,7 +24,7 @@ import de.fhb.mi.paperfly.service.RestConsumerException;
 import de.fhb.mi.paperfly.service.RestConsumerSingleton;
 
 /**
- * This activity is for registration
+ * This activity is for registration of an user
  *
  * @author Andy Klay  klay@fh-brandenburg.de
  */
@@ -41,7 +41,6 @@ public class UserRegisterActivity extends Activity {
     private String mLastname;
     private String mUsername;
 
-    // UI references.
     private EditText mEmailView;
     private EditText mPasswordView;
     private EditText mUsernameView;
@@ -84,12 +83,12 @@ public class UserRegisterActivity extends Activity {
     }
 
     /**
-     * Attempt to login or register an user depending on which button was clicked.
+     * Attempt register an user depending on which button was clicked.
      *
      * @param v the view which was clicked
      */
     public void register(View v) {
-        Log.d(TAG, "attemptLoginRegister: " + ((Button) v).getText());
+        Log.d(TAG, "register: " + ((Button) v).getText());
 
         // Store values at the time of the register action
         mEmail = mEmailView.getText().toString();
@@ -106,11 +105,10 @@ public class UserRegisterActivity extends Activity {
     }
 
     /**
-     * finish this actitvity
+     * finish this activity
      * @param v - View was clicked
      */
     public void backToActivityBefore(View v) {
-
         startActivity(new Intent(this, LoginActivity.class));
         setResult(1);
         finish();
