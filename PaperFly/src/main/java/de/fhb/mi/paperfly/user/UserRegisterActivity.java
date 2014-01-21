@@ -75,12 +75,27 @@ public class UserRegisterActivity extends Activity {
         boolean cancel = false;
         View focusView = null;
 
+
+        // Check for required firstname.
+        if (TextUtils.isEmpty(mFirstname)) {
+            mFirstnameView.setError(getString(R.string.error_field_required));
+            focusView = mFirstnameView;
+            cancel = true;
+        }
+
+        // Check for required lastname.
+        if (TextUtils.isEmpty(mLastname)) {
+            mLastnameView.setError(getString(R.string.error_field_required));
+            focusView = mLastnameView;
+            cancel = true;
+        }
+
         // Check for a valid password.
         if (TextUtils.isEmpty(mPassword)) {
             mPasswordView.setError(getString(R.string.error_field_required));
             focusView = mPasswordView;
             cancel = true;
-        } else if (mPassword.length() < 4) {
+        } else if (mPassword.length() < 6) {
             mPasswordView.setError(getString(R.string.error_invalid_password));
             focusView = mPasswordView;
             cancel = true;
@@ -91,7 +106,7 @@ public class UserRegisterActivity extends Activity {
             mPasswordRepeatView.setError(getString(R.string.error_field_required));
             focusView = mPasswordRepeatView;
             cancel = true;
-        } else if (mPasswordRepeatView.length() < 4) {
+        } else if (mPasswordRepeatView.length() < 6) {
             mPasswordRepeatView.setError(getString(R.string.error_invalid_password));
             focusView = mPasswordRepeatView;
             cancel = true;
@@ -113,7 +128,7 @@ public class UserRegisterActivity extends Activity {
             mUsernameView.setError(getString(R.string.error_field_required));
             focusView = mUsernameView;
             cancel = true;
-        } else if (mUsernameView.length() < 4) {
+        } else if (mUsernameView.length() < 6) {
             mUsernameView.setError(getString(R.string.error_invalid_username_too_short));
             focusView = mUsernameView;
             cancel = true;
