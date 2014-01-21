@@ -97,6 +97,17 @@
                 android:paddingRight="32dp"
                 android:text="register"
                 android:onClick="register" />
+
+            <Button
+                android:id="@+id/back_button"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:layout_marginTop="16dp"
+                android:paddingLeft="32dp"
+                android:paddingRight="32dp"
+                android:text="back to login"
+                android:onClick="backToActivityBefore" />
         </LinearLayout>
 
     </ScrollView>

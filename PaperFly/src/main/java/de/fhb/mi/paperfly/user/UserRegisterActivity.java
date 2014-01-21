@@ -47,8 +47,6 @@ public class UserRegisterActivity extends Activity {
     private EditText mPasswordRepeatView;
     private EditText mLastnameView;
 
-//    private View rootView;
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
 
@@ -81,15 +79,6 @@ public class UserRegisterActivity extends Activity {
         mLastnameView = (EditText) findViewById(R.id.accountLastName);
         mPasswordView = (EditText) findViewById(R.id.password);
         mPasswordRepeatView = (EditText) findViewById(R.id.password_repeat);
-
-
-//        Button backButton = (Button)this.findViewById(R.id.back);
-//        backButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                finish();
-//            }
-//        });
     }
 
     /**
@@ -114,7 +103,14 @@ public class UserRegisterActivity extends Activity {
         }
     }
 
-
+    /**
+     * finish this actitvity
+     * @param v - View was clicked
+     */
+    public void backToActivityBefore(View v) {
+        setResult(1);
+        finish();
+    }
 
     /**
      * Checks if the values in the form are valid.
@@ -170,8 +166,8 @@ public class UserRegisterActivity extends Activity {
         }
 
         if (cancel) {
-            // There was an error; don't attempt login and focus the first
-            // form field with an error.
+            // There was an error and focus the first
+            // form field with an error
             focusView.requestFocus();
             return false;
         } else {
@@ -209,7 +205,6 @@ public class UserRegisterActivity extends Activity {
                 e.printStackTrace();
             } catch (RestConsumerException e) {
                 e.printStackTrace();
-                //TODO kann man nicht immer sagen an der Stelle
                 return AuthStatus.REGISTER_EMAIL_ALREADY_REGISTERED;
             }
 
