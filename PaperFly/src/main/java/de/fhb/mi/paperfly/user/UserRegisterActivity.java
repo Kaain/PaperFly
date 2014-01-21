@@ -49,64 +49,9 @@ public class UserRegisterActivity extends Activity {
     private EditText mLastnameView;
     private boolean registerSuccessful = false;
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.user_register, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        setContentView(R.layout.activity_user_register);
-
-        mEmailView = (EditText) findViewById(R.id.accountMail);
-        mUsernameView = (EditText) findViewById(R.id.accountUserName);
-        mFirstnameView = (EditText) findViewById(R.id.accountFirstName);
-        mLastnameView = (EditText) findViewById(R.id.accountLastName);
-        mPasswordView = (EditText) findViewById(R.id.password);
-        mPasswordRepeatView = (EditText) findViewById(R.id.password_repeat);
-    }
-
-    /**
-     * Attempt register an user depending on which button was clicked.
-     *
-     * @param v the view which was clicked
-     */
-    public void register(View v) {
-        Log.d(TAG, "register: " + ((Button) v).getText());
-
-        // Store values at the time of the register action
-        mEmail = mEmailView.getText().toString();
-        mPassword = mPasswordView.getText().toString();
-        mPasswordRepeat = mPasswordRepeatView.getText().toString();
-        mFirstname = mFirstnameView.getText().toString();
-        mLastname = mLastnameView.getText().toString();
-        mUsername = mUsernameView.getText().toString();
-
-        if (checkValues()) {
-            mRegisterTask = new UserRegisterTask();
-            mRegisterTask.execute(mEmail, mPassword, mPasswordRepeat, mFirstname, mLastname, mUsername);
-        }
-    }
-
     /**
      * finish this activity
+     *
      * @param v - View was clicked
      */
     public void backToActivityBefore(View v) {
@@ -180,6 +125,62 @@ public class UserRegisterActivity extends Activity {
             return false;
         } else {
             return true;
+        }
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        setContentView(R.layout.activity_user_register);
+
+        mEmailView = (EditText) findViewById(R.id.accountMail);
+        mUsernameView = (EditText) findViewById(R.id.accountUserName);
+        mFirstnameView = (EditText) findViewById(R.id.accountFirstName);
+        mLastnameView = (EditText) findViewById(R.id.accountLastName);
+        mPasswordView = (EditText) findViewById(R.id.password);
+        mPasswordRepeatView = (EditText) findViewById(R.id.password_repeat);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.user_register, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+        if (id == R.id.action_settings) {
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    /**
+     * Attempt register an user depending on which button was clicked.
+     *
+     * @param v the view which was clicked
+     */
+    public void register(View v) {
+        Log.d(TAG, "register: " + ((Button) v).getText());
+
+        // Store values at the time of the register action
+        mEmail = mEmailView.getText().toString();
+        mPassword = mPasswordView.getText().toString();
+        mPasswordRepeat = mPasswordRepeatView.getText().toString();
+        mFirstname = mFirstnameView.getText().toString();
+        mLastname = mLastnameView.getText().toString();
+        mUsername = mUsernameView.getText().toString();
+
+        if (checkValues()) {
+            mRegisterTask = new UserRegisterTask();
+            mRegisterTask.execute(mEmail, mPassword, mPasswordRepeat, mFirstname, mLastname, mUsername);
         }
     }
 

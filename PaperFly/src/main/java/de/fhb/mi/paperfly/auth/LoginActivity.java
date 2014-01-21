@@ -27,8 +27,6 @@ import de.fhb.mi.paperfly.user.UserRegisterActivity;
 
 /**
  * Activity which displays a login screen to the user
- *
- *
  */
 public class LoginActivity extends Activity {
 
@@ -38,8 +36,8 @@ public class LoginActivity extends Activity {
      * The default email to populate the email field with.
      */
     public static final String LOGIN_SUCCESFUL = "LOGIN_SUCCESFUL";
-    private static final String TAG = LoginActivity.class.getSimpleName();
     public static final String ARGS_REGISTER_EMAIL = "ARGS_REGISTER_EMAIL";
+    private static final String TAG = LoginActivity.class.getSimpleName();
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
@@ -54,19 +52,6 @@ public class LoginActivity extends Activity {
     private View mLoginFormView;
     private View mLoginStatusView;
     private TextView mLoginStatusMessageView;
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch (requestCode){
-            case REQUESTCODE_REGISTER_USER:
-                if (data.hasExtra(ARGS_REGISTER_EMAIL)){
-                    String email = data.getStringExtra(ARGS_REGISTER_EMAIL);
-                    mEmailView.setText(email);
-                    mPasswordView.setText("");
-                }
-                break;
-        }
-    }
 
     /**
      * Attempt to login an user
@@ -116,7 +101,6 @@ public class LoginActivity extends Activity {
 
     }
 
-
     /**
      * Checks if the values in the form are valid.
      *
@@ -154,6 +138,19 @@ public class LoginActivity extends Activity {
             return false;
         } else {
             return true;
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case REQUESTCODE_REGISTER_USER:
+                if (data.hasExtra(ARGS_REGISTER_EMAIL)) {
+                    String email = data.getStringExtra(ARGS_REGISTER_EMAIL);
+                    mEmailView.setText(email);
+                    mPasswordView.setText("");
+                }
+                break;
         }
     }
 
