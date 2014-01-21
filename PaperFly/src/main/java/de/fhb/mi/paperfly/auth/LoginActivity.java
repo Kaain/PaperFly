@@ -5,9 +5,11 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
@@ -37,6 +39,7 @@ public class LoginActivity extends Activity {
      */
     public static final String LOGIN_SUCCESFUL = "LOGIN_SUCCESFUL";
     public static final String ARGS_REGISTER_EMAIL = "ARGS_REGISTER_EMAIL";
+    public static final String PREFS_EMAIL = "email";
     private static final String TAG = LoginActivity.class.getSimpleName();
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
@@ -141,6 +144,13 @@ public class LoginActivity extends Activity {
         }
     }
 
+    private void loadSavedPreferences() {
+        SharedPreferences sharedPreferences = PreferenceManager
+                .getDefaultSharedPreferences(this);
+        String email = sharedPreferences.getString(PREFS_EMAIL, "mail@mail.de");
+        mEmailView.setText(email);
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
@@ -168,6 +178,8 @@ public class LoginActivity extends Activity {
         mLoginStatusView = findViewById(R.id.login_status);
         mLoginStatusMessageView = (TextView) findViewById(R.id.login_status_message);
 
+        loadSavedPreferences();
+
     }
 
     @Override
@@ -183,6 +195,21 @@ public class LoginActivity extends Activity {
     @Override
     protected void onStop() {
         super.onStop();
+    }
+
+    private void savePreferences(String key, boolean value) {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean(key, value);
+        editor.commit();
+    }
+
+    private void savePreferences(String key, String value) {
+        SharedPreferences sharedPreferences = PreferenceManager
+                .getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(key, value);
+        editor.commit();
     }
 
     /**
@@ -264,6 +291,7 @@ public class LoginActivity extends Activity {
             showProgress(false);
 
             if (success) {
+                savePreferences(PREFS_EMAIL, mEmailView.getText().toString());
                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                 intent.putExtra(LOGIN_SUCCESFUL, true);
                 startActivity(intent);
