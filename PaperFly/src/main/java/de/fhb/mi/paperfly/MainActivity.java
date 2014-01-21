@@ -722,6 +722,7 @@ public class MainActivity extends Activity implements GetRoomAsyncDelegate {
             if (success) {
                 finish();
             }
+            stopService(new Intent(MainActivity.this, ChatService.class));
         }
     }
 
