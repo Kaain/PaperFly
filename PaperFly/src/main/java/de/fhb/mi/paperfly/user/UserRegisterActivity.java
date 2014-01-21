@@ -1,6 +1,7 @@
 package de.fhb.mi.paperfly.user;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -17,6 +18,7 @@ import java.util.Date;
 
 import de.fhb.mi.paperfly.R;
 import de.fhb.mi.paperfly.auth.AuthStatus;
+import de.fhb.mi.paperfly.auth.LoginActivity;
 import de.fhb.mi.paperfly.dto.RegisterAccountDTO;
 import de.fhb.mi.paperfly.service.RestConsumerException;
 import de.fhb.mi.paperfly.service.RestConsumerSingleton;
@@ -108,6 +110,8 @@ public class UserRegisterActivity extends Activity {
      * @param v - View was clicked
      */
     public void backToActivityBefore(View v) {
+
+        startActivity(new Intent(this, LoginActivity.class));
         setResult(1);
         finish();
     }
