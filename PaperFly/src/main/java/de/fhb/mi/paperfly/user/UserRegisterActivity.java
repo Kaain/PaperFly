@@ -114,9 +114,11 @@ public class UserRegisterActivity extends Activity {
             focusView = mUsernameView;
             cancel = true;
         } else if (mUsernameView.length() < 4) {
-            mUsernameView.setError(getString(R.string.error_invalid_password));
+            mUsernameView.setError(getString(R.string.error_invalid_username_too_short));
             focusView = mUsernameView;
             cancel = true;
+        } else if(!ValidateUtil.onlyCharactersAndNumbers(mUsername)){
+            mUsernameView.setError(getString(R.string.error_invalid_username_chars_and_nums));
         }
 
         if (cancel) {

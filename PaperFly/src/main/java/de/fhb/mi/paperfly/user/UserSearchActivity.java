@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +20,7 @@ import de.fhb.mi.paperfly.dto.AccountDTO;
 import de.fhb.mi.paperfly.service.RestConsumerException;
 import de.fhb.mi.paperfly.service.RestConsumerSingleton;
 import de.fhb.mi.paperfly.util.AsyncDelegate;
+import de.fhb.mi.paperfly.util.ValidateUtil;
 
 /**
  * The activity to show if the user searches for another user.
@@ -45,8 +47,14 @@ public class UserSearchActivity extends ListActivity implements AsyncDelegate {
      */
     private void doSearch(String queryStr) {
         Log.d(TAG, "doSearch: " + queryStr);
-        SearchUserTask searchUserTask = new SearchUserTask(this);
-        searchUserTask.execute(queryStr);
+        if (ValidateUtil.onlyCharactersAndNumbers(queryStr)) {
+            SearchUserTask searchUserTask = new SearchUserTask(this);
+            searchUserTask.execute(queryStr);
+        } else {
+            Toast.makeText(this, getString(R.string.error_invalid_username_chars_and_nums), Toast.LENGTH_LONG).show();
+            setResult(RESULT_CANCELED);
+            finish();
+        }
     }
 
     /**
