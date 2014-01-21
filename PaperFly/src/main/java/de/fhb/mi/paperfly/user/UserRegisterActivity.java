@@ -47,6 +47,7 @@ public class UserRegisterActivity extends Activity {
     private EditText mFirstnameView;
     private EditText mPasswordRepeatView;
     private EditText mLastnameView;
+    private boolean registerSuccessful = false;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -109,8 +110,13 @@ public class UserRegisterActivity extends Activity {
      * @param v - View was clicked
      */
     public void backToActivityBefore(View v) {
-        startActivity(new Intent(this, LoginActivity.class));
-        setResult(1);
+        if (registerSuccessful) {
+            Intent intent = new Intent();
+            intent.putExtra(LoginActivity.ARGS_REGISTER_EMAIL, mEmailView.getText().toString());
+            setResult(RESULT_OK, intent);
+        } else {
+            setResult(RESULT_OK);
+        }
         finish();
     }
 
@@ -228,6 +234,7 @@ public class UserRegisterActivity extends Activity {
                     break;
                 case REGISTER_SUCCESSFUL:
                     Toast.makeText(getApplicationContext(), getResources().getString(R.string.register_info_success), Toast.LENGTH_LONG).show();
+                    registerSuccessful = true;
                     break;
             }
         }

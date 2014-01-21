@@ -39,6 +39,7 @@ public class LoginActivity extends Activity {
      */
     public static final String LOGIN_SUCCESFUL = "LOGIN_SUCCESFUL";
     private static final String TAG = LoginActivity.class.getSimpleName();
+    public static final String ARGS_REGISTER_EMAIL = "ARGS_REGISTER_EMAIL";
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
@@ -53,6 +54,19 @@ public class LoginActivity extends Activity {
     private View mLoginFormView;
     private View mLoginStatusView;
     private TextView mLoginStatusMessageView;
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode){
+            case REQUESTCODE_REGISTER_USER:
+                if (data.hasExtra(ARGS_REGISTER_EMAIL)){
+                    String email = data.getStringExtra(ARGS_REGISTER_EMAIL);
+                    mEmailView.setText(email);
+                    mPasswordView.setText("");
+                }
+                break;
+        }
+    }
 
     /**
      * Attempt to login an user
@@ -98,7 +112,6 @@ public class LoginActivity extends Activity {
 
             Intent intent = new Intent(LoginActivity.this, UserRegisterActivity.class);
             startActivityForResult(intent, REQUESTCODE_REGISTER_USER);
-            finish();
         }
 
     }

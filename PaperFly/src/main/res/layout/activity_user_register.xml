@@ -19,7 +19,7 @@
                 android:hint="@string/firstName"
                 android:maxLines="1"
                 android:singleLine="true"
-                android:inputType="text|textPersonName"
+                android:inputType="textPersonName"
                 android:maxLength="20" />
 
             <EditText
@@ -29,7 +29,7 @@
                 android:hint="@string/lastName"
                 android:maxLines="1"
                 android:singleLine="true"
-                android:inputType="text|textPersonName"
+                android:inputType="textPersonName"
                 android:maxLength="20" />
 
             <EditText
@@ -41,8 +41,7 @@
                 android:editable="true"
                 android:singleLine="true"
                 android:inputType="textEmailAddress"
-                android:maxLength="20"
-                android:textColor="#939694" />
+                android:maxLength="20" />
 
             <EditText
                 android:id="@+id/accountUserName"
@@ -52,9 +51,8 @@
                 android:maxLines="1"
                 android:singleLine="true"
                 android:editable="true"
-                android:inputType="text|textPersonName"
-                android:maxLength="20"
-                android:textColor="#939694" />
+                android:inputType="textPersonName"
+                android:maxLength="20" />
 
             <EditText
                 android:id="@+id/password"
@@ -65,20 +63,18 @@
                 android:singleLine="true"
                 android:editable="true"
                 android:inputType="textPassword"
-                android:maxLength="20"
-                android:textColor="#939694" />
+                android:maxLength="20"/>
 
             <EditText
                 android:id="@+id/password_repeat"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/prompt_password"
+                android:hint="@string/prompt_password_repeat"
                 android:maxLines="1"
                 android:editable="true"
                 android:singleLine="true"
                 android:inputType="textPassword"
-                android:maxLength="20"
-                android:textColor="#939694" />
+                android:maxLength="20"/>
 
             <TextView
                 android:id="@+id/register_info"
@@ -95,7 +91,7 @@
                 android:layout_marginTop="16dp"
                 android:paddingLeft="32dp"
                 android:paddingRight="32dp"
-                android:text="register"
+                android:text="@string/action_register"
                 android:onClick="register" />
 
             <Button
@@ -106,7 +102,7 @@
                 android:layout_marginTop="16dp"
                 android:paddingLeft="32dp"
                 android:paddingRight="32dp"
-                android:text="back to login"
+                android:text="@string/back_to_register"
                 android:onClick="backToActivityBefore" />
         </LinearLayout>
 

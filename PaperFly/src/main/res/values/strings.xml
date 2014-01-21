@@ -38,5 +38,7 @@
     <string name="please_wait">Please wait</string>
     <string name="no_friends">You have no friends yet</string>
     <string name="title_activity_user_register">UserRegisterActivity</string>
+    <string name="prompt_password_repeat">Password repeat</string>
+    <string name="back_to_register">back to login</string>
 
 </resources>
