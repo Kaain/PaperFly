@@ -13,6 +13,7 @@ import com.google.gson.Gson;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.message.BasicNameValuePair;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -342,10 +343,11 @@ public class ChatService extends Service {
         public void onTextMessage(String messageJSON) {
             Log.d(TAG, "Got message: " + messageJSON);
             Gson gson = new Gson();
+            SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
             Message message = gson.fromJson(messageJSON, Message.class);
             String acutalMessageToUI;
             if (message.getUsername() != null) {
-                acutalMessageToUI = message.getUsername() + ": " + message.getBody();
+                acutalMessageToUI = "["+sdf.format(message.getSendTime())+"] "+message.getUsername() + ": " + message.getBody();
             } else {
                 acutalMessageToUI = message.getBody();
             }
