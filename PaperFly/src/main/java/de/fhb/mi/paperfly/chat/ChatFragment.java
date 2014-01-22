@@ -8,7 +8,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.Rect;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.widget.DrawerLayout;
@@ -36,8 +35,6 @@ import de.fhb.mi.paperfly.PaperFlyApp;
 import de.fhb.mi.paperfly.R;
 import de.fhb.mi.paperfly.dto.AccountDTO;
 import de.fhb.mi.paperfly.service.ChatService;
-import de.fhb.mi.paperfly.service.RestConsumerException;
-import de.fhb.mi.paperfly.service.RestConsumerSingleton;
 import de.fhb.mi.paperfly.util.AsyncDelegate;
 import de.tavendo.autobahn.WebSocketConnection;
 
@@ -50,8 +47,6 @@ public class ChatFragment extends Fragment implements AsyncDelegate, ChatService
     public static final String TAG_GLOBAL = TAG + "_Global";
     public static final String TAG_ROOM = TAG + "Room";
     public static final String ARG_CHAT_ROOM = "chat_room";
-    public static long ROOM_GLOBAL_ID = 1;
-    public static String ROOM_GLOBAL_NAME = "Global";
     private final WebSocketConnection mConnection = new WebSocketConnection();
     private View rootView;
     private ListView messagesList;
@@ -60,7 +55,6 @@ public class ChatFragment extends Fragment implements AsyncDelegate, ChatService
     private ArrayAdapter<String> messagesAdapter;
     private DrawerLayout drawerLayout;
 
-    private GetAccountsInRoomTask mGetAccountsInRoomTask = null;
     private ListView drawerRightList;
 
     private ChatService chatService;
@@ -104,6 +98,23 @@ public class ChatFragment extends Fragment implements AsyncDelegate, ChatService
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         Log.d(TAG, "onAttach");
+    }
+
+    @Override
+    public void onChatConnected(List<AccountDTO> usersInChat) {
+        List<String> drawerRightValues = new ArrayList<String>();
+        for (AccountDTO accountDTO : usersInChat) {
+            drawerRightValues.add(accountDTO.getUsername());
+        }
+        final ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),
+                R.layout.drawer_list_item, drawerRightValues);
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                // This code will always run on the UI thread, therefore is safe to modify UI elements.
+                drawerRightList.setAdapter(adapter);
+            }
+        });
     }
 
     @Override
@@ -169,14 +180,12 @@ public class ChatFragment extends Fragment implements AsyncDelegate, ChatService
         });
 
         String room = getArguments().getString(ARG_CHAT_ROOM);
-        if (room.equalsIgnoreCase(ROOM_GLOBAL_NAME)) {
-            getActivity().setTitle(ROOM_GLOBAL_NAME);
+        if (room.equalsIgnoreCase(ChatService.ROOM_GLOBAL_NAME)) {
+            getActivity().setTitle(ChatService.ROOM_GLOBAL_NAME);
         } else {
             getActivity().setTitle(room);
         }
         ((PaperFlyApp) getActivity().getApplication()).setCurrentVisibleChatRoom(room);
-        mGetAccountsInRoomTask = new GetAccountsInRoomTask(this);
-        mGetAccountsInRoomTask.execute();
 
         messagesAdapter = new ArrayAdapter<String>(rootView.getContext(), android.R.layout.simple_list_item_1);
 
@@ -225,7 +234,6 @@ public class ChatFragment extends Fragment implements AsyncDelegate, ChatService
     public void onDestroy() {
         super.onDestroy();
         Log.d(TAG, "onDestroy");
-        mConnection.disconnect();
     }
 
     @Override
@@ -318,48 +326,5 @@ public class ChatFragment extends Fragment implements AsyncDelegate, ChatService
         Log.d(TAG, "receiveMessage");
         messagesAdapter.add(message);
         messagesAdapter.notifyDataSetChanged();
-    }
-
-    /**
-     * Represents an asynchronous GetAccountsInRoomTask used to get the accounts in a room
-     */
-    public class GetAccountsInRoomTask extends AsyncTask<String, Void, Boolean> {
-
-        private AsyncDelegate delegate;
-
-        public GetAccountsInRoomTask(AsyncDelegate delegate) {
-            this.delegate = delegate;
-        }
-
-        @Override
-        protected Boolean doInBackground(String... params) {
-            List<AccountDTO> usersInRoom = null;
-
-            try {
-                if (((PaperFlyApp) getActivity().getApplication()).getCurrentVisibleChatRoom().equals(ROOM_GLOBAL_NAME)) {
-                    usersInRoom = RestConsumerSingleton.getInstance().getUsersInRoom(ROOM_GLOBAL_ID);
-                } else {
-                    usersInRoom = RestConsumerSingleton.getInstance().getUsersInRoom(((PaperFlyApp) getActivity().getApplication()).getActualRoom().getId());
-                }
-
-                ((PaperFlyApp) getActivity().getApplication()).setUsersInRoom(usersInRoom);
-
-            } catch (RestConsumerException e) {
-                Log.e(TAG, e.getMessage(), e);
-            }
-
-            return usersInRoom != null;
-        }
-
-        @Override
-        protected void onPostExecute(final Boolean success) {
-            mGetAccountsInRoomTask = null;
-
-            if (success) {
-                Log.d("onPostExecute", "success");
-                delegate.asyncComplete(true);
-            }
-
-        }
     }
 }

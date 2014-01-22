@@ -83,8 +83,8 @@ public class MainActivity extends Activity implements GetRoomAsyncDelegate {
      */
     private void checkPresence() {
 
-        mGetAccountsInRoomTask = new GetAccountsInRoomTask();
-        mGetAccountsInRoomTask.execute();
+//        mGetAccountsInRoomTask = new GetAccountsInRoomTask();
+//        mGetAccountsInRoomTask.execute();
 
         // Build data as String
         StringBuilder output = new StringBuilder();
@@ -569,21 +569,21 @@ public class MainActivity extends Activity implements GetRoomAsyncDelegate {
                     .replace(R.id.content_frame, newFragment, ChatFragment.TAG_ROOM)
                     .commit();
         }
-        this.updateUsersInRoomOnDrawer(((PaperFlyApp) getApplication()).getCurrentVisibleChatRoom());
+//        this.updateUsersInRoomOnDrawer(((PaperFlyApp) getApplication()).getCurrentVisibleChatRoom());
     }
 
     /**
      * Opens the global chat in a new fragment.
      */
     private void switchToGlobalChat() {
-        ((PaperFlyApp) getApplication()).setCurrentVisibleChatRoom(ChatFragment.ROOM_GLOBAL_NAME);
+        ((PaperFlyApp) getApplication()).setCurrentVisibleChatRoom(ChatService.ROOM_GLOBAL_NAME);
         FragmentManager fragmentManager = getFragmentManager();
         Fragment fragmentByTag = fragmentManager.findFragmentByTag(ChatFragment.TAG_GLOBAL);
 
         if (fragmentByTag == null) {
             Fragment fragment = new ChatFragment();
             Bundle args = new Bundle();
-            args.putString(ChatFragment.ARG_CHAT_ROOM, ChatFragment.ROOM_GLOBAL_NAME);
+            args.putString(ChatFragment.ARG_CHAT_ROOM, ChatService.ROOM_GLOBAL_NAME);
             fragment.setArguments(args);
 
             // Insert the fragment by replacing any existing fragment
@@ -598,7 +598,7 @@ public class MainActivity extends Activity implements GetRoomAsyncDelegate {
                     .commit();
         }
 
-        this.updateUsersInRoomOnDrawer(ChatFragment.ROOM_GLOBAL_NAME);
+//        this.updateUsersInRoomOnDrawer(ChatService.ROOM_GLOBAL_NAME);
     }
 
     /**
@@ -641,13 +641,11 @@ public class MainActivity extends Activity implements GetRoomAsyncDelegate {
         Log.e("switchToNewChatRoom", " " + room);
         ((PaperFlyApp) getApplication()).setCurrentVisibleChatRoom(room);
 
-        this.updateUsersInRoomOnDrawer(((PaperFlyApp) getApplication()).getCurrentVisibleChatRoom());
+//        this.updateUsersInRoomOnDrawer(((PaperFlyApp) getApplication()).getCurrentVisibleChatRoom());
     }
 
     public void updateUsersInRoomOnDrawer(String roomID) {
         Log.d("updateUsersInRoomOnDrawer", "" + roomID);
-        mGetAccountsInRoomTask = new GetAccountsInRoomTask();
-        mGetAccountsInRoomTask.execute();
 
         drawerRightValues.clear();
         List<AccountDTO> usersInRoom = ((PaperFlyApp) getApplication()).getUsersInRoom();
@@ -736,8 +734,8 @@ public class MainActivity extends Activity implements GetRoomAsyncDelegate {
             List<AccountDTO> usersInRoom = new ArrayList<AccountDTO>();
 
             try {
-                if (((PaperFlyApp) getApplication()).getCurrentVisibleChatRoom().equals(ChatFragment.ROOM_GLOBAL_NAME)) {
-                    usersInRoom = RestConsumerSingleton.getInstance().getUsersInRoom(ChatFragment.ROOM_GLOBAL_ID);
+                if (((PaperFlyApp) getApplication()).getCurrentVisibleChatRoom().equals(ChatService.ROOM_GLOBAL_NAME)) {
+                    usersInRoom = RestConsumerSingleton.getInstance().getUsersInRoom(ChatService.ROOM_GLOBAL_ID);
                 } else {
                     usersInRoom = RestConsumerSingleton.getInstance().getUsersInRoom(((PaperFlyApp) getApplication()).getActualRoom().getId());
                 }

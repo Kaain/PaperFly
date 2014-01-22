@@ -2,7 +2,9 @@ package de.fhb.mi.paperfly.service;
 
 import android.app.Service;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Binder;
+import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -14,10 +16,14 @@ import org.apache.http.message.BasicNameValuePair;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import de.fhb.mi.paperfly.PaperFlyApp;
+import de.fhb.mi.paperfly.dto.AccountDTO;
 import de.fhb.mi.paperfly.dto.Message;
 import de.fhb.mi.paperfly.dto.MessageType;
+import de.fhb.mi.paperfly.dto.RoomDTO;
 import de.tavendo.autobahn.WebSocketConnection;
 import de.tavendo.autobahn.WebSocketConnectionHandler;
 import de.tavendo.autobahn.WebSocketException;
@@ -34,16 +40,34 @@ import de.tavendo.autobahn.WebSocketOptions;
 public class ChatService extends Service {
 
     public static final String URL_CHAT_BASE = "ws://" + RestConsumerSingleton.AWS_IP + ":" + RestConsumerSingleton.PORT + "/PaperFlyServer-web/ws/chat/";
-    private static final String GLOBAL = "Global";
-    public static final String URL_CHAT_GLOBAL = URL_CHAT_BASE + GLOBAL;
     private static final String TAG = ChatService.class.getSimpleName();
+    private static final int UPDATE_INTERVAL = 1000 * 30;
+    public static String ROOM_GLOBAL_NAME = "Global";
+    public static final String URL_CHAT_GLOBAL = URL_CHAT_BASE + ROOM_GLOBAL_NAME;
+    public static long ROOM_GLOBAL_ID = 1l;
     IBinder binder = new ChatServiceBinder();
-    private WebSocketConnection globalConnection;
+    private WebSocketConnection globalConnection = null;
     private WebSocketConnection roomConnection = new WebSocketConnection();
     private String webSocketUriSpecificRoom = "";
+    private RoomDTO actualRoom;
 
     private MessageReceiver currentMessageReceiverGlobal;
     private MessageReceiver currentMessageReceiverSpecific;
+
+    private Handler globalHandler = new Handler();
+    private Handler specificHandler = new Handler();
+
+    private Runnable globalRunnable = new GlobalRunnable();
+    private Runnable specificRunnable = new SpecificRunnable();
+
+    private List<AccountDTO> usersInGlobal = new ArrayList<AccountDTO>();
+    private List<AccountDTO> usersInSpecific = new ArrayList<AccountDTO>();
+
+    private Timer globalTimer;
+    private Timer specificTimer;
+
+    private boolean globalTimerRunning = false;
+    private boolean specificTimerRunning = false;
 
     private boolean connectToGlobal() {
         if (globalConnection == null) {
@@ -56,6 +80,8 @@ public class ChatService extends Service {
             }
         } else if (!globalConnection.isConnected()) {
             globalConnection.reconnect();
+        } else if (!globalTimerRunning) {
+            startGlobalTimer();
         }
         return true;
     }
@@ -80,6 +106,8 @@ public class ChatService extends Service {
             case SPECIFIC:
                 this.currentMessageReceiverSpecific = messageReceiver;
                 success = connectToSpecific(room);
+                actualRoom = ((PaperFlyApp) getApplication()).getActualRoom();
+                break;
         }
         return success;
     }
@@ -103,6 +131,8 @@ public class ChatService extends Service {
         } else if (!roomConnection.isConnected()) {
             // room is the same but connection was lost
             roomConnection.reconnect();
+        } else if (!specificTimerRunning) {
+            startSpecificTimer();
         }
         return true;
     }
@@ -119,6 +149,24 @@ public class ChatService extends Service {
         return headers;
     }
 
+    /**
+     * Method for getting the current users in the given room.
+     * Should only be called if the chat is connected.
+     *
+     * @param roomType the chat type you want the online users
+     *
+     * @return a list of accounts who are online in the chat
+     */
+    public List<AccountDTO> getUsersInRoom(RoomType roomType) {
+        if (roomType == RoomType.GLOBAL) {
+            return usersInGlobal;
+        } else if (roomType == RoomType.SPECIFIC) {
+            return usersInSpecific;
+        } else {
+            return new ArrayList<AccountDTO>();
+        }
+    }
+
     @Override
     public IBinder onBind(Intent intent) {
         return binder;
@@ -130,17 +178,33 @@ public class ChatService extends Service {
         if (globalConnection.isConnected()) {
             globalConnection.disconnect();
         }
+        if (globalTimerRunning) {
+            globalTimer.cancel();
+        }
         if (roomConnection.isConnected()) {
             roomConnection.disconnect();
+        }
+        if (specificTimerRunning) {
+            specificTimer.cancel();
         }
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "onStartCommand");
-        connectToGlobal();
 
         return super.onStartCommand(intent, flags, startId);
+    }
+
+    @Override
+    public boolean onUnbind(Intent intent) {
+        globalTimer.cancel();
+        globalTimer.cancel();
+        globalTimerRunning = false;
+        specificTimerRunning = false;
+        currentMessageReceiverGlobal = null;
+        currentMessageReceiverSpecific = null;
+        return true;
     }
 
     /**
@@ -162,6 +226,32 @@ public class ChatService extends Service {
         }
     }
 
+    private void startGlobalTimer() {
+        globalTimer = new Timer();
+        TimerTask doAsynchronousTask = new TimerTask() {
+            @Override
+            public void run() {
+                globalRunnable = new GlobalRunnable();
+                globalHandler.post(globalRunnable);
+            }
+        };
+        globalTimer.schedule(doAsynchronousTask, 0, UPDATE_INTERVAL);
+        globalTimerRunning = true;
+    }
+
+    private void startSpecificTimer() {
+        specificTimer = new Timer();
+        TimerTask doAsynchronousTask = new TimerTask() {
+            @Override
+            public void run() {
+                specificRunnable = new SpecificRunnable();
+                specificHandler.post(specificRunnable);
+            }
+        };
+        specificTimer.schedule(doAsynchronousTask, 0, UPDATE_INTERVAL);
+        specificTimerRunning = true;
+    }
+
     /**
      * Represents the type of a room.
      */
@@ -175,11 +265,38 @@ public class ChatService extends Service {
     public interface MessageReceiver {
 
         /**
+         * This method is called when the current chat is connected.
+         *
+         * @param usersInRoom the users in the room
+         */
+        void onChatConnected(List<AccountDTO> usersInRoom);
+
+        /**
          * Gets a message for further processing. (e.g. Displaying on the UI)
          *
          * @param message the message to process
          */
         void receiveMessage(String message);
+    }
+
+    public class GetAccountsInRoomTask extends AsyncTask<String, Void, Boolean> {
+
+        private long roomID;
+
+        public GetAccountsInRoomTask(long roomID) {
+            this.roomID = roomID;
+        }
+
+        @Override
+        protected Boolean doInBackground(String... params) {
+            try {
+                usersInGlobal = RestConsumerSingleton.getInstance().getUsersInRoom(roomID);
+                currentMessageReceiverGlobal.onChatConnected(usersInGlobal);
+            } catch (RestConsumerException e) {
+                Log.e(TAG, e.getMessage(), e);
+            }
+            return true;
+        }
     }
 
     /**
@@ -211,6 +328,14 @@ public class ChatService extends Service {
         @Override
         public void onOpen() {
             Log.d(TAG, "Status: Connected to " + webSocketUri);
+            switch (roomType) {
+                case GLOBAL:
+                    startGlobalTimer();
+                    break;
+                case SPECIFIC:
+                    startSpecificTimer();
+                    break;
+            }
         }
 
         @Override
@@ -235,6 +360,24 @@ public class ChatService extends Service {
                         currentMessageReceiverSpecific.receiveMessage(acutalMessageToUI);
                     }
                     break;
+            }
+        }
+    }
+
+    private class GlobalRunnable implements Runnable {
+        @Override
+        public void run() {
+            GetAccountsInRoomTask getAccountsInRoomTask = new GetAccountsInRoomTask(ROOM_GLOBAL_ID);
+            getAccountsInRoomTask.execute();
+        }
+    }
+
+    private class SpecificRunnable implements Runnable {
+        @Override
+        public void run() {
+            if (actualRoom != null) {
+                GetAccountsInRoomTask getAccountsInRoomTask = new GetAccountsInRoomTask(actualRoom.getId());
+                getAccountsInRoomTask.execute();
             }
         }
     }
