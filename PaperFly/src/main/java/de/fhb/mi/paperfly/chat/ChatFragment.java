@@ -100,6 +100,10 @@ public class ChatFragment extends Fragment implements AsyncDelegate, ChatService
         Log.d(TAG, "onAttach");
     }
 
+    public ChatFragment() {
+        super();
+    }
+
     @Override
     public void onChatConnected(List<AccountDTO> usersInChat) {
         List<String> drawerRightValues = new ArrayList<String>();
