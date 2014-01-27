@@ -291,8 +291,17 @@ public class ChatService extends Service {
         @Override
         protected Boolean doInBackground(String... params) {
             try {
-                usersInGlobal = RestConsumerSingleton.getInstance().getUsersInRoom(roomID);
-                currentMessageReceiverGlobal.onChatConnected(usersInGlobal);
+                if (roomID == 1) {
+                    usersInGlobal = RestConsumerSingleton.getInstance().getUsersInRoom(roomID);
+                    if (currentMessageReceiverGlobal != null) {
+                        currentMessageReceiverGlobal.onChatConnected(usersInGlobal);
+
+                    }
+                } else {
+                    usersInSpecific = RestConsumerSingleton.getInstance().getUsersInRoom(roomID);
+                    if (currentMessageReceiverSpecific != null)
+                        currentMessageReceiverSpecific.onChatConnected(usersInSpecific);
+                }
             } catch (RestConsumerException e) {
                 Log.e(TAG, e.getMessage(), e);
             }
@@ -347,7 +356,7 @@ public class ChatService extends Service {
             Message message = gson.fromJson(messageJSON, Message.class);
             String acutalMessageToUI;
             if (message.getUsername() != null) {
-                acutalMessageToUI = "["+sdf.format(message.getSendTime())+"] "+message.getUsername() + ": " + message.getBody();
+                acutalMessageToUI = "[" + sdf.format(message.getSendTime()) + "] " + message.getUsername() + ": " + message.getBody();
             } else {
                 acutalMessageToUI = message.getBody();
             }
