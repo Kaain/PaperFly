@@ -83,9 +83,6 @@ public class MainActivity extends Activity implements GetRoomAsyncDelegate {
      */
     private void checkPresence() {
 
-//        mGetAccountsInRoomTask = new GetAccountsInRoomTask();
-//        mGetAccountsInRoomTask.execute();
-
         // Build data as String
         StringBuilder output = new StringBuilder();
         for (AccountDTO current : ((PaperFlyApp) getApplication()).getUsersInRoom()) {

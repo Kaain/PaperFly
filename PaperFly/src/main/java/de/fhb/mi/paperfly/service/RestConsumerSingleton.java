@@ -379,6 +379,7 @@ public class RestConsumerSingleton implements RestConsumer {
             Log.d(TAG, "json: " + responseObjAsString);
 
             usersInRoom = gson.fromJson(responseObjAsString, collectionType);
+            application.setUsersInRoom(usersInRoom);
         } catch (IOException e) {
             e.printStackTrace();
         } catch (OAuthExpectationFailedException e) {
