@@ -8,12 +8,16 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.SearchManager;
 import android.content.ActivityNotFoundException;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
@@ -73,19 +77,42 @@ public class MainActivity extends Activity implements GetRoomAsyncDelegate {
     private View progressLayout;
     private boolean roomAdded = false;
     private int roomNavID;
-    private GetAccountsInRoomTask mGetAccountsInRoomTask = null;
-    private List<AccountDTO> usersInRoom = new ArrayList<AccountDTO>();
     private boolean appStarted = false;
     private ArrayAdapter<String> listViewRightAdapter;
+
+    private ChatService chatService;
+    private boolean boundChatService = false;
+    private ServiceConnection connectionChatService = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            // We've bound to LocalService, cast the IBinder and get LocalService instance
+            ChatService.ChatServiceBinder binder = (ChatService.ChatServiceBinder) service;
+            chatService = binder.getServiceInstance();
+            boundChatService = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            boundChatService = false;
+        }
+    };
 
     /**
      * updates the UsersInRoom information and sends this information structured to mail-App
      */
     private void checkPresence() {
 
+        String currentVisibleChatRoom = ((PaperFlyApp) getApplication()).getCurrentVisibleChatRoom();
+        List<AccountDTO> usersInRoom;
+        if (currentVisibleChatRoom.equalsIgnoreCase(ChatService.ROOM_GLOBAL_NAME)) {
+            usersInRoom = chatService.getUsersInRoom(ChatService.RoomType.GLOBAL);
+        } else {
+            usersInRoom = chatService.getUsersInRoom(ChatService.RoomType.SPECIFIC);
+        }
         // Build data as String
         StringBuilder output = new StringBuilder();
-        for (AccountDTO current : ((PaperFlyApp) getApplication()).getUsersInRoom()) {
+        for (AccountDTO current : usersInRoom) {
             output.append(current.getUsername() + " - " + current.getFirstName() + " " + current.getLastName() + "\n");
         }
 
@@ -403,6 +430,8 @@ public class MainActivity extends Activity implements GetRoomAsyncDelegate {
                 if (!((PaperFlyApp) getApplication()).isMyServiceRunning(ChatService.class)) {
                     startService(new Intent(this, ChatService.class));
                 }
+                Intent serviceIntent = new Intent(this, ChatService.class);
+                bindService(serviceIntent, connectionChatService, Context.BIND_AUTO_CREATE);
                 // if the app was started select GlobalChat
                 navigateTo(NavKey.GLOBAL);
                 appStarted = true;
@@ -412,6 +441,15 @@ public class MainActivity extends Activity implements GetRoomAsyncDelegate {
             showProgress(true);
             mAuthTask = new UserLoginTask();
             mAuthTask.execute();
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (boundChatService) {
+            unbindService(connectionChatService);
+            boundChatService = false;
         }
     }
 
@@ -722,43 +760,6 @@ public class MainActivity extends Activity implements GetRoomAsyncDelegate {
     }
 
     /**
-     * Represents an asynchronous GetAccountsInRoomTask used to get the accounts in a room
-     */
-    public class GetAccountsInRoomTask extends AsyncTask<String, Void, Boolean> {
-
-        @Override
-        protected Boolean doInBackground(String... params) {
-            List<AccountDTO> usersInRoom = new ArrayList<AccountDTO>();
-
-            try {
-                if (((PaperFlyApp) getApplication()).getCurrentVisibleChatRoom().equals(ChatService.ROOM_GLOBAL_NAME)) {
-                    usersInRoom = RestConsumerSingleton.getInstance().getUsersInRoom(ChatService.ROOM_GLOBAL_ID);
-                } else {
-                    usersInRoom = RestConsumerSingleton.getInstance().getUsersInRoom(((PaperFlyApp) getApplication()).getActualRoom().getId());
-                }
-
-                ((PaperFlyApp) getApplication()).setUsersInRoom(usersInRoom);
-
-            } catch (RestConsumerException e) {
-                Log.e(TAG, e.getMessage(), e);
-            }
-
-            return !usersInRoom.isEmpty();
-        }
-
-        @Override
-        protected void onPostExecute(final Boolean success) {
-            mGetAccountsInRoomTask = null;
-
-            if (success) {
-                Log.d(TAG, "UsersInRoomTask: success");
-                Log.d(TAG, "Number of users in room:" + usersInRoom.size());
-            }
-
-        }
-    }
-
-    /**
      * Represents an asynchronous GetRoomTask used to get a room
      */
     public class GetRoomTask extends AsyncTask<String, Void, Boolean> {
@@ -784,7 +785,6 @@ public class MainActivity extends Activity implements GetRoomAsyncDelegate {
         @Override
         protected void onPostExecute(final Boolean success) {
             delegate.getRoomAsyncComplete(success);
-            mGetAccountsInRoomTask = null;
         }
     }
 

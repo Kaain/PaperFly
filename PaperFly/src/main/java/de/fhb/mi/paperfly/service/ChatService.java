@@ -170,22 +170,23 @@ public class ChatService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
+        Log.d(TAG, "onBind");
         return binder;
     }
 
     @Override
     public void onDestroy() {
         Log.d(TAG, "onDestroy");
-        if (globalConnection.isConnected()) {
+        if (globalConnection != null && globalConnection.isConnected()) {
             globalConnection.disconnect();
         }
-        if (globalTimerRunning) {
+        if (globalTimer != null && globalTimerRunning) {
             globalTimer.cancel();
         }
-        if (roomConnection.isConnected()) {
+        if (roomConnection != null && roomConnection.isConnected()) {
             roomConnection.disconnect();
         }
-        if (specificTimerRunning) {
+        if (specificTimer != null && specificTimerRunning) {
             specificTimer.cancel();
         }
     }
@@ -199,8 +200,13 @@ public class ChatService extends Service {
 
     @Override
     public boolean onUnbind(Intent intent) {
-        globalTimer.cancel();
-        globalTimer.cancel();
+        Log.d(TAG, "onUnBind");
+        if (globalTimer != null && globalTimerRunning) {
+            globalTimer.cancel();
+        }
+        if (specificTimer != null && specificTimerRunning) {
+            specificTimer.cancel();
+        }
         globalTimerRunning = false;
         specificTimerRunning = false;
         currentMessageReceiverGlobal = null;
