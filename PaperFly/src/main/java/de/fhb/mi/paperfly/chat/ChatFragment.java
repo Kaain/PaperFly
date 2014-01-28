@@ -36,7 +36,6 @@ import de.fhb.mi.paperfly.R;
 import de.fhb.mi.paperfly.dto.AccountDTO;
 import de.fhb.mi.paperfly.service.ChatService;
 import de.fhb.mi.paperfly.util.AsyncDelegate;
-import de.tavendo.autobahn.WebSocketConnection;
 
 /**
  * @author Christoph Ott
@@ -44,10 +43,9 @@ import de.tavendo.autobahn.WebSocketConnection;
 public class ChatFragment extends Fragment implements AsyncDelegate, ChatService.MessageReceiver {
 
     public static final String TAG = ChatFragment.class.getSimpleName();
-    public static final String TAG_GLOBAL = TAG + "_Global";
     public static final String TAG_ROOM = TAG + "Room";
+    public static final String TAG_GLOBAL = TAG + "_Global";
     public static final String ARG_CHAT_ROOM = "chat_room";
-    private final WebSocketConnection mConnection = new WebSocketConnection();
     private View rootView;
     private ListView messagesList;
     private EditText messageInput;
@@ -69,6 +67,12 @@ public class ChatFragment extends Fragment implements AsyncDelegate, ChatService
             boundChatService = true;
             String currentVisibleChatRoom = ((PaperFlyApp) getActivity().getApplication()).getCurrentVisibleChatRoom();
             chatService.connectToRoom(currentVisibleChatRoom, ChatFragment.this);
+            if (currentVisibleChatRoom.equalsIgnoreCase(ChatService.ROOM_GLOBAL_NAME)) {
+                messagesAdapter.addAll(chatService.getGlobalMessages());
+            } else {
+                messagesAdapter.addAll(chatService.getSpecificMessages());
+            }
+            messagesAdapter.notifyDataSetChanged();
         }
 
         @Override
@@ -76,6 +80,10 @@ public class ChatFragment extends Fragment implements AsyncDelegate, ChatService
             boundChatService = false;
         }
     };
+
+    public ChatFragment() {
+        super();
+    }
 
     @Override
     public void asyncComplete(boolean success) {
@@ -98,10 +106,6 @@ public class ChatFragment extends Fragment implements AsyncDelegate, ChatService
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         Log.d(TAG, "onAttach");
-    }
-
-    public ChatFragment() {
-        super();
     }
 
     @Override

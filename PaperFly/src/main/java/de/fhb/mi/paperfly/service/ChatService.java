@@ -29,6 +29,7 @@ import de.tavendo.autobahn.WebSocketConnection;
 import de.tavendo.autobahn.WebSocketConnectionHandler;
 import de.tavendo.autobahn.WebSocketException;
 import de.tavendo.autobahn.WebSocketOptions;
+import lombok.Getter;
 
 /**
  * A Service which holds the connections to two chats. These chats are connected through a webSocket.
@@ -64,6 +65,11 @@ public class ChatService extends Service {
     private List<AccountDTO> usersInGlobal = new ArrayList<AccountDTO>();
     private List<AccountDTO> usersInSpecific = new ArrayList<AccountDTO>();
 
+    @Getter
+    private List<String> globalMessages = new ArrayList<String>();
+    @Getter
+    private List<String> specificMessages = new ArrayList<String>();
+
     private Timer globalTimer;
     private Timer specificTimer;
 
@@ -73,6 +79,7 @@ public class ChatService extends Service {
     private boolean connectToGlobal() {
         if (globalConnection == null) {
             try {
+                globalMessages.clear();
                 globalConnection = new WebSocketConnection();
                 globalConnection.connect(URL_CHAT_GLOBAL, null, new MyWebSocketConnectionHandler(URL_CHAT_GLOBAL, RoomType.GLOBAL), new WebSocketOptions(), createHeaders());
             } catch (WebSocketException e) {
@@ -122,6 +129,7 @@ public class ChatService extends Service {
                 roomConnection.disconnect();
             }
             try {
+                specificMessages.clear();
                 roomConnection = new WebSocketConnection();
                 roomConnection.connect(webSocketUri, null, new MyWebSocketConnectionHandler(webSocketUri, RoomType.SPECIFIC), new WebSocketOptions(), createHeaders());
             } catch (WebSocketException e) {
@@ -299,13 +307,12 @@ public class ChatService extends Service {
             try {
                 if (roomID == 1) {
                     usersInGlobal = RestConsumerSingleton.getInstance().getUsersInRoom(roomID);
-                    if (currentMessageReceiverGlobal != null) {
+                    if (currentMessageReceiverGlobal != null && globalTimerRunning) {
                         currentMessageReceiverGlobal.onChatConnected(usersInGlobal);
-
                     }
                 } else {
                     usersInSpecific = RestConsumerSingleton.getInstance().getUsersInRoom(roomID);
-                    if (currentMessageReceiverSpecific != null)
+                    if (currentMessageReceiverSpecific != null && specificTimerRunning)
                         currentMessageReceiverSpecific.onChatConnected(usersInSpecific);
                 }
             } catch (RestConsumerException e) {
@@ -339,6 +346,14 @@ public class ChatService extends Service {
         @Override
         public void onClose(int code, String reason) {
             Log.d(TAG, "Connection lost to: " + webSocketUri);
+            switch (roomType) {
+                case GLOBAL:
+                    globalMessages.clear();
+                    break;
+                case SPECIFIC:
+                    specificMessages.clear();
+                    break;
+            }
         }
 
         @Override
@@ -360,21 +375,23 @@ public class ChatService extends Service {
             Gson gson = new Gson();
             SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
             Message message = gson.fromJson(messageJSON, Message.class);
-            String acutalMessageToUI;
+            String actualMessageToUI;
             if (message.getUsername() != null) {
-                acutalMessageToUI = "[" + sdf.format(message.getSendTime()) + "] " + message.getUsername() + ": " + message.getBody();
+                actualMessageToUI = "[" + sdf.format(message.getSendTime()) + "] " + message.getUsername() + ": " + message.getBody();
             } else {
-                acutalMessageToUI = message.getBody();
+                actualMessageToUI = message.getBody();
             }
             switch (roomType) {
                 case GLOBAL:
+                    globalMessages.add(actualMessageToUI);
                     if (currentMessageReceiverGlobal != null) {
-                        currentMessageReceiverGlobal.receiveMessage(acutalMessageToUI);
+                        currentMessageReceiverGlobal.receiveMessage(actualMessageToUI);
                     }
                     break;
                 case SPECIFIC:
+                    specificMessages.add(actualMessageToUI);
                     if (currentMessageReceiverSpecific != null) {
-                        currentMessageReceiverSpecific.receiveMessage(acutalMessageToUI);
+                        currentMessageReceiverSpecific.receiveMessage(actualMessageToUI);
                     }
                     break;
             }
