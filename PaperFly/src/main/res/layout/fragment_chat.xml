@@ -13,9 +13,10 @@
         android:layout_above="@+id/messageInput"
         android:layout_alignParentTop="true"
         android:layout_gravity="top"
-        android:background="@android:drawable/title_bar_tall"
+        android:background="@android:color/darker_gray"
         android:stackFromBottom="true"
-        android:transcriptMode="alwaysScroll"/>
+        android:transcriptMode="alwaysScroll"
+        android:listSelector="@android:color/transparent"/>
 
     <EditText
         android:id="@+id/messageInput"

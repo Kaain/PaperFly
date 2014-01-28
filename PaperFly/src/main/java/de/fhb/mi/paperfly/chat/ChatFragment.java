@@ -25,15 +25,19 @@ import android.view.ViewTreeObserver;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SearchView;
+import android.widget.TextView;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 import de.fhb.mi.paperfly.PaperFlyApp;
 import de.fhb.mi.paperfly.R;
 import de.fhb.mi.paperfly.dto.AccountDTO;
+import de.fhb.mi.paperfly.dto.Message;
 import de.fhb.mi.paperfly.service.ChatService;
 
 /**
@@ -42,14 +46,14 @@ import de.fhb.mi.paperfly.service.ChatService;
 public class ChatFragment extends Fragment implements ChatService.MessageReceiver {
 
     public static final String TAG = ChatFragment.class.getSimpleName();
-    public static final String TAG_ROOM = TAG + "Room";
     public static final String TAG_GLOBAL = TAG + "_Global";
+    public static final String TAG_ROOM = TAG + "Room";
     public static final String ARG_CHAT_ROOM = "chat_room";
     private View rootView;
     private ListView messagesList;
     private EditText messageInput;
     private ImageButton buSend;
-    private ArrayAdapter<String> messagesAdapter;
+    private ChatMessagesAdapter messagesAdapter;
     private DrawerLayout drawerLayout;
 
     private ListView drawerRightList;
@@ -184,7 +188,7 @@ public class ChatFragment extends Fragment implements ChatService.MessageReceive
         }
         ((PaperFlyApp) getActivity().getApplication()).setCurrentVisibleChatRoom(room);
 
-        messagesAdapter = new ArrayAdapter<String>(rootView.getContext(), android.R.layout.simple_list_item_1);
+        messagesAdapter = new ChatMessagesAdapter(rootView.getContext());
 
         messageInput.addTextChangedListener(new TextWatcher() {
             @Override
@@ -262,9 +266,8 @@ public class ChatFragment extends Fragment implements ChatService.MessageReceive
         super.onResume();
         Log.d(TAG, "onResume");
 
-        messagesAdapter = new ArrayAdapter<String>(rootView.getContext(), android.R.layout.simple_list_item_1, new ArrayList<String>());
+        messagesAdapter = new ChatMessagesAdapter(rootView.getContext());
         messagesList.setAdapter(messagesAdapter);
-
     }
 
     @Override
@@ -319,9 +322,46 @@ public class ChatFragment extends Fragment implements ChatService.MessageReceive
     }
 
     @Override
-    public void receiveMessage(String message) {
+    public void receiveMessage(Message message) {
         Log.d(TAG, "receiveMessage");
         messagesAdapter.add(message);
         messagesAdapter.notifyDataSetChanged();
+    }
+
+    public class ChatMessagesAdapter extends ArrayAdapter<Message> {
+        private final Context context;
+
+        public ChatMessagesAdapter(Context context) {
+            super(context, 0);
+            this.context = context;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            LayoutInflater inflater = (LayoutInflater) context
+                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            LinearLayout rowView = (LinearLayout) inflater.inflate(R.layout.chat_messages_time, parent, false);
+            TextView textViewMessage = (TextView) rowView.findViewById(R.id.message);
+            TextView textViewTime = (TextView) rowView.findViewById(R.id.time);
+            SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+            final Message message = this.getItem(position);
+            if (message.getUsername() != null) {
+                String actualUsername = ((PaperFlyApp) getActivity().getApplication()).getAccount().getUsername();
+                if (actualUsername.equals(message.getUsername())) {
+                    textViewMessage.setText(message.getBody());
+                    rowView.setGravity(Gravity.RIGHT);
+                    rowView.setBackgroundResource(R.drawable.bubble_green);
+                } else {
+                    textViewMessage.setText(message.getUsername() + ": " + message.getBody());
+                    rowView.setGravity(Gravity.LEFT);
+                    rowView.setBackgroundResource(R.drawable.bubble_yellow);
+                }
+                textViewTime.setText(sdf.format(message.getSendTime()));
+            } else {
+                textViewMessage.setText(message.getBody());
+            }
+
+            return rowView;
+        }
     }
 }

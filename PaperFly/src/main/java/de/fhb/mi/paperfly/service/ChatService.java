@@ -13,7 +13,6 @@ import com.google.gson.Gson;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.message.BasicNameValuePair;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -66,9 +65,9 @@ public class ChatService extends Service {
     private List<AccountDTO> usersInSpecific = new ArrayList<AccountDTO>();
 
     @Getter
-    private List<String> globalMessages = new ArrayList<String>();
+    private List<Message> globalMessages = new ArrayList<Message>();
     @Getter
-    private List<String> specificMessages = new ArrayList<String>();
+    private List<Message> specificMessages = new ArrayList<Message>();
 
     private Timer globalTimer;
     private Timer specificTimer;
@@ -291,7 +290,7 @@ public class ChatService extends Service {
          *
          * @param message the message to process
          */
-        void receiveMessage(String message);
+        void receiveMessage(Message message);
     }
 
     public class GetAccountsInRoomTask extends AsyncTask<String, Void, Boolean> {
@@ -373,25 +372,19 @@ public class ChatService extends Service {
         public void onTextMessage(String messageJSON) {
             Log.d(TAG, "Got message: " + messageJSON);
             Gson gson = new Gson();
-            SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
             Message message = gson.fromJson(messageJSON, Message.class);
-            String actualMessageToUI;
-            if (message.getUsername() != null) {
-                actualMessageToUI = "[" + sdf.format(message.getSendTime()) + "] " + message.getUsername() + ": " + message.getBody();
-            } else {
-                actualMessageToUI = message.getBody();
-            }
+
             switch (roomType) {
                 case GLOBAL:
-                    globalMessages.add(actualMessageToUI);
+                    globalMessages.add(message);
                     if (currentMessageReceiverGlobal != null) {
-                        currentMessageReceiverGlobal.receiveMessage(actualMessageToUI);
+                        currentMessageReceiverGlobal.receiveMessage(message);
                     }
                     break;
                 case SPECIFIC:
-                    specificMessages.add(actualMessageToUI);
+                    specificMessages.add(message);
                     if (currentMessageReceiverSpecific != null) {
-                        currentMessageReceiverSpecific.receiveMessage(actualMessageToUI);
+                        currentMessageReceiverSpecific.receiveMessage(message);
                     }
                     break;
             }
