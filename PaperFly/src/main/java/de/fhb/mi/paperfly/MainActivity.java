@@ -752,10 +752,8 @@ public class MainActivity extends Activity implements GetRoomAsyncDelegate {
         @Override
         protected void onPostExecute(final Boolean success) {
             mAuthTask = null;
-            if (success) {
-                finish();
-            }
             stopService(new Intent(MainActivity.this, ChatService.class));
+            finish();
         }
     }
 
