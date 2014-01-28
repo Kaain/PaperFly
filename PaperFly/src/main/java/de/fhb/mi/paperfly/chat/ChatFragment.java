@@ -35,12 +35,11 @@ import de.fhb.mi.paperfly.PaperFlyApp;
 import de.fhb.mi.paperfly.R;
 import de.fhb.mi.paperfly.dto.AccountDTO;
 import de.fhb.mi.paperfly.service.ChatService;
-import de.fhb.mi.paperfly.util.AsyncDelegate;
 
 /**
  * @author Christoph Ott
  */
-public class ChatFragment extends Fragment implements AsyncDelegate, ChatService.MessageReceiver {
+public class ChatFragment extends Fragment implements ChatService.MessageReceiver {
 
     public static final String TAG = ChatFragment.class.getSimpleName();
     public static final String TAG_ROOM = TAG + "Room";
@@ -83,16 +82,6 @@ public class ChatFragment extends Fragment implements AsyncDelegate, ChatService
 
     public ChatFragment() {
         super();
-    }
-
-    @Override
-    public void asyncComplete(boolean success) {
-        ArrayAdapter adapter = (ArrayAdapter) drawerRightList.getAdapter();
-        adapter.clear();
-        for (AccountDTO accountDTO : ((PaperFlyApp) getActivity().getApplication()).getUsersInRoom()) {
-            adapter.add(accountDTO.getUsername());
-        }
-        adapter.notifyDataSetChanged();
     }
 
     private void initViewsById() {
