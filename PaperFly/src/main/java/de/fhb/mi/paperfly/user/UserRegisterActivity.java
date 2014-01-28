@@ -51,22 +51,6 @@ public class UserRegisterActivity extends Activity {
     private boolean registerSuccessful = false;
 
     /**
-     * finish this activity
-     *
-     * @param v - View was clicked
-     */
-    public void backToActivityBefore(View v) {
-        if (registerSuccessful) {
-            Intent intent = new Intent();
-            intent.putExtra(LoginActivity.ARGS_REGISTER_EMAIL, mEmailView.getText().toString());
-            setResult(RESULT_OK, intent);
-        } else {
-            setResult(RESULT_OK);
-        }
-        finish();
-    }
-
-    /**
      * Checks if the values in the form are valid.
      *
      * @return true if the values are valid, false if not
@@ -131,7 +115,7 @@ public class UserRegisterActivity extends Activity {
             mUsernameView.setError(getString(R.string.error_invalid_username_too_short));
             focusView = mUsernameView;
             cancel = true;
-        } else if(!ValidateUtil.onlyCharactersAndNumbers(mUsername)){
+        } else if (!ValidateUtil.onlyCharactersAndNumbers(mUsername)) {
             mUsernameView.setError(getString(R.string.error_invalid_username_chars_and_nums));
         }
 

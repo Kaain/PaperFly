@@ -1,6 +1,6 @@
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    tools:context=".UserRegisterActivity">
+       xmlns:tools="http://schemas.android.com/tools"
+       tools:context=".UserRegisterActivity">
 
     <!-- Login form -->
     <ScrollView
@@ -20,7 +20,7 @@
                 android:maxLines="1"
                 android:singleLine="true"
                 android:inputType="textPersonName"
-                android:maxLength="20" />
+                android:maxLength="20"/>
 
             <EditText
                 android:id="@+id/accountLastName"
@@ -30,7 +30,7 @@
                 android:maxLines="1"
                 android:singleLine="true"
                 android:inputType="textPersonName"
-                android:maxLength="20" />
+                android:maxLength="20"/>
 
             <EditText
                 android:id="@+id/accountMail"
@@ -41,7 +41,7 @@
                 android:editable="true"
                 android:singleLine="true"
                 android:inputType="textEmailAddress"
-                android:maxLength="20" />
+                android:maxLength="20"/>
 
             <EditText
                 android:id="@+id/accountUserName"
@@ -52,7 +52,7 @@
                 android:singleLine="true"
                 android:editable="true"
                 android:inputType="textPersonName"
-                android:maxLength="20" />
+                android:maxLength="20"/>
 
             <EditText
                 android:id="@+id/password"
@@ -81,7 +81,7 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
+                android:textAppearance="?android:attr/textAppearanceMedium"/>
 
             <Button
                 android:id="@+id/update_button"
@@ -92,18 +92,8 @@
                 android:paddingLeft="32dp"
                 android:paddingRight="32dp"
                 android:text="@string/action_register"
-                android:onClick="register" />
+                android:onClick="register"/>
 
-            <Button
-                android:id="@+id/back_button"
-                android:layout_width="150dp"
-                android:layout_height="wrap_content"
-                android:layout_gravity="right"
-                android:layout_marginTop="16dp"
-                android:paddingLeft="32dp"
-                android:paddingRight="32dp"
-                android:text="@string/back_to_register"
-                android:onClick="backToActivityBefore" />
         </LinearLayout>
 
     </ScrollView>

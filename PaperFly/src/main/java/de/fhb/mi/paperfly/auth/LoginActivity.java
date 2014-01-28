@@ -156,7 +156,7 @@ public class LoginActivity extends Activity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
             case REQUESTCODE_REGISTER_USER:
-                if (data.hasExtra(ARGS_REGISTER_EMAIL)) {
+                if (resultCode == RESULT_OK && data.hasExtra(ARGS_REGISTER_EMAIL)) {
                     String email = data.getStringExtra(ARGS_REGISTER_EMAIL);
                     mEmailView.setText(email);
                     mPasswordView.setText("");
