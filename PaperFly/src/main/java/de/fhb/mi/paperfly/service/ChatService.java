@@ -303,19 +303,21 @@ public class ChatService extends Service {
 
         @Override
         protected Boolean doInBackground(String... params) {
-            try {
-                if (roomID == 1) {
-                    usersInGlobal = RestConsumerSingleton.getInstance().getUsersInRoom(roomID);
-                    if (currentMessageReceiverGlobal != null && globalTimerRunning) {
-                        currentMessageReceiverGlobal.onChatConnected(usersInGlobal);
+            if (RestConsumerSingleton.getInstance().getConsumer() != null) {
+                try {
+                    if (roomID == 1) {
+                        usersInGlobal = RestConsumerSingleton.getInstance().getUsersInRoom(roomID);
+                        if (currentMessageReceiverGlobal != null && globalTimerRunning) {
+                            currentMessageReceiverGlobal.onChatConnected(usersInGlobal);
+                        }
+                    } else {
+                        usersInSpecific = RestConsumerSingleton.getInstance().getUsersInRoom(roomID);
+                        if (currentMessageReceiverSpecific != null && specificTimerRunning)
+                            currentMessageReceiverSpecific.onChatConnected(usersInSpecific);
                     }
-                } else {
-                    usersInSpecific = RestConsumerSingleton.getInstance().getUsersInRoom(roomID);
-                    if (currentMessageReceiverSpecific != null && specificTimerRunning)
-                        currentMessageReceiverSpecific.onChatConnected(usersInSpecific);
+                } catch (RestConsumerException e) {
+                    Log.e(TAG, e.getMessage(), e);
                 }
-            } catch (RestConsumerException e) {
-                Log.e(TAG, e.getMessage(), e);
             }
             return true;
         }
