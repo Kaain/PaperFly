@@ -36,6 +36,7 @@ import java.util.Date;
 import java.util.List;
 
 import de.fhb.mi.paperfly.PaperFlyApp;
+import de.fhb.mi.paperfly.auth.DESEncryption;
 import de.fhb.mi.paperfly.dto.AccountDTO;
 import de.fhb.mi.paperfly.dto.RegisterAccountDTO;
 import de.fhb.mi.paperfly.dto.RoomDTO;
@@ -439,9 +440,15 @@ public class RestConsumerSingleton implements RestConsumer {
     public TokenDTO login(String mail, String password) throws RestConsumerException {
         Log.d(TAG, "login");
         HttpGet request = new HttpGet(getConnectionURL(URL_LOGIN)); // Or HttpPost(), depends on your needs
-        request.addHeader("user", mail);
-        request.addHeader("pw", password);
+        try {
+            DESEncryption desEncryption = new DESEncryption();
 
+            String usernamePassword = mail + ":" + password;
+
+            request.addHeader("cred", desEncryption.encrypt(usernamePassword));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         Log.d(TAG, request.getRequestLine().toString());
         HttpClient httpclient = application.getHttpClient();
         HttpResponse response;
