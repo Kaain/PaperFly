@@ -46,8 +46,8 @@ import de.fhb.mi.paperfly.service.ChatService;
 public class ChatFragment extends Fragment implements ChatService.MessageReceiver {
 
     public static final String TAG = ChatFragment.class.getSimpleName();
-    public static final String TAG_GLOBAL = TAG + "_Global";
     public static final String TAG_ROOM = TAG + "Room";
+    public static final String TAG_GLOBAL = TAG + "_Global";
     public static final String ARG_CHAT_ROOM = "chat_room";
     private View rootView;
     private ListView messagesList;
@@ -107,15 +107,17 @@ public class ChatFragment extends Fragment implements ChatService.MessageReceive
         for (AccountDTO accountDTO : usersInChat) {
             drawerRightValues.add(accountDTO.getUsername());
         }
-        final ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),
-                R.layout.drawer_list_item, drawerRightValues);
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                // This code will always run on the UI thread, therefore is safe to modify UI elements.
-                drawerRightList.setAdapter(adapter);
-            }
-        });
+        if (getActivity() != null) {
+            final ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), R.layout.drawer_list_item, drawerRightValues);
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    // This code will always run on the UI thread, therefore is safe to modify UI elements.
+                    drawerRightList.setAdapter(adapter);
+                }
+            });
+
+        }
     }
 
     @Override
