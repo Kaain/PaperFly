@@ -115,7 +115,9 @@ public class LoginActivity extends Activity implements Validator.ValidationListe
                 if (resultCode == RESULT_OK && data.hasExtra(ARGS_REGISTER_EMAIL)) {
                     String email = data.getStringExtra(ARGS_REGISTER_EMAIL);
                     mEmailView.setText(email);
+                    mEmailView.setError(null);
                     mPasswordView.setText("");
+                    mPasswordView.setError(null);
                 }
                 break;
         }
