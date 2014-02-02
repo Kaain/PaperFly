@@ -10,13 +10,19 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+
+import com.mobsandgeeks.saripaar.Rule;
+import com.mobsandgeeks.saripaar.Validator;
+import com.mobsandgeeks.saripaar.annotation.Email;
+import com.mobsandgeeks.saripaar.annotation.Password;
+import com.mobsandgeeks.saripaar.annotation.Required;
+import com.mobsandgeeks.saripaar.annotation.TextRule;
 
 import de.fhb.mi.paperfly.MainActivity;
 import de.fhb.mi.paperfly.PaperFlyApp;
@@ -26,12 +32,11 @@ import de.fhb.mi.paperfly.dto.TokenDTO;
 import de.fhb.mi.paperfly.service.RestConsumerException;
 import de.fhb.mi.paperfly.service.RestConsumerSingleton;
 import de.fhb.mi.paperfly.user.UserRegisterActivity;
-import de.fhb.mi.paperfly.util.ValidateUtil;
 
 /**
  * Activity which displays a login screen to the user
  */
-public class LoginActivity extends Activity {
+public class LoginActivity extends Activity implements Validator.ValidationListener {
 
     public static final int REQUESTCODE_REGISTER_USER = 101;
 
@@ -51,11 +56,17 @@ public class LoginActivity extends Activity {
     private String mEmail;
     private String mPassword;
     // UI references.
+    @Required(order = 1)
+    @Email(order = 2, messageResId = R.string.error_invalid_email)
     private EditText mEmailView;
+    @Password(order = 3)
+    @TextRule(order = 4, minLength = 6, messageResId = R.string.error_field_too_short_6)
     private EditText mPasswordView;
     private View mLoginFormView;
     private View mLoginStatusView;
     private TextView mLoginStatusMessageView;
+
+    private Validator validator;
 
     /**
      * Attempt to login an user
@@ -68,26 +79,11 @@ public class LoginActivity extends Activity {
             return;
         }
 
-        // Reset errors.
-        mEmailView.setError(null);
-        mPasswordView.setError(null);
-
         // Store values at the time of the login attempt.
         mEmail = mEmailView.getText().toString();
         mPassword = mPasswordView.getText().toString();
 
-        if (checkValues()) {
-            // Show a progress spinner, and kick off a background task to
-            // perform the user login attempt.
-            mLoginStatusMessageView.setText(R.string.login_progress_signing_in);
-            showProgress(true);
-            if (v.getId() == R.id.login_button) {
-                mLoginTask = new UserLoginTask();
-                mLoginTask.execute(mEmail, mPassword);
-            }
-        }
-
-
+        validator.validate();
     }
 
     /**
@@ -103,46 +99,6 @@ public class LoginActivity extends Activity {
             startActivityForResult(intent, REQUESTCODE_REGISTER_USER);
         }
 
-    }
-
-    /**
-     * Checks if the values in the form are valid.
-     *
-     * @return true if the values are valid, false if not
-     */
-    private boolean checkValues() {
-        boolean cancel = false;
-        View focusView = null;
-
-        // Check for a valid password.
-        if (TextUtils.isEmpty(mPassword)) {
-            mPasswordView.setError(getString(R.string.error_field_required));
-            focusView = mPasswordView;
-            cancel = true;
-        } else if (mPassword.length() < 4) {
-            mPasswordView.setError(getString(R.string.error_invalid_password));
-            focusView = mPasswordView;
-            cancel = true;
-        }
-
-        // Check for a valid email address.
-        if (TextUtils.isEmpty(mEmail)) {
-            mEmailView.setError(getString(R.string.error_field_required));
-            focusView = mEmailView;
-            cancel = true;
-        } else if (!ValidateUtil.isValidEmailAddress(mEmail)) {
-            mEmailView.setError(getString(R.string.error_invalid_email));
-            focusView = mEmailView;
-            cancel = true;
-        }
-        if (cancel) {
-            // There was an error; don't attempt login and focus the first
-            // form field with an error.
-            focusView.requestFocus();
-            return false;
-        } else {
-            return true;
-        }
     }
 
     private void loadSavedPreferences() {
@@ -181,6 +137,9 @@ public class LoginActivity extends Activity {
 
         loadSavedPreferences();
 
+        validator = new Validator(this);
+        validator.setValidationListener(this);
+
     }
 
     @Override
@@ -196,6 +155,24 @@ public class LoginActivity extends Activity {
     @Override
     protected void onStop() {
         super.onStop();
+    }
+
+    @Override
+    public void onValidationFailed(View failedView, Rule<?> failedRule) {
+        String message = failedRule.getFailureMessage();
+
+        if (failedView instanceof EditText) {
+            failedView.requestFocus();
+            ((EditText) failedView).setError(message);
+        }
+    }
+
+    @Override
+    public void onValidationSucceeded() {
+        mLoginStatusMessageView.setText(R.string.login_progress_signing_in);
+        showProgress(true);
+        mLoginTask = new UserLoginTask();
+        mLoginTask.execute(mEmail, mPassword);
     }
 
     private void savePreferences(String key, boolean value) {

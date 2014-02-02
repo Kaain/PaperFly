@@ -5,7 +5,6 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,6 +13,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.mobsandgeeks.saripaar.Rule;
+import com.mobsandgeeks.saripaar.Validator;
+import com.mobsandgeeks.saripaar.annotation.Required;
+
 import java.io.UnsupportedEncodingException;
 
 import de.fhb.mi.paperfly.PaperFlyApp;
@@ -21,21 +24,22 @@ import de.fhb.mi.paperfly.R;
 import de.fhb.mi.paperfly.dto.AccountDTO;
 import de.fhb.mi.paperfly.service.RestConsumerException;
 import de.fhb.mi.paperfly.service.RestConsumerSingleton;
-import de.fhb.mi.paperfly.util.ValidateUtil;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
-public class AccountEditFragment extends Fragment {
+public class AccountEditFragment extends Fragment implements Validator.ValidationListener {
 
     public static final String TAG = AccountEditFragment.class.getSimpleName();
 
     private View rootView;
     private EditText mUsernameView;
+    @Required(order = 1)
     private EditText mFirstnameView;
+    @Required(order = 2)
     private EditText mLastnameView;
     private EditText mEmailView;
     private Button updateButton;
-
+    private Validator validator;
     private AccountEditTask mMyAccountEditTask = null;
 
     private void initViews(View rootView) {
@@ -69,56 +73,41 @@ public class AccountEditFragment extends Fragment {
         mEmailView.setText(account.getEmail());
         mMyAccountEditTask = new AccountEditTask();
 
+        validator = new Validator(this);
+        validator.setValidationListener(this);
+
         final Button updateButton = (Button) rootView.findViewById(R.id.update_button);
         updateButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                if (checkValues() && (mMyAccountEditTask.getStatus() != AsyncTask.Status.RUNNING)) {
-                    mMyAccountEditTask.execute();
-                    updateButton.setEnabled(false);
-                }
+                validator.validate();
             }
         });
 
         return rootView;
     }
 
-    /**
-     * Checks if the values in the form are valid.
-     *
-     * @return true if the values are valid, false if not
-     */
-    private boolean checkValues() {
-        boolean cancel = false;
-        View focusView = null;
-
-        // Check for required firstname.
-        if (TextUtils.isEmpty(mFirstnameView.getText().toString())) {
-            mFirstnameView.setError(getString(R.string.error_field_required));
-            focusView = mFirstnameView;
-            cancel = true;
-        }
-
-        // Check for required lastname.
-        if (TextUtils.isEmpty(mLastnameView.getText().toString())) {
-            mLastnameView.setError(getString(R.string.error_field_required));
-            focusView = mLastnameView;
-            cancel = true;
-        }
-
-        if (cancel) {
-            // There was an error and focus the first
-            // form field with an error
-            focusView.requestFocus();
-            return false;
-        } else {
-            return true;
-        }
-    }
-
     @Override
     public void onStop() {
         super.onStop();
         Log.d(TAG, "onStop");
+    }
+
+    @Override
+    public void onValidationSucceeded() {
+        if (mMyAccountEditTask.getStatus() != AsyncTask.Status.RUNNING) {
+            mMyAccountEditTask.execute();
+            updateButton.setEnabled(false);
+        }
+    }
+
+    @Override
+    public void onValidationFailed(View failedView, Rule<?> failedRule) {
+        String message = failedRule.getFailureMessage();
+
+        if (failedView instanceof EditText) {
+            failedView.requestFocus();
+            ((EditText) failedView).setError(message);
+        }
     }
 
     /**

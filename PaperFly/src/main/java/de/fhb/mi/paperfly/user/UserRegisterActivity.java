@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -12,6 +11,15 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import com.mobsandgeeks.saripaar.Rule;
+import com.mobsandgeeks.saripaar.Validator;
+import com.mobsandgeeks.saripaar.annotation.ConfirmPassword;
+import com.mobsandgeeks.saripaar.annotation.Email;
+import com.mobsandgeeks.saripaar.annotation.Password;
+import com.mobsandgeeks.saripaar.annotation.Regex;
+import com.mobsandgeeks.saripaar.annotation.Required;
+import com.mobsandgeeks.saripaar.annotation.TextRule;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
@@ -22,112 +30,36 @@ import de.fhb.mi.paperfly.auth.LoginActivity;
 import de.fhb.mi.paperfly.dto.RegisterAccountDTO;
 import de.fhb.mi.paperfly.service.RestConsumerException;
 import de.fhb.mi.paperfly.service.RestConsumerSingleton;
-import de.fhb.mi.paperfly.util.ValidateUtil;
 
 /**
  * This activity is for registration of an user
  *
  * @author Andy Klay  klay@fh-brandenburg.de
  */
-public class UserRegisterActivity extends Activity {
+public class UserRegisterActivity extends Activity implements Validator.ValidationListener {
 
 
     public static final String TAG = UserRegisterActivity.class.getSimpleName();
-    private UserRegisterTask mRegisterTask = null;
-
-    private String mEmail;
-    private String mPassword;
-    private String mPasswordRepeat;
-    private String mFirstname;
-    private String mLastname;
-    private String mUsername;
-
-    private EditText mEmailView;
-    private EditText mPasswordView;
+    private Validator validator;
+    private UserRegisterTask mRegisterTask = new UserRegisterTask();
+    @Required(order = 1)
+    @TextRule(order = 2, minLength = 6, messageResId = R.string.error_field_too_short_6)
+    @Regex(order = 3, pattern = "^[a-zA-Z0-9]+$", messageResId = R.string.error_invalid_username_chars_and_nums)
     private EditText mUsernameView;
+    @Required(order = 4)
+    @Email(order = 5, messageResId = R.string.error_invalid_email)
+    private EditText mEmailView;
+    @Required(order = 6)
     private EditText mFirstnameView;
-    private EditText mPasswordRepeatView;
+    @Required(order = 7)
     private EditText mLastnameView;
-    private boolean registerSuccessful = false;
+    @TextRule(order = 8, minLength = 6, messageResId = R.string.error_field_too_short_6)
+    @Password(order = 9)
+    private EditText mPasswordView;
+    @ConfirmPassword(order = 10)
+    private EditText mPasswordRepeatView;
 
-    /**
-     * Checks if the values in the form are valid.
-     *
-     * @return true if the values are valid, false if not
-     */
-    private boolean checkValues() {
-        boolean cancel = false;
-        View focusView = null;
-
-        // Check for required firstname.
-        if (TextUtils.isEmpty(mFirstname)) {
-            mFirstnameView.setError(getString(R.string.error_field_required));
-            focusView = mFirstnameView;
-            cancel = true;
-        }
-
-        // Check for required lastname.
-        if (TextUtils.isEmpty(mLastname)) {
-            mLastnameView.setError(getString(R.string.error_field_required));
-            focusView = mLastnameView;
-            cancel = true;
-        }
-
-        // Check for a valid password.
-        if (TextUtils.isEmpty(mPassword)) {
-            mPasswordView.setError(getString(R.string.error_field_required));
-            focusView = mPasswordView;
-            cancel = true;
-        } else if (mPassword.length() < 6) {
-            mPasswordView.setError(getString(R.string.error_invalid_password));
-            focusView = mPasswordView;
-            cancel = true;
-        }
-
-        // Check for a valid password.
-        if (TextUtils.isEmpty(mPasswordRepeat)) {
-            mPasswordRepeatView.setError(getString(R.string.error_field_required));
-            focusView = mPasswordRepeatView;
-            cancel = true;
-        } else if (mPasswordRepeatView.length() < 6) {
-            mPasswordRepeatView.setError(getString(R.string.error_invalid_password));
-            focusView = mPasswordRepeatView;
-            cancel = true;
-        }
-
-        // Check for a valid email address.
-        if (TextUtils.isEmpty(mEmail)) {
-            mEmailView.setError(getString(R.string.error_field_required));
-            focusView = mEmailView;
-            cancel = true;
-        } else if (!ValidateUtil.isValidEmailAddress(mEmail)) {
-            mEmailView.setError(getString(R.string.error_invalid_email));
-            focusView = mEmailView;
-            cancel = true;
-        }
-
-        // Check for a valid username
-        if (TextUtils.isEmpty(mUsername)) {
-            mUsernameView.setError(getString(R.string.error_field_required));
-            focusView = mUsernameView;
-            cancel = true;
-        } else if (mUsernameView.length() < 6) {
-            mUsernameView.setError(getString(R.string.error_invalid_username_too_short));
-            focusView = mUsernameView;
-            cancel = true;
-        } else if (!ValidateUtil.onlyCharactersAndNumbers(mUsername)) {
-            mUsernameView.setError(getString(R.string.error_invalid_username_chars_and_nums));
-        }
-
-        if (cancel) {
-            // There was an error and focus the first
-            // form field with an error
-            focusView.requestFocus();
-            return false;
-        } else {
-            return true;
-        }
-    }
+    private Button mRegisterButton;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -141,6 +73,10 @@ public class UserRegisterActivity extends Activity {
         mLastnameView = (EditText) findViewById(R.id.accountLastName);
         mPasswordView = (EditText) findViewById(R.id.password);
         mPasswordRepeatView = (EditText) findViewById(R.id.password_repeat);
+        mRegisterButton = (Button) findViewById(R.id.update_button);
+
+        validator = new Validator(this);
+        validator.setValidationListener(this);
     }
 
     @Override
@@ -163,6 +99,33 @@ public class UserRegisterActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void onValidationFailed(View failedView, Rule<?> failedRule) {
+        String message = failedRule.getFailureMessage();
+
+        if (failedView instanceof EditText) {
+            failedView.requestFocus();
+            ((EditText) failedView).setError(message);
+        }
+    }
+
+    @Override
+    public void onValidationSucceeded() {
+        // Store values at the time of the register action
+        String mEmail = mEmailView.getText().toString();
+        String mPassword = mPasswordView.getText().toString();
+        String mPasswordRepeat = mPasswordRepeatView.getText().toString();
+        String mFirstname = mFirstnameView.getText().toString();
+        String mLastname = mLastnameView.getText().toString();
+        String mUsername = mUsernameView.getText().toString();
+
+        if (mRegisterTask.getStatus() != AsyncTask.Status.RUNNING) {
+            mRegisterTask = new UserRegisterTask();
+            mRegisterTask.execute(mEmail, mPassword, mPasswordRepeat, mFirstname, mLastname, mUsername);
+            mRegisterButton.setEnabled(false);
+        }
+    }
+
     /**
      * Attempt register an user depending on which button was clicked.
      *
@@ -170,19 +133,7 @@ public class UserRegisterActivity extends Activity {
      */
     public void register(View v) {
         Log.d(TAG, "register: " + ((Button) v).getText());
-
-        // Store values at the time of the register action
-        mEmail = mEmailView.getText().toString();
-        mPassword = mPasswordView.getText().toString();
-        mPasswordRepeat = mPasswordRepeatView.getText().toString();
-        mFirstname = mFirstnameView.getText().toString();
-        mLastname = mLastnameView.getText().toString();
-        mUsername = mUsernameView.getText().toString();
-
-        if (checkValues()) {
-            mRegisterTask = new UserRegisterTask();
-            mRegisterTask.execute(mEmail, mPassword, mPasswordRepeat, mFirstname, mLastname, mUsername);
-        }
+        validator.validate();
     }
 
     /**
@@ -228,7 +179,7 @@ public class UserRegisterActivity extends Activity {
 
         @Override
         protected void onPostExecute(final AuthStatus authStatus) {
-            mRegisterTask = null;
+            mRegisterButton.setEnabled(true);
 
             switch (authStatus) {
                 case REGISTER_EMAIL_ALREADY_REGISTERED:
@@ -236,13 +187,13 @@ public class UserRegisterActivity extends Activity {
                     break;
                 case REGISTER_SUCCESSFUL:
                     Toast.makeText(getApplicationContext(), getResources().getString(R.string.register_info_success), Toast.LENGTH_LONG).show();
-                    registerSuccessful = true;
                     Intent intent = new Intent();
                     intent.putExtra(LoginActivity.ARGS_REGISTER_EMAIL, mEmailView.getText().toString());
                     setResult(RESULT_OK, intent);
                     finish();
                     break;
             }
+            mRegisterTask = new UserRegisterTask();
         }
     }
 }

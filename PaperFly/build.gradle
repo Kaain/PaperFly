@@ -71,9 +71,9 @@ dependencies {
     compile 'oauth.signpost:signpost-core:1.2'
     compile 'oauth.signpost:signpost-commonshttp4:1.2.1.1'
     compile 'de.tavendo:autobahn-android:' + autobahn_version
-    
-    
-    
-    
+    compile 'com.mobsandgeeks:android-saripaar:1.0.2'
+
+
+
     compile 'com.google.code.gson:gson:' + gson_version
 }
