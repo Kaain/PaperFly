@@ -275,7 +275,7 @@ public class LoginActivity extends Activity implements Validator.ValidationListe
                 startActivity(intent);
                 finish();
             } else {
-                mPasswordView.setError(getString(R.string.error_incorrect_password));
+                mPasswordView.setError(getString(R.string.error_password_username_incorrect));
                 mPasswordView.requestFocus();
             }
         }

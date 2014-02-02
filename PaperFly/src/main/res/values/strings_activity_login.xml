@@ -14,7 +14,7 @@
 
     <string name="error_invalid_email">This email address is invalid</string>
     <string name="error_invalid_username_chars_and_nums">Only characters and numbers allowed</string>
-    <string name="error_incorrect_password">This password is incorrect</string>
+    <string name="error_password_username_incorrect">Email or/and password incorrect</string>
     <string name="error_field_too_short_6">Enter at least 6 characters.</string>
     <string name="register_info_success">Registration successful. Please sign in with your email and password.</string>
     <string name="register_info_error">Registration fail, please check email or passwords!</string>
