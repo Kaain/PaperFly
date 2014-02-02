@@ -390,7 +390,7 @@ public class RestConsumerSingleton implements RestConsumer {
         } catch (OAuthMessageSignerException e) {
             e.printStackTrace();
         }
-        return usersInRoom;
+        return (usersInRoom != null) ? usersInRoom : new ArrayList<AccountDTO>();
     }
 
     /**
