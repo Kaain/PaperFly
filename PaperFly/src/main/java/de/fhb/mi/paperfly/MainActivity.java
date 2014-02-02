@@ -37,7 +37,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import de.fhb.mi.paperfly.auth.AuthHelper;
 import de.fhb.mi.paperfly.auth.LoginActivity;
 import de.fhb.mi.paperfly.chat.ChatFragment;
 import de.fhb.mi.paperfly.dto.AccountDTO;
@@ -389,7 +388,6 @@ public class MainActivity extends Activity implements GetRoomAsyncDelegate {
                 startActivity(new Intent(this, HelpActivity.class));
                 return true;
             case R.id.action_logout:
-                deleteFile(AuthHelper.FILE_NAME);
                 mLogoutTask = new UserLogoutTask();
                 mLogoutTask.execute();
                 return true;
@@ -461,7 +459,7 @@ public class MainActivity extends Activity implements GetRoomAsyncDelegate {
      *
      * @param drawerGravity the drawer to be opened
      */
-    private void openDrawerAndCloseOther(int drawerGravity) {
+    public void openDrawerAndCloseOther(int drawerGravity) {
         Log.d(TAG, "openDrawerAndCloseOther");
         switch (drawerGravity) {
             case Gravity.LEFT:
@@ -611,7 +609,6 @@ public class MainActivity extends Activity implements GetRoomAsyncDelegate {
                     .replace(R.id.content_frame, newFragment, ChatFragment.TAG_ROOM)
                     .commit();
         }
-//        this.updateUsersInRoomOnDrawer(((PaperFlyApp) getApplication()).getCurrentVisibleChatRoom());
     }
 
     /**
@@ -639,8 +636,6 @@ public class MainActivity extends Activity implements GetRoomAsyncDelegate {
                     .attach(fragmentByTag)
                     .commit();
         }
-
-//        this.updateUsersInRoomOnDrawer(ChatService.ROOM_GLOBAL_NAME);
     }
 
     /**
@@ -682,21 +677,6 @@ public class MainActivity extends Activity implements GetRoomAsyncDelegate {
         }
         Log.e("switchToNewChatRoom", " " + room);
         ((PaperFlyApp) getApplication()).setCurrentVisibleChatRoom(room);
-
-//        this.updateUsersInRoomOnDrawer(((PaperFlyApp) getApplication()).getCurrentVisibleChatRoom());
-    }
-
-    public void updateUsersInRoomOnDrawer(String roomID) {
-        Log.d("updateUsersInRoomOnDrawer", "" + roomID);
-
-        drawerRightValues.clear();
-        List<AccountDTO> usersInRoom = ((PaperFlyApp) getApplication()).getUsersInRoom();
-        for (AccountDTO current : usersInRoom) {
-            drawerRightValues.add(current.getUsername());
-        }
-
-        ArrayAdapter<String> adapter = (ArrayAdapter<String>) drawerRightList.getAdapter();
-        adapter.notifyDataSetChanged();
     }
 
     /**

@@ -542,7 +542,6 @@ public class RestConsumerSingleton implements RestConsumer {
             String responseObjAsString = readInEntity(response);
             Log.d("json", responseObjAsString);
             Gson gson = new GsonBuilder().registerTypeAdapter(Date.class, new JsonDateDeserializer()).create();
-            //TODO implement registration in app
             return gson.fromJson(responseObjAsString, TokenDTO.class);
         } catch (IOException e) {
             e.printStackTrace();

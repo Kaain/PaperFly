@@ -90,7 +90,6 @@ public class UserProfileFragment extends Fragment implements AsyncDelegate {
     }
 
     private Intent getMapsIntent() {
-        //TODO java.lang.Object irgendwo an der FH
         double latitude = actualRoomOfUser.getCoordinate().getLatitude();
         double longitude = actualRoomOfUser.getCoordinate().getLonglitutde();
 

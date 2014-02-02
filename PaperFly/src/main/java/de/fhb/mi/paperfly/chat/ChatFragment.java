@@ -32,6 +32,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.fhb.mi.paperfly.MainActivity;
 import de.fhb.mi.paperfly.PaperFlyApp;
 import de.fhb.mi.paperfly.R;
 import de.fhb.mi.paperfly.dto.AccountDTO;
@@ -232,7 +233,7 @@ public class ChatFragment extends Fragment implements ChatService.MessageReceive
             case R.id.action_search_user:
                 return false;
             case R.id.action_show_persons:
-                openDrawerAndCloseOther(Gravity.RIGHT);
+                ((MainActivity) getActivity()).openDrawerAndCloseOther(Gravity.RIGHT);
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -269,38 +270,6 @@ public class ChatFragment extends Fragment implements ChatService.MessageReceive
         if (boundChatService) {
             getActivity().unbindService(connectionChatService);
             boundChatService = false;
-        }
-    }
-
-    /**
-     * Opens the specified drawer and closes the other one, if it is visible
-     *
-     * @param drawerGravity the drawer to be opened
-     */
-    private void openDrawerAndCloseOther(int drawerGravity) {
-        Log.d(TAG, "openDrawerAndCloseOther");
-        // TODO duplicated from MainActivity
-        switch (drawerGravity) {
-            case Gravity.LEFT:
-                if (drawerLayout.isDrawerVisible(Gravity.LEFT)) {
-                    drawerLayout.closeDrawer(Gravity.LEFT);
-                } else if (drawerLayout.isDrawerVisible(Gravity.RIGHT)) {
-                    drawerLayout.closeDrawer(Gravity.RIGHT);
-                    drawerLayout.openDrawer(Gravity.LEFT);
-                } else {
-                    drawerLayout.openDrawer(Gravity.LEFT);
-                }
-                break;
-            case Gravity.RIGHT:
-                if (drawerLayout.isDrawerVisible(Gravity.RIGHT)) {
-                    drawerLayout.closeDrawer(Gravity.RIGHT);
-                } else if (drawerLayout.isDrawerVisible(Gravity.LEFT)) {
-                    drawerLayout.closeDrawer(Gravity.LEFT);
-                    drawerLayout.openDrawer(Gravity.RIGHT);
-                } else {
-                    drawerLayout.openDrawer(Gravity.RIGHT);
-                }
-                break;
         }
     }
 
