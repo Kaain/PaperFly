@@ -275,7 +275,8 @@ public class MainActivity extends Activity implements GetRoomAsyncDelegate {
                 Log.d(TAG, "onActivityResult: REQUESTCODE_SEARCH_USER");
                 if (resultCode == RESULT_OK) {
                     String user = intent.getStringExtra(UserProfileFragment.ARGS_USER);
-                    openUserProfile(user, false);
+                    boolean isMyAccount = ((PaperFlyApp) getApplication()).getAccount().getUsername().equals(user);
+                    openUserProfile(user, isMyAccount);
                 }
                 break;
             case REQUESTCODE_QRSCAN:
@@ -514,7 +515,6 @@ public class MainActivity extends Activity implements GetRoomAsyncDelegate {
         Bundle args = new Bundle();
         args.putString(UserProfileFragment.ARGS_USER, user);
         args.putBoolean(UserProfileFragment.ARGS_MY_ACCOUNT, isMyAccount);
-        args.putString(UserProfileFragment.ARGS_USER, user);
 
         Set<String> friendListUsernames = ((PaperFlyApp) getApplication()).getAccount().getFriendListUsernames();
         if (friendListUsernames.contains(user)) {
