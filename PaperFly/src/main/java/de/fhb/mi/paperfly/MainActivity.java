@@ -26,6 +26,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
@@ -164,10 +165,11 @@ public class MainActivity extends Activity implements GetRoomAsyncDelegate {
             /** Called when a drawer has settled in a completely open state. */
             public void onDrawerOpened(View drawerView) {
                 if (drawerLayout.isDrawerOpen(Gravity.RIGHT)) {
+                    hideKeyboard();
                     getActionBar().setTitle(TITLE_RIGHT_DRAWER);
-//                    this.changeDrawerRight();
                 }
                 if (drawerLayout.isDrawerOpen(Gravity.LEFT)) {
+                    hideKeyboard();
                     getActionBar().setTitle(TITLE_LEFT_DRAWER);
                 }
                 invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
@@ -483,6 +485,11 @@ public class MainActivity extends Activity implements GetRoomAsyncDelegate {
                 }
                 break;
         }
+    }
+
+    private void hideKeyboard() {
+        InputMethodManager inputManager = (InputMethodManager) this.getSystemService(Context.INPUT_METHOD_SERVICE);
+        inputManager.hideSoftInputFromWindow(this.getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
     }
 
     /**
