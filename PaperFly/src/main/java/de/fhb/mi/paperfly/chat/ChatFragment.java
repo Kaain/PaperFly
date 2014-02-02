@@ -46,8 +46,8 @@ import de.fhb.mi.paperfly.service.ChatService;
 public class ChatFragment extends Fragment implements ChatService.MessageReceiver {
 
     public static final String TAG = ChatFragment.class.getSimpleName();
-    public static final String TAG_ROOM = TAG + "Room";
     public static final String TAG_GLOBAL = TAG + "_Global";
+    public static final String TAG_ROOM = TAG + "Room";
     public static final String ARG_CHAT_ROOM = "chat_room";
     private View rootView;
     private ListView messagesList;
@@ -352,15 +352,19 @@ public class ChatFragment extends Fragment implements ChatService.MessageReceive
                 if (actualUsername.equals(message.getUsername())) {
                     textViewMessage.setText(message.getBody());
                     rowView.setGravity(Gravity.RIGHT);
-                    rowView.setBackgroundResource(R.drawable.bubble_green);
+                    rowView.setBackgroundResource(R.drawable.bubble_right);
                 } else {
                     textViewMessage.setText(message.getUsername() + ": " + message.getBody());
                     rowView.setGravity(Gravity.LEFT);
-                    rowView.setBackgroundResource(R.drawable.bubble_yellow);
+                    rowView.setBackgroundResource(R.drawable.bubble_left);
                 }
-                textViewTime.setText(sdf.format(message.getSendTime()));
             } else {
                 textViewMessage.setText(message.getBody());
+                rowView.setGravity(Gravity.CENTER);
+                rowView.setBackgroundResource(R.drawable.bubble_system);
+            }
+            if (message.getSendTime() != null) {
+                textViewTime.setText(sdf.format(message.getSendTime()));
             }
 
             return rowView;
