@@ -23,5 +23,5 @@ package de.fhb.mi.paperfly.dto;
  */
 public enum Status {
 
-    ONLINE, OFFLINE, AWAY;
+    ONLINE, OFFLINE, AWAY
 }

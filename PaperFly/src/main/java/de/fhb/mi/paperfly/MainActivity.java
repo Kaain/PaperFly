@@ -113,7 +113,7 @@ public class MainActivity extends Activity implements GetRoomAsyncDelegate {
         // Build data as String
         StringBuilder output = new StringBuilder();
         for (AccountDTO current : usersInRoom) {
-            output.append(current.getUsername() + " - " + current.getFirstName() + " " + current.getLastName() + "\n");
+            output.append(current.getUsername()).append(" - ").append(current.getFirstName()).append(" ").append(current.getLastName()).append("\n");
         }
 
         Log.d("checkPresence output: ", "" + output.toString());

@@ -6,5 +6,5 @@ package de.fhb.mi.paperfly.dto;
  */
 public enum MessageType {
 
-    TEXT;
+    TEXT
 }

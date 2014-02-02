@@ -117,11 +117,11 @@ public interface RestConsumer {
     List<AccountDTO> searchAccount(String query) throws RestConsumerException;
 
     /**
-     * sets the Account status
+     * Sets the Account status
      *
-     * @param status
+     * @param status the status to set
      *
-     * @return
+     * @return the account with the new status
      * @throws RestConsumerException
      */
     AccountDTO setMyAccountStatus(Status status) throws RestConsumerException;

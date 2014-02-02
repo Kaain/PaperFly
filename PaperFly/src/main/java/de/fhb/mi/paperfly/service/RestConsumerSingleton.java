@@ -494,11 +494,11 @@ public class RestConsumerSingleton implements RestConsumer {
     }
 
     /**
-     * reads in the response String
+     * Reads in the response String.
      *
      * @param response the response
      *
-     * @return
+     * @return a json string from the response
      * @throws IOException
      */
     private String readInEntity(HttpResponse response) throws IOException {
