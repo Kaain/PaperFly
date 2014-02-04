@@ -79,6 +79,7 @@ public class MainActivity extends Activity implements GetRoomAsyncDelegate {
     private int roomNavID;
     private boolean appStarted = false;
     private ArrayAdapter<String> listViewRightAdapter;
+    private NavListAdapter adapter;
 
     private ChatService chatService;
     private boolean boundChatService = false;
@@ -213,6 +214,11 @@ public class MainActivity extends Activity implements GetRoomAsyncDelegate {
 
         mAdapter.addHeader(this.getResources().getString(R.string.nav_header_chats));
         mAdapter.addItem(NavKey.GLOBAL, this.getResources().getString(R.string.nav_item_global), -1);
+
+        RoomDTO actualRoom = ((PaperFlyApp) getApplication()).getActualRoom();
+        if (actualRoom != null) {
+            mAdapter.addItem(NavKey.ROOM, actualRoom.getName(), -1);
+        }
         mAdapter.addItem(NavKey.ENTER_ROOM, this.getResources().getString(R.string.nav_item_enter_room), android.R.drawable.ic_menu_camera);
 
         drawerLeftList.setAdapter(mAdapter);
@@ -226,6 +232,11 @@ public class MainActivity extends Activity implements GetRoomAsyncDelegate {
             Toast.makeText(this, "cannot switch to room", Toast.LENGTH_SHORT).show();
         }
 
+    }
+
+    private void hideKeyboard() {
+        InputMethodManager inputManager = (InputMethodManager) this.getSystemService(Context.INPUT_METHOD_SERVICE);
+        inputManager.hideSoftInputFromWindow(this.getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
     }
 
     /**
@@ -257,7 +268,7 @@ public class MainActivity extends Activity implements GetRoomAsyncDelegate {
                 switchToGlobalChat();
                 break;
             case MY_ACCOUNT:
-                openUserProfile(((PaperFlyApp) getApplication()).getAccount().getUsername(), true);
+                openUserProfile(((PaperFlyApp) getApplication()).getAccount().getUsername());
                 break;
             case CHECK_PRESENCE:
                 checkPresence();
@@ -276,8 +287,7 @@ public class MainActivity extends Activity implements GetRoomAsyncDelegate {
                 Log.d(TAG, "onActivityResult: REQUESTCODE_SEARCH_USER");
                 if (resultCode == RESULT_OK) {
                     String user = intent.getStringExtra(UserProfileFragment.ARGS_USER);
-                    boolean isMyAccount = ((PaperFlyApp) getApplication()).getAccount().getUsername().equals(user);
-                    openUserProfile(user, isMyAccount);
+                    openUserProfile(user);
                 }
                 break;
             case REQUESTCODE_QRSCAN:
@@ -338,7 +348,7 @@ public class MainActivity extends Activity implements GetRoomAsyncDelegate {
         drawerRightList.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                openUserProfile(drawerRightList.getItemAtPosition(position).toString(), false);
+                openUserProfile(drawerRightList.getItemAtPosition(position).toString());
                 drawerLayout.closeDrawers();
             }
         });
@@ -397,6 +407,12 @@ public class MainActivity extends Activity implements GetRoomAsyncDelegate {
     }
 
     @Override
+    protected void onPause() {
+        Log.d(TAG, "onPause");
+        super.onPause();
+    }
+
+    @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
         // Sync the toggle state after onRestoreInstanceState has occurred.
@@ -407,6 +423,12 @@ public class MainActivity extends Activity implements GetRoomAsyncDelegate {
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         Log.d(TAG, "onRestoreInstanceState");
         super.onRestoreInstanceState(savedInstanceState);
+    }
+
+    @Override
+    protected void onResume() {
+        Log.d(TAG, "onResume");
+        super.onResume();
     }
 
     @Override
@@ -447,6 +469,7 @@ public class MainActivity extends Activity implements GetRoomAsyncDelegate {
 
     @Override
     protected void onStop() {
+        Log.d(TAG, "onStop");
         super.onStop();
         if (boundChatService) {
             unbindService(connectionChatService);
@@ -485,11 +508,6 @@ public class MainActivity extends Activity implements GetRoomAsyncDelegate {
         }
     }
 
-    private void hideKeyboard() {
-        InputMethodManager inputManager = (InputMethodManager) this.getSystemService(Context.INPUT_METHOD_SERVICE);
-        inputManager.hideSoftInputFromWindow(this.getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
-    }
-
     /**
      * Creates a new Fragment for FriendList.
      *
@@ -514,8 +532,9 @@ public class MainActivity extends Activity implements GetRoomAsyncDelegate {
         return true;
     }
 
-    private void openUserProfile(String user, boolean isMyAccount) {
+    private void openUserProfile(String user) {
         Log.d(TAG, "openUserProfile");
+        boolean isMyAccount = ((PaperFlyApp) getApplication()).getAccount().getUsername().equals(user);
         Fragment fragment = new UserProfileFragment();
         Bundle args = new Bundle();
         args.putString(UserProfileFragment.ARGS_USER, user);
@@ -655,7 +674,7 @@ public class MainActivity extends Activity implements GetRoomAsyncDelegate {
         fragmentManager.beginTransaction()
                 .replace(R.id.content_frame, newFragment, ChatFragment.TAG_ROOM)
                 .commit();
-        NavListAdapter adapter = (NavListAdapter) drawerLeftList.getAdapter();
+        adapter = (NavListAdapter) drawerLeftList.getAdapter();
         if (!roomAdded) {
             roomNavID = drawerLeftList.getCheckedItemPosition();
 

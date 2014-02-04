@@ -50,6 +50,7 @@ public class ChatService extends Service {
     private WebSocketConnection globalConnection = null;
     private WebSocketConnection roomConnection = new WebSocketConnection();
     private String webSocketUriSpecificRoom = "";
+    @Getter
     private RoomDTO actualRoom;
 
     private MessageReceiver currentMessageReceiverGlobal;
@@ -228,6 +229,7 @@ public class ChatService extends Service {
      * @param roomType      the roomType the message should be send
      */
     public void sendTextMessage(String messageFromUI, RoomType roomType) {
+        Log.d(TAG, "sendTextMessage: " + messageFromUI);
         Gson gson = new Gson();
         Message message = new Message("", MessageType.TEXT, new Date(), messageFromUI);
         switch (roomType) {
