@@ -42,7 +42,7 @@ public class ChatService extends Service {
 
     public static final String URL_CHAT_BASE = "ws://" + RestConsumerSingleton.AWS_IP + ":" + RestConsumerSingleton.PORT + "/PaperFlyServer-web/ws/chat/";
     private static final String TAG = ChatService.class.getSimpleName();
-    private static final int UPDATE_INTERVAL = 1000 * 30;
+    private static final int UPDATE_INTERVAL = 1000 * 10;
     public static String ROOM_GLOBAL_NAME = "Global";
     public static final String URL_CHAT_GLOBAL = URL_CHAT_BASE + ROOM_GLOBAL_NAME;
     public static long ROOM_GLOBAL_ID = 1l;

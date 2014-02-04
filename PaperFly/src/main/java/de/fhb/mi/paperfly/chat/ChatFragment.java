@@ -45,8 +45,8 @@ import de.fhb.mi.paperfly.service.ChatService;
 public class ChatFragment extends Fragment implements ChatService.MessageReceiver {
 
     public static final String TAG = ChatFragment.class.getSimpleName();
-    public static final String TAG_ROOM = TAG + "Room";
     public static final String TAG_GLOBAL = TAG + "_Global";
+    public static final String TAG_ROOM = TAG + "Room";
     public static final String ARG_CHAT_ROOM = "chat_room";
     private View rootView;
     private ListView messagesList;
@@ -70,12 +70,7 @@ public class ChatFragment extends Fragment implements ChatService.MessageReceive
             if (getActivity() != null) {
                 String currentVisibleChatRoom = ((PaperFlyApp) getActivity().getApplication()).getCurrentVisibleChatRoom();
                 chatService.connectToRoom(currentVisibleChatRoom, ChatFragment.this);
-                if (currentVisibleChatRoom.equalsIgnoreCase(ChatService.ROOM_GLOBAL_NAME)) {
-                    messagesAdapter.addAll(chatService.getGlobalMessages());
-                } else {
-                    messagesAdapter.addAll(chatService.getSpecificMessages());
-                }
-                messagesAdapter.notifyDataSetChanged();
+                updateMessages(currentVisibleChatRoom);
             }
         }
 
@@ -251,9 +246,13 @@ public class ChatFragment extends Fragment implements ChatService.MessageReceive
     public void onResume() {
         super.onResume();
         Log.d(TAG, "onResume");
-
-        messagesAdapter = new ChatMessagesAdapter(rootView.getContext());
-        messagesList.setAdapter(messagesAdapter);
+        String currentVisibleChatRoom = ((PaperFlyApp) getActivity().getApplication()).getCurrentVisibleChatRoom();
+        if (boundChatService) {
+            updateMessages(currentVisibleChatRoom);
+        } else {
+            messagesAdapter = new ChatMessagesAdapter(rootView.getContext());
+            messagesList.setAdapter(messagesAdapter);
+        }
     }
 
     @Override
@@ -279,6 +278,16 @@ public class ChatFragment extends Fragment implements ChatService.MessageReceive
     public void receiveMessage(Message message) {
         Log.d(TAG, "receiveMessage");
         messagesAdapter.add(message);
+        messagesAdapter.notifyDataSetChanged();
+    }
+
+    private void updateMessages(String currentVisibleChatRoom) {
+        messagesAdapter.clear();
+        if (currentVisibleChatRoom.equalsIgnoreCase(ChatService.ROOM_GLOBAL_NAME)) {
+            messagesAdapter.addAll(chatService.getGlobalMessages());
+        } else {
+            messagesAdapter.addAll(chatService.getSpecificMessages());
+        }
         messagesAdapter.notifyDataSetChanged();
     }
 
