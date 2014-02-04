@@ -185,7 +185,7 @@ public class MainActivity extends Activity implements GetRoomAsyncDelegate {
     private boolean doQRScan() {
         Log.d(TAG, "doQRScan");
         PackageManager pm = this.getPackageManager();
-        if (pm.hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
+        if (pm.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)) {
             Intent intent = new Intent("com.google.zxing.client.android.SCAN");
             intent.putExtra("SCAN_MODE", "QR_CODE_MODE");
             try {
