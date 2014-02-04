@@ -373,10 +373,7 @@ public class MainActivity extends Activity implements GetRoomAsyncDelegate {
     protected void onDestroy() {
         Log.d(TAG, "onDestroy");
         super.onDestroy();
-        if (boundChatService) {
-            unbindService(connectionChatService);
-            boundChatService = false;
-        }
+
     }
 
     @Override
@@ -484,6 +481,10 @@ public class MainActivity extends Activity implements GetRoomAsyncDelegate {
     protected void onStop() {
         Log.d(TAG, "onStop");
         super.onStop();
+        if (boundChatService) {
+            unbindService(connectionChatService);
+            boundChatService = false;
+        }
     }
 
     /**
