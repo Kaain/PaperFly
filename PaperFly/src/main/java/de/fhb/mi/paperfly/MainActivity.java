@@ -370,6 +370,16 @@ public class MainActivity extends Activity implements GetRoomAsyncDelegate {
     }
 
     @Override
+    protected void onDestroy() {
+        Log.d(TAG, "onDestroy");
+        super.onDestroy();
+        if (boundChatService) {
+            unbindService(connectionChatService);
+            boundChatService = false;
+        }
+    }
+
+    @Override
     protected void onNewIntent(Intent intent) {
         Log.d(TAG, "onNewIntent");
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
@@ -453,8 +463,7 @@ public class MainActivity extends Activity implements GetRoomAsyncDelegate {
                 if (!((PaperFlyApp) getApplication()).isMyServiceRunning(ChatService.class)) {
                     startService(new Intent(this, ChatService.class));
                 }
-                Intent serviceIntent = new Intent(this, ChatService.class);
-                bindService(serviceIntent, connectionChatService, Context.BIND_AUTO_CREATE);
+
                 // if the app was started select GlobalChat
                 navigateTo(NavKey.GLOBAL);
                 appStarted = true;
@@ -465,16 +474,16 @@ public class MainActivity extends Activity implements GetRoomAsyncDelegate {
             mAuthTask = new UserLoginTask();
             mAuthTask.execute();
         }
+        if (!boundChatService) {
+            Intent serviceIntent = new Intent(this, ChatService.class);
+            bindService(serviceIntent, connectionChatService, Context.BIND_AUTO_CREATE);
+        }
     }
 
     @Override
     protected void onStop() {
         Log.d(TAG, "onStop");
         super.onStop();
-        if (boundChatService) {
-            unbindService(connectionChatService);
-            boundChatService = false;
-        }
     }
 
     /**
