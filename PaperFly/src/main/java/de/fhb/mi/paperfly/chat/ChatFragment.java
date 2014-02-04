@@ -45,8 +45,8 @@ import de.fhb.mi.paperfly.service.ChatService;
 public class ChatFragment extends Fragment implements ChatService.MessageReceiver {
 
     public static final String TAG = ChatFragment.class.getSimpleName();
-    public static final String TAG_GLOBAL = TAG + "_Global";
     public static final String TAG_ROOM = TAG + "Room";
+    public static final String TAG_GLOBAL = TAG + "_Global";
     public static final String ARG_CHAT_ROOM = "chat_room";
     private View rootView;
     private ListView messagesList;
@@ -67,14 +67,16 @@ public class ChatFragment extends Fragment implements ChatService.MessageReceive
             ChatService.ChatServiceBinder binder = (ChatService.ChatServiceBinder) service;
             chatService = binder.getServiceInstance();
             boundChatService = true;
-            String currentVisibleChatRoom = ((PaperFlyApp) getActivity().getApplication()).getCurrentVisibleChatRoom();
-            chatService.connectToRoom(currentVisibleChatRoom, ChatFragment.this);
-            if (currentVisibleChatRoom.equalsIgnoreCase(ChatService.ROOM_GLOBAL_NAME)) {
-                messagesAdapter.addAll(chatService.getGlobalMessages());
-            } else {
-                messagesAdapter.addAll(chatService.getSpecificMessages());
+            if (getActivity() != null) {
+                String currentVisibleChatRoom = ((PaperFlyApp) getActivity().getApplication()).getCurrentVisibleChatRoom();
+                chatService.connectToRoom(currentVisibleChatRoom, ChatFragment.this);
+                if (currentVisibleChatRoom.equalsIgnoreCase(ChatService.ROOM_GLOBAL_NAME)) {
+                    messagesAdapter.addAll(chatService.getGlobalMessages());
+                } else {
+                    messagesAdapter.addAll(chatService.getSpecificMessages());
+                }
+                messagesAdapter.notifyDataSetChanged();
             }
-            messagesAdapter.notifyDataSetChanged();
         }
 
         @Override
