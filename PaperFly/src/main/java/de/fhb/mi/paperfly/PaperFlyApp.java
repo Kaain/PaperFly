@@ -38,7 +38,10 @@ public class PaperFlyApp extends Application {
 
     private static final String TAG = PaperFlyApp.class.getSimpleName();
     private final Object lock = new Object();
-
+    private String currentVisibleChatRoom = "";
+    private RoomDTO actualRoom = null;
+    private AccountDTO account;
+    private List<AccountDTO> usersInRoom = new ArrayList<AccountDTO>();
     private CookieStore cookieStore = null;
     private ChatService chatService;
     private boolean boundChatService;
