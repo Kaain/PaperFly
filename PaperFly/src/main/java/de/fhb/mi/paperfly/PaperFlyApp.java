@@ -13,6 +13,7 @@ import android.util.Log;
 
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.HttpClient;
+import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.DefaultHttpClient;
 
 import java.util.ArrayList;
@@ -76,11 +77,19 @@ public class PaperFlyApp extends Application {
      * full DefaultHttpClient.
      */
     public HttpClient getHttpClient() {
+        Log.d(TAG, "getHttpClient");
+        if (cookieStore != null) {
+            for (Cookie cookie : cookieStore.getCookies()) {
+                Log.d(TAG, "Cookie: " + cookie.getName() + " - " + cookie.getValue());
+            }
+        }
         final DefaultHttpClient httpClient = new DefaultHttpClient();
         synchronized (lock) {
             if (cookieStore == null) {
+                Log.d(TAG, "cookieStore is null");
                 cookieStore = httpClient.getCookieStore();
             } else {
+                Log.d(TAG, "cookieStore is not null");
                 httpClient.setCookieStore(cookieStore);
             }
         }

@@ -33,7 +33,6 @@ import lombok.Getter;
 
 /**
  * A Service which holds the connections to two chats. These chats are connected through a webSocket.
- * On startup the service will connect to the global chat.
  * <p/>
  * If the user wants to join another chat you should call {@link de.fhb.mi.paperfly.service.ChatService#connectToRoom(String, de.fhb.mi.paperfly.service.ChatService.MessageReceiver)}.
  *
@@ -180,6 +179,24 @@ public class ChatService extends Service {
     }
 
     /**
+     * TODO
+     */
+    public void disconnectConnections() {
+        if (globalConnection != null && globalConnection.isConnected()) {
+            globalConnection.disconnect();
+        }
+        if (globalTimer != null && globalTimerRunning) {
+            globalTimer.cancel();
+        }
+        if (roomConnection != null && roomConnection.isConnected()) {
+            roomConnection.disconnect();
+        }
+        if (specificTimer != null && specificTimerRunning) {
+            specificTimer.cancel();
+        }
+    }
+
+    /**
      * Method for getting the current users in the given room.
      * Should only be called if the chat is connected.
      *
@@ -206,18 +223,7 @@ public class ChatService extends Service {
     @Override
     public void onDestroy() {
         Log.d(TAG, "onDestroy");
-        if (globalConnection != null && globalConnection.isConnected()) {
-            globalConnection.disconnect();
-        }
-        if (globalTimer != null && globalTimerRunning) {
-            globalTimer.cancel();
-        }
-        if (roomConnection != null && roomConnection.isConnected()) {
-            roomConnection.disconnect();
-        }
-        if (specificTimer != null && specificTimerRunning) {
-            specificTimer.cancel();
-        }
+        disconnectConnections();
     }
 
     @Override
@@ -333,7 +339,7 @@ public class ChatService extends Service {
          *
          * @param usersInRoom the users in the room
          */
-        void onChatConnected(List<AccountDTO> usersInRoom);
+        void onUserListUpdated(List<AccountDTO> usersInRoom);
 
         /**
          * Gets a message for further processing. (e.g. Displaying on the UI)
@@ -358,12 +364,12 @@ public class ChatService extends Service {
                     if (roomID == 1) {
                         usersInGlobal = RestConsumerSingleton.getInstance().getUsersInRoom(roomID);
                         if (currentMessageReceiverGlobal != null && globalTimerRunning) {
-                            currentMessageReceiverGlobal.onChatConnected(usersInGlobal);
+                            currentMessageReceiverGlobal.onUserListUpdated(usersInGlobal);
                         }
                     } else {
                         usersInSpecific = RestConsumerSingleton.getInstance().getUsersInRoom(roomID);
                         if (currentMessageReceiverSpecific != null && specificTimerRunning)
-                            currentMessageReceiverSpecific.onChatConnected(usersInSpecific);
+                            currentMessageReceiverSpecific.onUserListUpdated(usersInSpecific);
                     }
                 } catch (RestConsumerException e) {
                     Log.e(TAG, e.getMessage(), e);
