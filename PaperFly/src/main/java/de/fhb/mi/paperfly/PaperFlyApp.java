@@ -36,13 +36,9 @@ import lombok.Setter;
 @Setter
 public class PaperFlyApp extends Application {
 
-    private final static String ROOM_ID_GLOBAL = "1";
     private static final String TAG = PaperFlyApp.class.getSimpleName();
     private final Object lock = new Object();
-    private String currentVisibleChatRoom = "";
-    private RoomDTO actualRoom = null;
-    private AccountDTO account;
-    private List<AccountDTO> usersInRoom = new ArrayList<AccountDTO>();
+
     private CookieStore cookieStore = null;
     private ChatService chatService;
     private boolean boundChatService;
