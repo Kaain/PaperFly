@@ -15,13 +15,16 @@ import com.google.gson.reflect.TypeToken;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.apache.http.client.CookieStore;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.cookie.Cookie;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.protocol.HTTP;
 
@@ -88,6 +91,9 @@ public class RestConsumerSingleton implements RestConsumer {
 
     private PaperFlyApp application;
 
+    @Getter
+    private CookieStore cookieStore = null;
+
     //TODO consumer wird null gesetzt in der app, wenn man ausloggt. besser machen?
     @Getter
     @Setter
@@ -112,7 +118,7 @@ public class RestConsumerSingleton implements RestConsumer {
         HttpUriRequest request = new HttpPost(getConnectionURL(URL_ADD_OR_REMOVE_FRIEND + friendUsername));
         Log.d(TAG, request.getRequestLine().toString());
 
-        HttpClient httpclient = application.getHttpClient();
+        HttpClient httpclient = getHttpClient();
         HttpResponse response;
         try {
             consumer.sign(request);
@@ -185,7 +191,7 @@ public class RestConsumerSingleton implements RestConsumer {
 
         Log.d(TAG, request.getRequestLine().toString());
 
-        HttpClient httpclient = application.getHttpClient();
+        HttpClient httpclient = getHttpClient();
         HttpResponse response;
         try {
             consumer.sign(request);
@@ -220,7 +226,7 @@ public class RestConsumerSingleton implements RestConsumer {
 
         Log.d(TAG, request.getRequestLine().toString());
 
-        HttpClient httpclient = application.getHttpClient();
+        HttpClient httpclient = getHttpClient();
         HttpResponse response;
         try {
             consumer.sign(request);
@@ -258,7 +264,7 @@ public class RestConsumerSingleton implements RestConsumer {
 
         Log.d(TAG, request.getRequestLine().toString());
 
-        HttpClient httpclient = application.getHttpClient();
+        HttpClient httpclient = getHttpClient();
         HttpResponse response;
         try {
             consumer.sign(request);
@@ -310,6 +316,29 @@ public class RestConsumerSingleton implements RestConsumer {
         return urlToBuild.toString();
     }
 
+    /**
+     * Builds a new HttpClient with the same CookieStore than the previous one.
+     * This allows to follow the http session, without keeping in memory the
+     * full DefaultHttpClient.
+     */
+    public HttpClient getHttpClient() {
+        Log.d(TAG, "getHttpClient");
+        if (cookieStore != null) {
+            for (Cookie cookie : cookieStore.getCookies()) {
+                Log.d(TAG, "Cookie: " + cookie.getName() + " - " + cookie.getValue());
+            }
+        }
+        final DefaultHttpClient httpClient = new DefaultHttpClient();
+        if (cookieStore == null) {
+            Log.d(TAG, "cookieStore is null");
+            cookieStore = httpClient.getCookieStore();
+        } else {
+            Log.d(TAG, "cookieStore is not null");
+            httpClient.setCookieStore(cookieStore);
+        }
+        return httpClient;
+    }
+
     public List<AccountDTO> getMyFriendList() throws RestConsumerException {
         Log.d(TAG, "getMyFriendList");
 
@@ -319,7 +348,7 @@ public class RestConsumerSingleton implements RestConsumer {
         }.getType();
         Log.d(TAG, request.getRequestLine().toString());
 
-        HttpClient httpclient = application.getHttpClient();
+        HttpClient httpclient = getHttpClient();
         HttpResponse response;
         try {
             consumer.sign(request);
@@ -353,7 +382,7 @@ public class RestConsumerSingleton implements RestConsumer {
         HttpUriRequest request = new HttpGet(getConnectionURL(URL_GET_ROOM) + roomID);
         Log.d(TAG, request.getRequestLine().toString());
 
-        HttpClient httpclient = application.getHttpClient();
+        HttpClient httpclient = getHttpClient();
         HttpResponse response;
         try {
             consumer.sign(request);
@@ -391,7 +420,7 @@ public class RestConsumerSingleton implements RestConsumer {
 
         Log.d(TAG, request.getRequestLine().toString());
 
-        HttpClient httpclient = application.getHttpClient();
+        HttpClient httpclient = getHttpClient();
         HttpResponse response;
         try {
             consumer.sign(request);
@@ -437,7 +466,7 @@ public class RestConsumerSingleton implements RestConsumer {
 
         Log.d(TAG, request.getRequestLine().toString());
 
-        HttpClient httpclient = application.getHttpClient();
+        HttpClient httpclient = getHttpClient();
         HttpResponse response;
         try {
             consumer.sign(request);
@@ -478,8 +507,9 @@ public class RestConsumerSingleton implements RestConsumer {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        cookieStore = null;
         Log.d(TAG, request.getRequestLine().toString());
-        HttpClient httpclient = application.getHttpClient();
+        HttpClient httpclient = getHttpClient();
         HttpResponse response;
         try {
             response = httpclient.execute(request);
@@ -508,8 +538,8 @@ public class RestConsumerSingleton implements RestConsumer {
         }
         application.disconnectChatService();
         Log.d(TAG, request.getRequestLine().toString());
-        application.setCookieStore(null);
-        HttpClient httpclient = application.getHttpClient();
+        cookieStore = null;
+        HttpClient httpclient = getHttpClient();
         HttpResponse response;
         try {
             response = httpclient.execute(request);
@@ -535,13 +565,13 @@ public class RestConsumerSingleton implements RestConsumer {
         HttpUriRequest request = new HttpGet(getConnectionURL(URL_LOGOUT));
         Log.d(TAG, request.getRequestLine().toString());
 
-        HttpClient httpclient = application.getHttpClient();
+        HttpClient httpclient = getHttpClient();
         HttpResponse response;
         try {
             consumer.sign(request);
             response = httpclient.execute(request);
             analyzeHttpStatus(response);
-            application.setCookieStore(null);
+            cookieStore = null;
             encryptCredentials = null;
             consumer = null;
         } catch (IOException e) {
@@ -598,7 +628,7 @@ public class RestConsumerSingleton implements RestConsumer {
 
         Log.d(TAG, request.getRequestLine().toString());
 
-        HttpClient httpclient = application.getHttpClient();
+        HttpClient httpclient = getHttpClient();
         HttpResponse response;
         try {
             response = httpclient.execute(request);
@@ -624,7 +654,7 @@ public class RestConsumerSingleton implements RestConsumer {
         HttpUriRequest request = new HttpDelete(getConnectionURL(URL_ADD_OR_REMOVE_FRIEND + friendUsername));
         Log.d(TAG, request.getRequestLine().toString());
 
-        HttpClient httpclient = application.getHttpClient();
+        HttpClient httpclient = getHttpClient();
         HttpResponse response;
         try {
             consumer.sign(request);
@@ -664,7 +694,7 @@ public class RestConsumerSingleton implements RestConsumer {
 
         Log.d(TAG, request.getRequestLine().toString());
 
-        HttpClient httpclient = application.getHttpClient();
+        HttpClient httpclient = getHttpClient();
         HttpResponse response;
         try {
             consumer.sign(request);
@@ -701,7 +731,7 @@ public class RestConsumerSingleton implements RestConsumer {
 
         Log.d(TAG, request.getRequestLine().toString());
 
-        HttpClient httpclient = application.getHttpClient();
+        HttpClient httpclient = getHttpClient();
         HttpResponse response;
         try {
             consumer.sign(request);
@@ -736,7 +766,7 @@ public class RestConsumerSingleton implements RestConsumer {
         HttpUriRequest request = new HttpGet(getConnectionURL(URL_GET_MY_ACCOUNT));
         Log.d(TAG, request.getRequestLine().toString());
 
-        HttpClient httpclient = application.getHttpClient();
+        HttpClient httpclient = getHttpClient();
         HttpResponse response;
         try {
             consumer.sign(request);

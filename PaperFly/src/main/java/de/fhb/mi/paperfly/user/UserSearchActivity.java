@@ -26,6 +26,7 @@ import de.fhb.mi.paperfly.util.ValidateUtil;
  * The activity to show if the user searches for another user.
  */
 public class UserSearchActivity extends ListActivity implements AsyncDelegate {
+
     private static final String TAG = UserSearchActivity.class.getSimpleName();
     ArrayAdapter<String> arrayAdapter;
     List<AccountDTO> searchResults;

@@ -137,6 +137,7 @@ public class MainActivity extends Activity implements GetRoomAsyncDelegate {
     private ActionBarDrawerToggle createActionBarDrawerToggle() {
         Log.d(TAG, "createActionBarDrawerToggle");
 
+        // TODO
         drawerRightValues.clear();
         List<AccountDTO> usersInRoom = ((PaperFlyApp) getApplication()).getUsersInRoom();
         for (AccountDTO current : usersInRoom) {
@@ -458,7 +459,6 @@ public class MainActivity extends Activity implements GetRoomAsyncDelegate {
                 // if the app was started select GlobalChat
                 navigateTo(NavKey.GLOBAL);
                 appStarted = true;
-//                TODO select global
             }
         } else if (!appStarted) {
             showProgress(true);

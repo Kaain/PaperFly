@@ -87,6 +87,11 @@ public class UserProfileFragment extends Fragment implements AsyncDelegate {
         friendSwitch.setEnabled(true);
     }
 
+    /**
+     * TODO
+     *
+     * @return
+     */
     private Intent getMapsIntent() {
         double latitude = actualRoomOfUser.getCoordinate().getLatitude();
         double longitude = actualRoomOfUser.getCoordinate().getLonglitutde();
@@ -250,6 +255,9 @@ public class UserProfileFragment extends Fragment implements AsyncDelegate {
         }
     }
 
+    /**
+     * TODO
+     */
     public static class ErrorDialogFragment extends DialogFragment {
         // Global field to contain the error dialog
         private Dialog mDialog;

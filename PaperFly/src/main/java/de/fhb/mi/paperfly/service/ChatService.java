@@ -156,7 +156,7 @@ public class ChatService extends Service {
 
     private List<BasicNameValuePair> createHeaders() {
         List<BasicNameValuePair> headers = new ArrayList<BasicNameValuePair>();
-        List<Cookie> cookies = ((PaperFlyApp) getApplication()).getCookieStore().getCookies();
+        List<Cookie> cookies = RestConsumerSingleton.getInstance().getCookieStore().getCookies();
         for (Cookie cookie : cookies) {
             if (cookie.getName().equals("JSESSIONID")) {
                 Log.d(TAG, "Cookie: " + cookie.toString());

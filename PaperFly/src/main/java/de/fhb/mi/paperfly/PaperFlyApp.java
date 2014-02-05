@@ -11,11 +11,6 @@ import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.util.Log;
 
-import org.apache.http.client.CookieStore;
-import org.apache.http.client.HttpClient;
-import org.apache.http.cookie.Cookie;
-import org.apache.http.impl.client.DefaultHttpClient;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,7 +38,6 @@ public class PaperFlyApp extends Application {
     private RoomDTO actualRoom = null;
     private AccountDTO account;
     private List<AccountDTO> usersInRoom = new ArrayList<AccountDTO>();
-    private CookieStore cookieStore = null;
     private ChatService chatService;
     private boolean boundChatService;
 
@@ -68,31 +62,6 @@ public class PaperFlyApp extends Application {
         if (chatService != null && boundChatService) {
             chatService.disconnectAfterTimeout();
         }
-    }
-
-    /**
-     * Builds a new HttpClient with the same CookieStore than the previous one.
-     * This allows to follow the http session, without keeping in memory the
-     * full DefaultHttpClient.
-     */
-    public HttpClient getHttpClient() {
-        Log.d(TAG, "getHttpClient");
-        if (cookieStore != null) {
-            for (Cookie cookie : cookieStore.getCookies()) {
-                Log.d(TAG, "Cookie: " + cookie.getName() + " - " + cookie.getValue());
-            }
-        }
-        final DefaultHttpClient httpClient = new DefaultHttpClient();
-        synchronized (lock) {
-            if (cookieStore == null) {
-                Log.d(TAG, "cookieStore is null");
-                cookieStore = httpClient.getCookieStore();
-            } else {
-                Log.d(TAG, "cookieStore is not null");
-                httpClient.setCookieStore(cookieStore);
-            }
-        }
-        return httpClient;
     }
 
     /**
