@@ -28,10 +28,8 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.GooglePlayServicesUtil;
 
-import de.fhb.mi.paperfly.HelpActivity;
 import de.fhb.mi.paperfly.PaperFlyApp;
 import de.fhb.mi.paperfly.R;
-import de.fhb.mi.paperfly.SettingsActivity;
 import de.fhb.mi.paperfly.dto.AccountDTO;
 import de.fhb.mi.paperfly.dto.RoomDTO;
 import de.fhb.mi.paperfly.service.BackgroundLocationService;
@@ -200,12 +198,6 @@ public class UserProfileFragment extends Fragment implements AsyncDelegate {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         switch (item.getItemId()) {
-            case R.id.action_settings:
-                startActivity(new Intent(getActivity(), SettingsActivity.class));
-                return true;
-            case R.id.action_help:
-                startActivity(new Intent(getActivity(), HelpActivity.class));
-                return true;
             case R.id.action_maps:
                 if (BackgroundLocationService.servicesAvailable(getActivity())) {
                     if (actualRoomOfUser == null) {

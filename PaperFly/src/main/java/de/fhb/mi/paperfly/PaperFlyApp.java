@@ -4,8 +4,12 @@ import android.app.ActivityManager;
 import android.app.ActivityManager.RunningServiceInfo;
 import android.app.Application;
 import android.app.Service;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
+import android.os.IBinder;
+import android.util.Log;
 
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.HttpClient;
@@ -17,6 +21,7 @@ import java.util.List;
 import de.fhb.mi.paperfly.dto.AccountDTO;
 import de.fhb.mi.paperfly.dto.RoomDTO;
 import de.fhb.mi.paperfly.service.BackgroundLocationService;
+import de.fhb.mi.paperfly.service.ChatService;
 import de.fhb.mi.paperfly.service.RestConsumerSingleton;
 import lombok.Getter;
 import lombok.Setter;
@@ -31,14 +36,33 @@ import lombok.Setter;
 @Setter
 public class PaperFlyApp extends Application {
 
-    private final static String ROOM_ID_GLOBAL="1";
+    private final static String ROOM_ID_GLOBAL = "1";
+    private static final String TAG = PaperFlyApp.class.getSimpleName();
+    private final Object lock = new Object();
     private String currentVisibleChatRoom = "";
     private RoomDTO actualRoom = null;
     private AccountDTO account;
     private List<AccountDTO> usersInRoom = new ArrayList<AccountDTO>();
-
-    private final Object lock = new Object();
     private CookieStore cookieStore = null;
+    private ChatService chatService;
+    private boolean boundChatService;
+
+    private ServiceConnection connectionChatService = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            // We've bound to LocalService, cast the IBinder and get LocalService instance
+            ChatService.ChatServiceBinder binder = (ChatService.ChatServiceBinder) service;
+            chatService = binder.getServiceInstance();
+            boundChatService = true;
+            Log.d(TAG, "chatService connected ...");
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            boundChatService = false;
+        }
+    };
 
     /**
      * Builds a new HttpClient with the same CookieStore than the previous one.
@@ -81,7 +105,16 @@ public class PaperFlyApp extends Application {
         if (BackgroundLocationService.servicesAvailable(this)) {
             startService(new Intent(this, BackgroundLocationService.class));
         }
-
+        startService(new Intent(this, ChatService.class));
+        bindService(new Intent(this, ChatService.class), connectionChatService, Context.BIND_AUTO_CREATE);
         RestConsumerSingleton.getInstance().init(this);
+    }
+
+    public void disconnectChatService() {
+        chatService.disconnectAfterTimeout();
+    }
+
+    public void unbindChatService() {
+        chatService.stopTimers();
     }
 }

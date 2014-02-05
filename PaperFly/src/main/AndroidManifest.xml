@@ -1,89 +1,83 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="de.fhb.mi.paperfly"
-    android:versionCode="1"
-    android:versionName="1.0" >
+          package="de.fhb.mi.paperfly"
+          android:versionCode="1"
+          android:versionName="1.0">
 
     <uses-sdk
         android:minSdkVersion="14"
-        android:targetSdkVersion="18" />
+        android:targetSdkVersion="18"/>
 
-    <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
 
     <uses-feature
         android:glEsVersion="0x00020000"
-        android:required="true" />
+        android:required="true"/>
 
     <application
         android:name="de.fhb.mi.paperfly.PaperFlyApp"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/AppTheme">
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
-            android:value="AIzaSyAVboXhyWr7b1g3M98oeREcW2HS0QrmQNc" />
+            android:value="AIzaSyAVboXhyWr7b1g3M98oeREcW2HS0QrmQNc"/>
         <meta-data
             android:name="android.app.default_searchable"
-            android:value="de.fhb.mi.paperfly.user.SearchUserActivity" />
+            android:value="de.fhb.mi.paperfly.user.SearchUserActivity"/>
 
         <activity
             android:name="de.fhb.mi.paperfly.MainActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/app_name"
-            android:launchMode="singleTop" >
+            android:launchMode="singleTop">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+                <action android:name="android.intent.action.MAIN"/>
 
-                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
             <intent-filter>
-                <action android:name="android.intent.action.SEARCH" />
+                <action android:name="android.intent.action.SEARCH"/>
             </intent-filter>
 
             <meta-data
                 android:name="android.app.searchable"
-                android:resource="@xml/searchable" />
+                android:resource="@xml/searchable"/>
         </activity>
         <activity
             android:name="de.fhb.mi.paperfly.auth.LoginActivity"
             android:label="@string/title_activity_login"
-            android:windowSoftInputMode="adjustResize|stateVisible" />
-        <activity
-            android:name="de.fhb.mi.paperfly.SettingsActivity"
-            android:label="@string/title_activity_settings" />
-        <activity
-            android:name="de.fhb.mi.paperfly.HelpActivity"
-            android:label="@string/title_activity_help" />
+            android:windowSoftInputMode="adjustResize|stateVisible"/>
         <activity
             android:name="de.fhb.mi.paperfly.user.UserSearchActivity"
-            android:label="@string/title_activity_search_user" >
+            android:label="@string/title_activity_search_user">
             <intent-filter>
-                <action android:name="android.intent.action.SEARCH" />
+                <action android:name="android.intent.action.SEARCH"/>
             </intent-filter>
             <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
+                <action android:name="android.intent.action.VIEW"/>
             </intent-filter>
 
             <meta-data
                 android:name="android.app.searchable"
-                android:resource="@xml/searchable" />
+                android:resource="@xml/searchable"/>
         </activity>
 
-        <service android:name="de.fhb.mi.paperfly.service.BackgroundLocationService" />
+        <service android:name="de.fhb.mi.paperfly.service.BackgroundLocationService"/>
         <service
             android:name="de.fhb.mi.paperfly.service.ChatService"
             android:enabled="true"
-            android:exported="false" >
+            android:exported="false">
         </service>
 
         <activity
             android:name="de.fhb.mi.paperfly.user.UserRegisterActivity"
-            android:label="@string/title_activity_user_register" >
+            android:label="@string/title_activity_user_register">
         </activity>
     </application>
 

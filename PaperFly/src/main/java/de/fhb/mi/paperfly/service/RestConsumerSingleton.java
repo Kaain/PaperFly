@@ -1,5 +1,6 @@
 package de.fhb.mi.paperfly.service;
 
+import android.content.Intent;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -50,6 +51,7 @@ import oauth.signpost.commonshttp.CommonsHttpOAuthConsumer;
 import oauth.signpost.exception.OAuthCommunicationException;
 import oauth.signpost.exception.OAuthExpectationFailedException;
 import oauth.signpost.exception.OAuthMessageSignerException;
+import oauth.signpost.exception.OAuthNotAuthorizedException;
 
 /**
  * This is an implementation of {@link de.fhb.mi.paperfly.service.RestConsumer} implemented as singleton.
@@ -92,6 +94,8 @@ public class RestConsumerSingleton implements RestConsumer {
     @Setter
     private CommonsHttpOAuthConsumer consumer = null;
 
+    private String encryptCredentials;
+
     /**
      * Gets the Singleton instance of the RestConsumer.
      *
@@ -131,6 +135,9 @@ public class RestConsumerSingleton implements RestConsumer {
             e.printStackTrace();
         } catch (OAuthMessageSignerException e) {
             e.printStackTrace();
+        } catch (OAuthNotAuthorizedException e) {
+            loginAgain();
+            addFriend(friendUsername);
         }
         return null;
     }
@@ -142,10 +149,12 @@ public class RestConsumerSingleton implements RestConsumer {
      *
      * @throws RestConsumerException
      */
-    private void analyzeHttpStatus(HttpResponse response) throws RestConsumerException {
+    private void analyzeHttpStatus(HttpResponse response) throws RestConsumerException, OAuthNotAuthorizedException {
         if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
             Log.d(TAG, "" + response.getStatusLine());
             switch (response.getStatusLine().getStatusCode()) {
+                case 401:
+                    throw new OAuthNotAuthorizedException("Not Authorized");
                 case 412:
                     throw new RestConsumerException(RestConsumerException.INVALID_INPUT_MESSAGE);
                 case 500:
@@ -196,6 +205,9 @@ public class RestConsumerSingleton implements RestConsumer {
             e.printStackTrace();
         } catch (OAuthMessageSignerException e) {
             e.printStackTrace();
+        } catch (OAuthNotAuthorizedException e) {
+            loginAgain();
+            return editAccount(editedAccount);
         }
         return responseAccount;
     }
@@ -229,6 +241,9 @@ public class RestConsumerSingleton implements RestConsumer {
             e.printStackTrace();
         } catch (OAuthMessageSignerException e) {
             e.printStackTrace();
+        } catch (OAuthNotAuthorizedException e) {
+            loginAgain();
+            return getAccountByUsername(username);
         }
         return account;
     }
@@ -265,6 +280,9 @@ public class RestConsumerSingleton implements RestConsumer {
             e.printStackTrace();
         } catch (OAuthMessageSignerException e) {
             e.printStackTrace();
+        } catch (OAuthNotAuthorizedException e) {
+            loginAgain();
+            return getAccountsInRoom(roomID);
         }
         return accountsInRoom;
     }
@@ -322,6 +340,9 @@ public class RestConsumerSingleton implements RestConsumer {
             e.printStackTrace();
         } catch (OAuthMessageSignerException e) {
             e.printStackTrace();
+        } catch (OAuthNotAuthorizedException e) {
+            loginAgain();
+            myFriendlist = getMyFriendList();
         }
         return (myFriendlist == null) ? new ArrayList<AccountDTO>() : myFriendlist;
     }
@@ -353,6 +374,9 @@ public class RestConsumerSingleton implements RestConsumer {
             e.printStackTrace();
         } catch (OAuthMessageSignerException e) {
             e.printStackTrace();
+        } catch (OAuthNotAuthorizedException e) {
+            loginAgain();
+            return getRoom(roomID);
         }
         return null;
     }
@@ -389,6 +413,9 @@ public class RestConsumerSingleton implements RestConsumer {
             e.printStackTrace();
         } catch (OAuthMessageSignerException e) {
             e.printStackTrace();
+        } catch (OAuthNotAuthorizedException e) {
+            loginAgain();
+            usersInRoom = getUsersInRoom(roomID);
         }
         return (usersInRoom != null) ? usersInRoom : new ArrayList<AccountDTO>();
     }
@@ -431,6 +458,9 @@ public class RestConsumerSingleton implements RestConsumer {
             e.printStackTrace();
         } catch (OAuthMessageSignerException e) {
             e.printStackTrace();
+        } catch (OAuthNotAuthorizedException e) {
+            loginAgain();
+            return locateAccount(username);
         }
         return room;
 
@@ -444,8 +474,8 @@ public class RestConsumerSingleton implements RestConsumer {
             DESEncryption desEncryption = new DESEncryption();
 
             String usernamePassword = mail + ":" + password;
-
-            request.addHeader("cred", desEncryption.encrypt(usernamePassword));
+            encryptCredentials = desEncryption.encrypt(usernamePassword);
+            request.addHeader("cred", encryptCredentials);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -463,15 +493,46 @@ public class RestConsumerSingleton implements RestConsumer {
             return token;
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (OAuthNotAuthorizedException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private void loginAgain() {
+        Log.d(TAG, "loginAgain");
+        HttpGet request = new HttpGet(getConnectionURL(URL_LOGIN)); // Or HttpPost(), depends on your needs
+        try {
+            request.addHeader("cred", encryptCredentials);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        application.disconnectChatService();
+        Log.d(TAG, request.getRequestLine().toString());
+        application.setCookieStore(null);
+        HttpClient httpclient = application.getHttpClient();
+        HttpResponse response;
+        try {
+            response = httpclient.execute(request);
+            analyzeHttpStatus(response);
+            String responseObjAsString = readInEntity(response);
+            Gson gson = new Gson();
+
+            TokenDTO token = gson.fromJson(responseObjAsString, TokenDTO.class);
+            consumer = new CommonsHttpOAuthConsumer(token.getConsumerKey(), token.getConsumerSecret());
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (OAuthNotAuthorizedException e) {
+            e.printStackTrace();
+        } catch (RestConsumerException e) {
+            e.printStackTrace();
         }
 
-        return null;
     }
 
     public void logout() throws RestConsumerException {
         Log.d(TAG, "logout");
 
-        AccountDTO responseAccount = null;
         HttpUriRequest request = new HttpGet(getConnectionURL(URL_LOGOUT));
         Log.d(TAG, request.getRequestLine().toString());
 
@@ -490,7 +551,11 @@ public class RestConsumerSingleton implements RestConsumer {
             e.printStackTrace();
         } catch (OAuthMessageSignerException e) {
             e.printStackTrace();
+        } catch (OAuthNotAuthorizedException e) {
+            loginAgain();
+            logout();
         }
+        application.stopService(new Intent(application.getApplicationContext(), ChatService.class));
     }
 
     /**
@@ -545,6 +610,8 @@ public class RestConsumerSingleton implements RestConsumer {
             return gson.fromJson(responseObjAsString, TokenDTO.class);
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (OAuthNotAuthorizedException e) {
+            e.printStackTrace();
         }
         return null;
     }
@@ -579,6 +646,9 @@ public class RestConsumerSingleton implements RestConsumer {
             e.printStackTrace();
         } catch (OAuthMessageSignerException e) {
             e.printStackTrace();
+        } catch (OAuthNotAuthorizedException e) {
+            loginAgain();
+            return removeFriend(friendUsername);
         }
         return null;
     }
@@ -615,6 +685,9 @@ public class RestConsumerSingleton implements RestConsumer {
             e.printStackTrace();
         } catch (OAuthMessageSignerException e) {
             e.printStackTrace();
+        } catch (OAuthNotAuthorizedException e) {
+            loginAgain();
+            searchResultList = searchAccount(query);
         }
         return searchResultList;
     }
@@ -648,6 +721,9 @@ public class RestConsumerSingleton implements RestConsumer {
             e.printStackTrace();
         } catch (OAuthMessageSignerException e) {
             e.printStackTrace();
+        } catch (OAuthNotAuthorizedException e) {
+            loginAgain();
+            return setMyAccountStatus(status);
         }
         return account;
     }
@@ -679,6 +755,9 @@ public class RestConsumerSingleton implements RestConsumer {
             e.printStackTrace();
         } catch (OAuthMessageSignerException e) {
             e.printStackTrace();
+        } catch (OAuthNotAuthorizedException e) {
+            loginAgain();
+            updateMyAccount();
         }
         application.setAccount(responseAccount);
     }

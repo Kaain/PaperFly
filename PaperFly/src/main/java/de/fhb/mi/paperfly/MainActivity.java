@@ -398,12 +398,6 @@ public class MainActivity extends Activity implements GetRoomAsyncDelegate {
             case android.R.id.home:
                 drawerToggle.onOptionsItemSelected(item);
                 return true;
-            case R.id.action_settings:
-                startActivity(new Intent(this, SettingsActivity.class));
-                return true;
-            case R.id.action_help:
-                startActivity(new Intent(this, HelpActivity.class));
-                return true;
             case R.id.action_logout:
                 mLogoutTask = new UserLogoutTask();
                 mLogoutTask.execute();
@@ -485,6 +479,7 @@ public class MainActivity extends Activity implements GetRoomAsyncDelegate {
             unbindService(connectionChatService);
             boundChatService = false;
         }
+        ((PaperFlyApp) getApplication()).unbindChatService();
     }
 
     /**

@@ -6,6 +6,7 @@ import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.SystemClock;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -75,6 +76,9 @@ public class ChatService extends Service {
 
     private boolean globalTimerRunning = false;
     private boolean specificTimerRunning = false;
+
+    private boolean globalDisconnectAfterTimeout = false;
+    private boolean specificDisconnectAfterTimeout = false;
 
     private boolean connectToGlobal() {
         if (globalConnection == null) {
@@ -158,6 +162,18 @@ public class ChatService extends Service {
         return headers;
     }
 
+    public void disconnectAfterTimeout() {
+        if (globalConnection.isConnected() && globalConnection != null) {
+            globalConnection.disconnect();
+            globalConnection = null;
+            globalDisconnectAfterTimeout = true;
+        }
+        if (roomConnection.isConnected() && roomConnection != null) {
+            roomConnection.disconnect();
+            specificDisconnectAfterTimeout = true;
+        }
+    }
+
     /**
      * Method for getting the current users in the given room.
      * Should only be called if the chat is connected.
@@ -209,17 +225,19 @@ public class ChatService extends Service {
     @Override
     public boolean onUnbind(Intent intent) {
         Log.d(TAG, "onUnBind");
-        if (globalTimer != null && globalTimerRunning) {
-            globalTimer.cancel();
-        }
-        if (specificTimer != null && specificTimerRunning) {
-            specificTimer.cancel();
-        }
-        globalTimerRunning = false;
-        specificTimerRunning = false;
+        stopTimers();
         currentMessageReceiverGlobal = null;
         currentMessageReceiverSpecific = null;
         return true;
+    }
+
+    public void reconnect() {
+        if (globalConnection.isConnected() && globalConnection != null) {
+            globalConnection.reconnect();
+        }
+        if (roomConnection.isConnected() && roomConnection != null) {
+            roomConnection.reconnect();
+        }
     }
 
     /**
@@ -266,6 +284,31 @@ public class ChatService extends Service {
         };
         specificTimer.schedule(doAsynchronousTask, 0, UPDATE_INTERVAL);
         specificTimerRunning = true;
+    }
+
+    private void stopTimer(RoomType roomType) {
+        switch (roomType) {
+            case GLOBAL:
+                if (globalTimer != null && globalTimerRunning) {
+                    Log.d(TAG, "stopTimer GLOBAL");
+                    globalTimer.cancel();
+                    globalTimerRunning = false;
+                }
+                break;
+            case SPECIFIC:
+                if (specificTimer != null && specificTimerRunning) {
+                    Log.d(TAG, "stopTimer SPECIFIC");
+                    specificTimer.cancel();
+                    specificTimerRunning = false;
+                }
+                break;
+        }
+    }
+
+    public void stopTimers() {
+        Log.d(TAG, "stopTimers");
+        stopTimer(RoomType.GLOBAL);
+        stopTimer(RoomType.SPECIFIC);
     }
 
     /**
@@ -352,9 +395,21 @@ public class ChatService extends Service {
             switch (roomType) {
                 case GLOBAL:
                     globalMessages.clear();
+                    stopTimer(RoomType.GLOBAL);
+                    if (globalDisconnectAfterTimeout) {
+                        SystemClock.sleep(3000);
+                        connectToGlobal();
+                        globalDisconnectAfterTimeout = false;
+                    }
                     break;
                 case SPECIFIC:
                     specificMessages.clear();
+                    stopTimer(RoomType.SPECIFIC);
+                    if (specificDisconnectAfterTimeout) {
+                        SystemClock.sleep(3000);
+                        connectToSpecific(actualRoom.getName());
+                        specificDisconnectAfterTimeout = false;
+                    }
                     break;
             }
         }
