@@ -26,6 +26,11 @@ import de.fhb.mi.paperfly.service.RestConsumerException;
 import de.fhb.mi.paperfly.service.RestConsumerSingleton;
 import lombok.NoArgsConstructor;
 
+/**
+ * This fragment is for changing users account data
+ *
+ * @author Andy Klay  klay@fh-brandenburg.de
+ */
 @NoArgsConstructor
 public class AccountEditFragment extends Fragment implements Validator.ValidationListener {
 
@@ -42,6 +47,10 @@ public class AccountEditFragment extends Fragment implements Validator.Validatio
     private Validator validator;
     private AccountEditTask mMyAccountEditTask = null;
 
+    /**
+     * initialize refs to view elements
+     * @param rootView
+     */
     private void initViews(View rootView) {
         mUsernameView = (EditText) rootView.findViewById(R.id.accountUserName);
         mFirstnameView = (EditText) rootView.findViewById(R.id.accountFirstName);
