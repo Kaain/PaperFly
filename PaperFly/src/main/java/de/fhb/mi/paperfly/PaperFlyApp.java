@@ -63,6 +63,12 @@ public class PaperFlyApp extends Application {
         }
     };
 
+    public void disconnectChatService() {
+        if (chatService != null && boundChatService) {
+            chatService.disconnectAfterTimeout();
+        }
+    }
+
     /**
      * Builds a new HttpClient with the same CookieStore than the previous one.
      * This allows to follow the http session, without keeping in memory the
@@ -109,11 +115,9 @@ public class PaperFlyApp extends Application {
         RestConsumerSingleton.getInstance().init(this);
     }
 
-    public void disconnectChatService() {
-        chatService.disconnectAfterTimeout();
-    }
-
     public void unbindChatService() {
-        chatService.stopTimers();
+        if (chatService != null && boundChatService) {
+            chatService.stopTimers();
+        }
     }
 }

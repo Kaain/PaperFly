@@ -143,7 +143,12 @@ public class ChatService extends Service {
             webSocketUriSpecificRoom = webSocketUri;
         } else if (!roomConnection.isConnected()) {
             // room is the same but connection was lost
-            roomConnection.reconnect();
+            roomConnection = new WebSocketConnection();
+            try {
+                roomConnection.connect(webSocketUri, null, new MyWebSocketConnectionHandler(webSocketUri, RoomType.SPECIFIC), new WebSocketOptions(), createHeaders());
+            } catch (WebSocketException e) {
+                e.printStackTrace();
+            }
         } else if (!specificTimerRunning) {
             startSpecificTimer();
         }
@@ -397,8 +402,13 @@ public class ChatService extends Service {
                     globalMessages.clear();
                     stopTimer(RoomType.GLOBAL);
                     if (globalDisconnectAfterTimeout) {
-                        SystemClock.sleep(3000);
-                        connectToGlobal();
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                SystemClock.sleep(3000);
+                                connectToGlobal();
+                            }
+                        }.run();
                         globalDisconnectAfterTimeout = false;
                     }
                     break;
@@ -406,8 +416,13 @@ public class ChatService extends Service {
                     specificMessages.clear();
                     stopTimer(RoomType.SPECIFIC);
                     if (specificDisconnectAfterTimeout) {
-                        SystemClock.sleep(3000);
-                        connectToSpecific(actualRoom.getName());
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                SystemClock.sleep(3000);
+                                connectToSpecific(actualRoom.getName());
+                            }
+                        }.run();
                         specificDisconnectAfterTimeout = false;
                     }
                     break;

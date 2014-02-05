@@ -460,7 +460,7 @@ public class MainActivity extends Activity implements GetRoomAsyncDelegate {
                 appStarted = true;
 //                TODO select global
             }
-        } else {
+        } else if (!appStarted) {
             showProgress(true);
             mAuthTask = new UserLoginTask();
             mAuthTask.execute();
