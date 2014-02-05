@@ -753,6 +753,8 @@ public class MainActivity extends Activity implements GetRoomAsyncDelegate {
         protected Boolean doInBackground(Void... params) {
             try {
                 RestConsumerSingleton.getInstance().logout();
+                stopService(new Intent(MainActivity.this, ChatService.class));
+                chatService.disconnectConnections();
                 return true;
             } catch (RestConsumerException e) {
                 Log.e(TAG, e.getMessage(), e);

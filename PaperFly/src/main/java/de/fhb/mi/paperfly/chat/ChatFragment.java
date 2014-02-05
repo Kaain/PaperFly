@@ -40,6 +40,7 @@ import de.fhb.mi.paperfly.dto.Message;
 import de.fhb.mi.paperfly.service.ChatService;
 
 /**
+ * TODO
  * @author Christoph Ott
  */
 public class ChatFragment extends Fragment implements ChatService.MessageReceiver {
@@ -98,7 +99,7 @@ public class ChatFragment extends Fragment implements ChatService.MessageReceive
     }
 
     @Override
-    public void onChatConnected(List<AccountDTO> usersInChat) {
+    public void onUserListUpdated(List<AccountDTO> usersInChat) {
         List<String> drawerRightValues = new ArrayList<String>();
         for (AccountDTO accountDTO : usersInChat) {
             drawerRightValues.add(accountDTO.getUsername());

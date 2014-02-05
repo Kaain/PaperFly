@@ -1,6 +1,5 @@
 package de.fhb.mi.paperfly.service;
 
-import android.content.Intent;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -542,6 +541,8 @@ public class RestConsumerSingleton implements RestConsumer {
             consumer.sign(request);
             response = httpclient.execute(request);
             analyzeHttpStatus(response);
+            application.setCookieStore(null);
+            encryptCredentials = null;
             consumer = null;
         } catch (IOException e) {
             e.printStackTrace();
@@ -555,7 +556,6 @@ public class RestConsumerSingleton implements RestConsumer {
             loginAgain();
             logout();
         }
-        application.stopService(new Intent(application.getApplicationContext(), ChatService.class));
     }
 
     /**
