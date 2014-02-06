@@ -28,8 +28,8 @@ import de.fhb.mi.paperfly.util.ValidateUtil;
 public class UserSearchActivity extends ListActivity implements AsyncDelegate {
 
     private static final String TAG = UserSearchActivity.class.getSimpleName();
-    ArrayAdapter<String> arrayAdapter;
-    List<AccountDTO> searchResults;
+    private ArrayAdapter<String> arrayAdapter;
+    private List<AccountDTO> searchResults;
     private TextView emptyView;
 
     @Override

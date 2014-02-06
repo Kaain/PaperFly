@@ -286,7 +286,7 @@ public class ChatFragment extends Fragment implements ChatService.MessageReceive
     /**
      * update messages with messageAdapter
      *
-     * @param currentVisibleChatRoom
+     * @param currentVisibleChatRoom the current visible room
      */
     private void updateMessages(String currentVisibleChatRoom) {
         messagesAdapter.clear();

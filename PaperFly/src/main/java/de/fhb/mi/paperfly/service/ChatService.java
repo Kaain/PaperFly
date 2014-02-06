@@ -90,7 +90,12 @@ public class ChatService extends Service {
                 return false;
             }
         } else if (!globalConnection.isConnected()) {
-            globalConnection.reconnect();
+            globalConnection = new WebSocketConnection();
+            try {
+                globalConnection.connect(URL_CHAT_GLOBAL, null, new MyWebSocketConnectionHandler(URL_CHAT_GLOBAL, RoomType.GLOBAL), new WebSocketOptions(), createHeaders());
+            } catch (WebSocketException e) {
+                e.printStackTrace();
+            }
         } else if (!globalTimerRunning) {
             startGlobalTimer();
         }
@@ -159,7 +164,7 @@ public class ChatService extends Service {
         List<Cookie> cookies = RestConsumerSingleton.getInstance().getCookieStore().getCookies();
         for (Cookie cookie : cookies) {
             if (cookie.getName().equals("JSESSIONID")) {
-                Log.d(TAG, "Cookie: " + cookie.toString());
+                Log.d(TAG, "Websocket Cookie: " + cookie.toString());
                 headers.add(new BasicNameValuePair("Cookie", cookie.getName() + "=" + cookie.getValue()));
             }
         }

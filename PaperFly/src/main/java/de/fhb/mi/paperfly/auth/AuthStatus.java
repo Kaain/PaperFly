@@ -1,7 +1,7 @@
 package de.fhb.mi.paperfly.auth;
 
 /**
- * Different status posibilities
+ * Different status possibilities
  *
  * @author Christoph Ott
  */
