@@ -1,6 +1,8 @@
 package de.fhb.mi.paperfly.navigation;
 
 /**
+ * Keys for navigation in the whole app
+ *
  * @author Christoph Ott
  */
 public enum NavKey {

@@ -445,7 +445,7 @@ public class MainActivity extends Activity implements GetRoomAsyncDelegate {
         Log.d(TAG, "onStart");
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
-            boolean loginSuccessful = getIntent().getExtras().getBoolean(LoginActivity.LOGIN_SUCCESFUL);
+            boolean loginSuccessful = getIntent().getExtras().getBoolean(LoginActivity.LOGIN_SUCCESSFUL);
             if (!loginSuccessful) {
                 showProgress(true);
                 bundle.clear();
@@ -735,7 +735,6 @@ public class MainActivity extends Activity implements GetRoomAsyncDelegate {
             if (success) {
                 Log.d(TAG, "navigateTo Global");
                 navigateTo(NavKey.GLOBAL);
-                // TODO select global
             } else {
                 Intent intent = new Intent(MainActivity.this, LoginActivity.class);
                 startActivity(intent);

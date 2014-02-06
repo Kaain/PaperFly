@@ -49,13 +49,15 @@ import de.fhb.mi.paperfly.service.RestConsumerSingleton;
 import de.fhb.mi.paperfly.util.AsyncDelegate;
 
 /**
- * ListView of private contacts, a friendlist
+ * ListView of private contacts, a friend list
  *
  * @author Andy Klay (klay@fh-brandenburg.de)
  */
 public class FriendListFragment extends ListFragment implements AsyncDelegate {
 
     public static final String TAG = FriendListFragment.class.getSimpleName();
+
+
     private View rootView;
     private FriendListAdapter listAdapter;
     private DrawerLayout drawerLayout;

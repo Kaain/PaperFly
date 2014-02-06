@@ -11,6 +11,8 @@ import android.widget.TextView;
 import de.fhb.mi.paperfly.R;
 
 /**
+ * Creates Navigation and NavigationItems
+ *
  * @author Christoph Ott
  */
 public class NavListAdapter extends ArrayAdapter<NavItemModel> {
@@ -19,18 +21,43 @@ public class NavListAdapter extends ArrayAdapter<NavItemModel> {
         super(context, 0);
     }
 
+    /**
+     * adds a NavigationHeader
+     *
+     * @param title
+     */
     public void addHeader(String title) {
         add(new NavItemModel(title, -1, true));
     }
 
+    /**
+     * adds a NavigationItem
+     *
+     * @param key
+     * @param title
+     * @param iconID
+     */
     public void addItem(NavKey key, String title, int iconID) {
         add(new NavItemModel(key, title, iconID));
     }
 
+    /**
+     * adds a NavigationItem
+     *
+     * @param key
+     * @param title
+     * @param iconID
+     * @param isVisible
+     */
     public void addItem(NavKey key, String title, int iconID, boolean isVisible) {
         add(new NavItemModel(key, title, iconID, false, isVisible));
     }
 
+    /**
+     * adds a NavigationItem
+     *
+     * @param itemModel
+     */
     public void addItem(NavItemModel itemModel) {
         add(itemModel);
     }
@@ -101,6 +128,10 @@ public class NavListAdapter extends ArrayAdapter<NavItemModel> {
         return !getItem(position).isHeader();
     }
 
+    /**
+     * Holds the images of the navigationList,
+     * beware of reloads images and texts every time
+     */
     public static class ViewHolder {
         public final NavKey key;
         public final TextView textHolder;

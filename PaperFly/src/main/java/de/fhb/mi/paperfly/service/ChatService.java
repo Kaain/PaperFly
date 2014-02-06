@@ -179,7 +179,7 @@ public class ChatService extends Service {
     }
 
     /**
-     * TODO
+     * disconnect all connections
      */
     public void disconnectConnections() {
         if (globalConnection != null && globalConnection.isConnected()) {
@@ -349,6 +349,10 @@ public class ChatService extends Service {
         void receiveMessage(Message message);
     }
 
+    /**
+     * AsyncTask for getting accounts in room
+     *
+     */
     public class GetAccountsInRoomTask extends AsyncTask<String, Void, Boolean> {
 
         private long roomID;

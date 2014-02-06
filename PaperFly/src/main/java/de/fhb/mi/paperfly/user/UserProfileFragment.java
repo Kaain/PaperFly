@@ -40,6 +40,9 @@ import lombok.NoArgsConstructor;
 
 /**
  * A {@link android.app.Fragment} for showing a user profile.
+ *
+ *  @author Andy Klay  klay@fh-brandenburg.de
+ *  @author Christoph Ott
  */
 @NoArgsConstructor
 public class UserProfileFragment extends Fragment implements AsyncDelegate {
@@ -88,7 +91,7 @@ public class UserProfileFragment extends Fragment implements AsyncDelegate {
     }
 
     /**
-     * TODO
+     * creates Intent for calling maps
      *
      * @return
      */

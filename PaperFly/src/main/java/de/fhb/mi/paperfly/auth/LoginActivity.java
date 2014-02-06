@@ -35,6 +35,10 @@ import de.fhb.mi.paperfly.user.UserRegisterActivity;
 
 /**
  * Activity which displays a login screen to the user
+ *
+ *
+ * @author Christoph Ott
+ * @author Andy Klay  klay@fh-brandenburg.de
  */
 public class LoginActivity extends Activity implements Validator.ValidationListener {
 
@@ -43,7 +47,7 @@ public class LoginActivity extends Activity implements Validator.ValidationListe
     /**
      * The default email to populate the email field with.
      */
-    public static final String LOGIN_SUCCESFUL = "LOGIN_SUCCESFUL";
+    public static final String LOGIN_SUCCESSFUL = "LOGIN_SUCCESSFUL";
     public static final String ARGS_REGISTER_EMAIL = "ARGS_REGISTER_EMAIL";
     public static final String PREFS_EMAIL = "email";
     private static final String TAG = LoginActivity.class.getSimpleName();
@@ -55,7 +59,7 @@ public class LoginActivity extends Activity implements Validator.ValidationListe
     // Values for email and password at the time of the login attempt.
     private String mEmail;
     private String mPassword;
-    // UI references.
+    // UI references
     @Required(order = 1)
     @Email(order = 2, messageResId = R.string.error_invalid_email)
     private EditText mEmailView;
@@ -177,6 +181,11 @@ public class LoginActivity extends Activity implements Validator.ValidationListe
         mLoginTask.execute(mEmail, mPassword);
     }
 
+    /**
+     * saves the entered keys for checkbox
+     * @param key - String
+     * @param value - boolean
+     */
     private void savePreferences(String key, boolean value) {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -184,6 +193,11 @@ public class LoginActivity extends Activity implements Validator.ValidationListe
         editor.commit();
     }
 
+    /**
+     * saves the entered keys
+     * @param key - String
+     * @param value - String
+     */
     private void savePreferences(String key, String value) {
         SharedPreferences sharedPreferences = PreferenceManager
                 .getDefaultSharedPreferences(this);
@@ -273,7 +287,7 @@ public class LoginActivity extends Activity implements Validator.ValidationListe
             if (success) {
                 savePreferences(PREFS_EMAIL, mEmailView.getText().toString());
                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                intent.putExtra(LOGIN_SUCCESFUL, true);
+                intent.putExtra(LOGIN_SUCCESSFUL, true);
                 startActivity(intent);
                 finish();
             } else {
@@ -282,6 +296,5 @@ public class LoginActivity extends Activity implements Validator.ValidationListe
             }
         }
     }
-
 
 }

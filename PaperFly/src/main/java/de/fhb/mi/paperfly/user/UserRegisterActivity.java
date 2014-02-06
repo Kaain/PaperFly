@@ -38,7 +38,6 @@ import de.fhb.mi.paperfly.service.RestConsumerSingleton;
  */
 public class UserRegisterActivity extends Activity implements Validator.ValidationListener {
 
-
     public static final String TAG = UserRegisterActivity.class.getSimpleName();
     private Validator validator;
     private UserRegisterTask mRegisterTask = new UserRegisterTask();

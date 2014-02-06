@@ -58,7 +58,9 @@ import oauth.signpost.exception.OAuthNotAuthorizedException;
 /**
  * This is an implementation of {@link de.fhb.mi.paperfly.service.RestConsumer} implemented as singleton.
  *
+ * @author Andy Klay  klay@fh-brandenburg.de
  * @author Christoph Ott
+ *
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class RestConsumerSingleton implements RestConsumer {
@@ -83,9 +85,8 @@ public class RestConsumerSingleton implements RestConsumer {
     public static final String URL_GET_ROOM = "PaperFlyServer-web/rest/v1/room/";
     public static final String URL_LOCATE_ACCOUNT = "PaperFlyServer-web/rest/v1/room/locateAccount/";
     public static final String URL_CHANGE_ACCOUNT_STATUS = "PaperFlyServer-web/rest/v1/myaccount/status/";
-    public static final String URL_CHAT_GLOBAL = ChatService.URL_CHAT_BASE + "global";
-
     public static final String URL_GET_ALL_ACCOUNTS_IN_ROOM = "PaperFlyServer-web/rest/v1/room/accounts/";
+    public static final String URL_CHAT_GLOBAL = ChatService.URL_CHAT_BASE + "global";
 
     private static final String TAG = RestConsumerSingleton.class.getSimpleName();
 
@@ -339,6 +340,11 @@ public class RestConsumerSingleton implements RestConsumer {
         return httpClient;
     }
 
+    /**
+     * get the friend list of current account
+     * @return List of AccountDTO
+     * @throws RestConsumerException
+     */
     public List<AccountDTO> getMyFriendList() throws RestConsumerException {
         Log.d(TAG, "getMyFriendList");
 

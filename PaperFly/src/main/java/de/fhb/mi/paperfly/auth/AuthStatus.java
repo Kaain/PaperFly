@@ -1,6 +1,8 @@
 package de.fhb.mi.paperfly.auth;
 
 /**
+ * Different status posibilities
+ *
  * @author Christoph Ott
  */
 public enum AuthStatus {

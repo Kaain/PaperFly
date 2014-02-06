@@ -40,14 +40,15 @@ import de.fhb.mi.paperfly.dto.Message;
 import de.fhb.mi.paperfly.service.ChatService;
 
 /**
- * TODO
+ * ChatFragment is a Fragment for writing and getting messages via ChatService
+ *
  * @author Christoph Ott
  */
 public class ChatFragment extends Fragment implements ChatService.MessageReceiver {
 
     public static final String TAG = ChatFragment.class.getSimpleName();
-    public static final String TAG_GLOBAL = TAG + "_Global";
     public static final String TAG_ROOM = TAG + "Room";
+    public static final String TAG_GLOBAL = TAG + "_Global";
     public static final String ARG_CHAT_ROOM = "chat_room";
     private View rootView;
     private ListView messagesList;
@@ -282,6 +283,11 @@ public class ChatFragment extends Fragment implements ChatService.MessageReceive
         messagesAdapter.notifyDataSetChanged();
     }
 
+    /**
+     * update messages with messageAdapter
+     *
+     * @param currentVisibleChatRoom
+     */
     private void updateMessages(String currentVisibleChatRoom) {
         messagesAdapter.clear();
         if (currentVisibleChatRoom.equalsIgnoreCase(ChatService.ROOM_GLOBAL_NAME)) {
@@ -292,6 +298,9 @@ public class ChatFragment extends Fragment implements ChatService.MessageReceive
         messagesAdapter.notifyDataSetChanged();
     }
 
+    /**
+     * mediates between ChatFragment and ChatService (incoming messages)
+     */
     public class ChatMessagesAdapter extends ArrayAdapter<Message> {
         private final Context context;
 

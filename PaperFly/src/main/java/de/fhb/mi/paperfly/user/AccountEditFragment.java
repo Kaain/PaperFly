@@ -49,6 +49,7 @@ public class AccountEditFragment extends Fragment implements Validator.Validatio
 
     /**
      * initialize refs to view elements
+     *
      * @param rootView
      */
     private void initViews(View rootView) {
