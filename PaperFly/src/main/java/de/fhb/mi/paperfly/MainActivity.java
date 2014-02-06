@@ -137,7 +137,6 @@ public class MainActivity extends Activity implements GetRoomAsyncDelegate {
     private ActionBarDrawerToggle createActionBarDrawerToggle() {
         Log.d(TAG, "createActionBarDrawerToggle");
 
-        // TODO
         drawerRightValues.clear();
         List<AccountDTO> usersInRoom = ((PaperFlyApp) getApplication()).getUsersInRoom();
         for (AccountDTO current : usersInRoom) {
@@ -479,7 +478,7 @@ public class MainActivity extends Activity implements GetRoomAsyncDelegate {
             unbindService(connectionChatService);
             boundChatService = false;
         }
-        ((PaperFlyApp) getApplication()).unbindChatService();
+        ((PaperFlyApp) getApplication()).stopTimersInChatService();
     }
 
     /**

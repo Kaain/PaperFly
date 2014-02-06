@@ -35,6 +35,7 @@ import de.fhb.mi.paperfly.service.RestConsumerSingleton;
  * This activity is for registration of an user
  *
  * @author Andy Klay  klay@fh-brandenburg.de
+ * @author Christoph Ott
  */
 public class UserRegisterActivity extends Activity implements Validator.ValidationListener {
 

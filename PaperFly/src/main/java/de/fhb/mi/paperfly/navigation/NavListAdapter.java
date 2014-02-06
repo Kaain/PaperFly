@@ -129,7 +129,7 @@ public class NavListAdapter extends ArrayAdapter<NavItemModel> {
     }
 
     /**
-     * Holds the images of the navigationList,
+     * Holds the views of an item in the navigationList,
      * beware of reloads images and texts every time
      */
     public static class ViewHolder {

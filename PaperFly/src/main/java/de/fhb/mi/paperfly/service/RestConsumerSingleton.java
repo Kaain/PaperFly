@@ -60,7 +60,6 @@ import oauth.signpost.exception.OAuthNotAuthorizedException;
  *
  * @author Andy Klay  klay@fh-brandenburg.de
  * @author Christoph Ott
- *
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class RestConsumerSingleton implements RestConsumer {
@@ -95,7 +94,6 @@ public class RestConsumerSingleton implements RestConsumer {
     @Getter
     private CookieStore cookieStore = null;
 
-    //TODO consumer wird null gesetzt in der app, wenn man ausloggt. besser machen?
     @Getter
     @Setter
     private CommonsHttpOAuthConsumer consumer = null;
@@ -342,6 +340,7 @@ public class RestConsumerSingleton implements RestConsumer {
 
     /**
      * get the friend list of current account
+     *
      * @return List of AccountDTO
      * @throws RestConsumerException
      */

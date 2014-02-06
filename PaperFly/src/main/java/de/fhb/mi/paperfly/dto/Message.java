@@ -9,6 +9,8 @@ import lombok.Setter;
 import lombok.ToString;
 
 /**
+ * Represents a mapped message.
+ *
  * @author Michael Koppen <michael.koppen@googlemail.com>
  */
 @Getter

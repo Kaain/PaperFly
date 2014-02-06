@@ -41,8 +41,8 @@ import lombok.NoArgsConstructor;
 /**
  * A {@link android.app.Fragment} for showing a user profile.
  *
- *  @author Andy Klay  klay@fh-brandenburg.de
- *  @author Christoph Ott
+ * @author Andy Klay  klay@fh-brandenburg.de
+ * @author Christoph Ott
  */
 @NoArgsConstructor
 public class UserProfileFragment extends Fragment implements AsyncDelegate {
@@ -259,7 +259,7 @@ public class UserProfileFragment extends Fragment implements AsyncDelegate {
     }
 
     /**
-     * TODO
+     * Dialog for displaying an error on the ui.
      */
     public static class ErrorDialogFragment extends DialogFragment {
         // Global field to contain the error dialog

@@ -86,6 +86,9 @@ public class ChatFragment extends Fragment implements ChatService.MessageReceive
         super();
     }
 
+    /**
+     * Initializes the views.
+     */
     private void initViewsById() {
         messagesList = (ListView) this.rootView.findViewById(R.id.messagesList);
         messageInput = (EditText) this.rootView.findViewById(R.id.messageInput);
@@ -284,7 +287,7 @@ public class ChatFragment extends Fragment implements ChatService.MessageReceive
     }
 
     /**
-     * update messages with messageAdapter
+     * Update messages with messageAdapter
      *
      * @param currentVisibleChatRoom the current visible room
      */
@@ -299,7 +302,7 @@ public class ChatFragment extends Fragment implements ChatService.MessageReceive
     }
 
     /**
-     * mediates between ChatFragment and ChatService (incoming messages)
+     * Adapter for holding the the chat messages in the view and displaying them correctly.
      */
     public class ChatMessagesAdapter extends ArrayAdapter<Message> {
         private final Context context;

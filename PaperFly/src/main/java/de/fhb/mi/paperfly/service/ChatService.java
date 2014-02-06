@@ -340,7 +340,7 @@ public class ChatService extends Service {
     public interface MessageReceiver {
 
         /**
-         * This method is called when the current chat is connected.
+         * This method is called when the users in room list is updated
          *
          * @param usersInRoom the users in the room
          */
@@ -356,7 +356,6 @@ public class ChatService extends Service {
 
     /**
      * AsyncTask for getting accounts in room
-     *
      */
     public class GetAccountsInRoomTask extends AsyncTask<String, Void, Boolean> {
 
@@ -399,6 +398,9 @@ public class ChatService extends Service {
         }
     }
 
+    /**
+     * Class for managing the connection for a webSocket.
+     */
     private class MyWebSocketConnectionHandler extends WebSocketConnectionHandler {
 
         private final String webSocketUri;
@@ -420,6 +422,7 @@ public class ChatService extends Service {
                         new Runnable() {
                             @Override
                             public void run() {
+                                // Sleep to be sure the webSocket is closed
                                 SystemClock.sleep(3000);
                                 connectToGlobal();
                             }
@@ -434,6 +437,7 @@ public class ChatService extends Service {
                         new Runnable() {
                             @Override
                             public void run() {
+                                // Sleep to be sure the webSocket is closed
                                 SystemClock.sleep(3000);
                                 connectToSpecific(actualRoom.getName());
                             }
@@ -480,6 +484,9 @@ public class ChatService extends Service {
         }
     }
 
+    /**
+     * Class responsible for executing the users in global room task.
+     */
     private class GlobalRunnable implements Runnable {
         @Override
         public void run() {
@@ -488,6 +495,9 @@ public class ChatService extends Service {
         }
     }
 
+    /**
+     * Class responsible for executing the users in specific room task.
+     */
     private class SpecificRunnable implements Runnable {
         @Override
         public void run() {

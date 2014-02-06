@@ -23,6 +23,8 @@ import lombok.Setter;
 import lombok.ToString;
 
 /**
+ * Represents mapped coordinate.
+ *
  * @author Michael Koppen <michael.koppen@googlemail.com>
  */
 @Getter

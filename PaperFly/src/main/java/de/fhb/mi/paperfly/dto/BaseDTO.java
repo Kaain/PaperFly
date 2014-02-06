@@ -16,11 +16,20 @@
  */
 package de.fhb.mi.paperfly.dto;
 
-import lombok.*;
-
 import java.io.Serializable;
 import java.util.Date;
 
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+
+/**
+ * Represents the base for all dtos.
+ *
+ * @author Michael Koppen <michael.koppen@googlemail.com>
+ */
 @Getter
 @Setter
 @ToString
@@ -31,5 +40,5 @@ public class BaseDTO implements Serializable {
     private static final long serialVersionUID = 1L;
     private Date created;
     private Date lastModified;
-	private boolean enabled;
+    private boolean enabled;
 }

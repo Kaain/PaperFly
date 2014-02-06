@@ -93,7 +93,10 @@ public class PaperFlyApp extends Application {
         RestConsumerSingleton.getInstance().init(this);
     }
 
-    public void unbindChatService() {
+    /**
+     * Stops the timers in the chat service, which are updating the users in room.
+     */
+    public void stopTimersInChatService() {
         if (chatService != null && boundChatService) {
             chatService.stopTimers();
         }

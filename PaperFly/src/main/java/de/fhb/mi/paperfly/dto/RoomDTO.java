@@ -11,7 +11,9 @@ import lombok.Setter;
 import lombok.ToString;
 
 /**
- * @author MacYser
+ * Represents a mapped room.
+ *
+ * @author Michael Koppen <michael.koppen@googlemail.com>
  */
 @Getter
 @Setter

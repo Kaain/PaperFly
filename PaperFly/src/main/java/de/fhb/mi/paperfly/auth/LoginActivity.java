@@ -36,7 +36,6 @@ import de.fhb.mi.paperfly.user.UserRegisterActivity;
 /**
  * Activity which displays a login screen to the user
  *
- *
  * @author Christoph Ott
  * @author Andy Klay  klay@fh-brandenburg.de
  */
@@ -105,6 +104,9 @@ public class LoginActivity extends Activity implements Validator.ValidationListe
 
     }
 
+    /**
+     * Loads the previously saved settings and sets them in the view
+     */
     private void loadSavedPreferences() {
         SharedPreferences sharedPreferences = PreferenceManager
                 .getDefaultSharedPreferences(this);
@@ -183,8 +185,9 @@ public class LoginActivity extends Activity implements Validator.ValidationListe
 
     /**
      * saves the entered keys for checkbox
-     * @param key - String
-     * @param value - boolean
+     *
+     * @param key   the key to save the pref
+     * @param value the value to save
      */
     private void savePreferences(String key, boolean value) {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
@@ -195,8 +198,9 @@ public class LoginActivity extends Activity implements Validator.ValidationListe
 
     /**
      * saves the entered keys
-     * @param key - String
-     * @param value - String
+     *
+     * @param key   the key to save the pref
+     * @param value the value to save
      */
     private void savePreferences(String key, String value) {
         SharedPreferences sharedPreferences = PreferenceManager

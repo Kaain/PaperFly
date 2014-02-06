@@ -30,6 +30,7 @@ import lombok.NoArgsConstructor;
  * This fragment is for changing users account data
  *
  * @author Andy Klay  klay@fh-brandenburg.de
+ * @author Christoph Ott
  */
 @NoArgsConstructor
 public class AccountEditFragment extends Fragment implements Validator.ValidationListener {
@@ -50,7 +51,7 @@ public class AccountEditFragment extends Fragment implements Validator.Validatio
     /**
      * initialize refs to view elements
      *
-     * @param rootView
+     * @param rootView the root view
      */
     private void initViews(View rootView) {
         mUsernameView = (EditText) rootView.findViewById(R.id.accountUserName);

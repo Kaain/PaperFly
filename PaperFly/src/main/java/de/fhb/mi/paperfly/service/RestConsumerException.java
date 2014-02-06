@@ -21,14 +21,13 @@ package de.fhb.mi.paperfly.service;
  * Exception which is thrown in RestConsumerService
  *
  * @author Andy Klay (klay@fh-brandenburg.de)
- *
  */
 public class RestConsumerException extends Exception {
 
-    public final static String INTERNAL_SERVER_MESSAGE="Internal server exception. The service call did not succeed.";
-    public final static String INVALID_INPUT_MESSAGE="Invalid JSON/XML input";
+    public final static String INTERNAL_SERVER_MESSAGE = "Internal server exception. The service call did not succeed.";
+    public final static String INVALID_INPUT_MESSAGE = "Invalid JSON/XML input";
 
-    public RestConsumerException(String message){
+    public RestConsumerException(String message) {
         super(message);
     }
 

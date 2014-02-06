@@ -16,9 +16,15 @@
  */
 package de.fhb.mi.paperfly.dto;
 
-import lombok.*;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 /**
+ * Represents a mapped registered account.
+ *
  * @author Michael Koppen <michael.koppen@googlemail.com>
  */
 @Getter
